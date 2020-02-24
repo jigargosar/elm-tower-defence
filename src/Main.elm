@@ -3,6 +3,30 @@ module Main exposing (main)
 import Playground exposing (..)
 
 
+
+-- Point Movement
+
+
+type alias PtMov =
+    { st : Pt
+    , end : Pt
+    , speed : Number
+    , curr : Pt
+    }
+
+
+initPtMov st end speed =
+    { st = st
+    , end = end
+    , speed = speed
+    , curr = st
+    }
+
+
+
+-- Point
+
+
 type alias Pt =
     { x : Number, y : Number }
 
