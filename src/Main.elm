@@ -354,6 +354,12 @@ init =
 
 update : Computer -> Mem -> Mem
 update computer mem =
+    updateCollision mem
+        |> update2 computer
+
+
+update2 : Computer -> Mem -> Mem
+update2 computer mem =
     let
         ( generatedMonsters, newSeed0 ) =
             Random.step (randomMonsterSpawn mem) mem.seed
@@ -400,7 +406,7 @@ updateCollision mem =
 
 didBulletReachMonster : Bullet -> Maybe MonsterId
 didBulletReachMonster bullet =
-    Debug.todo "impl"
+    Nothing
 
 
 stepBullets : List Bullet -> List Bullet
