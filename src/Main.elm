@@ -21,6 +21,11 @@ stepPtMov m =
     ( True, m )
 
 
+ptMovToCurr : PtMov -> Pt
+ptMovToCurr m =
+    Pt 0 0
+
+
 
 -- Point
 
@@ -115,11 +120,19 @@ view computer mem =
     , rectangle black 10 10
         |> move mem.end.x mem.end.y
         |> fade 0.8
-    , circle blue 20
-        |> move mem.pos.x mem.pos.y
+    , circle green 40
+        |> (let
+                pt =
+                    ptMovToCurr mem.ptMov
+            in
+            move pt.x pt.y
+           )
         |> fade 0.5
     , circle red 30
         |> move mem.curr.x mem.curr.y
+        |> fade 0.5
+    , circle blue 20
+        |> move mem.pos.x mem.pos.y
         |> fade 0.5
     ]
 
