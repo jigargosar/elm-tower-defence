@@ -342,14 +342,14 @@ update computer mem =
         ( generatedMonsters, newSeed ) =
             Random.step (randomMonsterSpawn mem) mem.seed
 
-        ( generatedBullets, newTower ) =
+        ( generatedBullets, updatedTower ) =
             stepTower mem.monsters mem.tower
     in
     { mem
         | monsters = generatedMonsters ++ stepMonsters mem
         , seed = newSeed
         , bullets = generatedBullets ++ stepBullets mem.bullets
-        , tower = newTower
+        , tower = updatedTower
     }
 
 
