@@ -190,18 +190,25 @@ viewMonster (Monster mp) =
 
 
 type Tower
-    = Tower Pt
+    = Tower TowerRecord
+
+
+type alias TowerRecord =
+    { pos : Pt
+    , delay : Number
+    , elapsed : Number
+    }
 
 
 initTower : Pt -> Tower
 initTower pt =
-    Tower pt
+    Tower { pos = pt, delay = 30, elapsed = 0 }
 
 
 viewTower : Tower -> Shape
-viewTower (Tower pt) =
+viewTower (Tower { pos }) =
     rectangle blue 30 30
-        |> move pt.x pt.y
+        |> move pos.x pos.y
         |> fade 0.8
 
 
