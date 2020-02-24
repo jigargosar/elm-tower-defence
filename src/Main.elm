@@ -135,7 +135,7 @@ eqw tol a b =
 
 
 
--- Game Scaffold
+-- MEM
 
 
 type alias Mem =
@@ -168,6 +168,7 @@ init =
 
 
 
+-- UPDATE MEM
 --noinspection ElmUnusedSymbol
 
 
@@ -184,6 +185,10 @@ update computer mem =
         | ptMov = nextPtMov
         , ptMovPath = nextPtMovPath
     }
+
+
+
+-- VIEW MEM
 
 
 view : Computer -> Mem -> List Shape
