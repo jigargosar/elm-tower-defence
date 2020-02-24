@@ -15,14 +15,24 @@ type alias Mem =
     { pos : Pt
     , speed : Number
     , deg : Number
+    , st : Pt
+    , end : Pt
+    , cur : Pt
     }
 
 
 init : Mem
 init =
+    let
+        st =
+            Pt -100 -100
+    in
     { pos = Pt -100 -100
     , speed = 1
     , deg = 45
+    , st = st
+    , end = Pt 100 100
+    , cur = st
     }
 
 
