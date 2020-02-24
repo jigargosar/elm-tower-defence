@@ -17,7 +17,7 @@ type alias Mem =
     , deg : Number
     , st : Pt
     , end : Pt
-    , cur : Pt
+    , curr : Pt
     }
 
 
@@ -32,13 +32,37 @@ init =
     , deg = 45
     , st = st
     , end = Pt 100 100
-    , cur = st
+    , curr = st
     }
 
 
 update : Computer -> Mem -> Mem
 update computer mem =
-    { mem | pos = nextPos mem }
+    { mem
+        | pos = nextPos mem
+        , curr = nextCurr mem
+    }
+
+
+nextCurr : Mem -> Pt
+nextCurr ({ curr, end } as mem) =
+    let
+        dx =
+            end.x - curr.x
+
+        dy =
+            end.y - curr.y
+
+        ( x, y ) =
+            toPolar ( dx, dy )
+                |> Tuple.mapFirst (add mem.speed)
+                |> fromPolar
+    in
+    Pt x y
+
+
+add =
+    (+)
 
 
 nextPos : Mem -> Pt
