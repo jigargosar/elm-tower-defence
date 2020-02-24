@@ -1,5 +1,30 @@
 module Main exposing (main)
 
-import Html exposing (text)
+import Playground exposing (..)
 
-main = text "hi"
+
+
+-- Game Scaffold
+
+
+type alias Mem =
+    {}
+
+
+init : Mem
+init =
+    {}
+
+
+update : Computer -> Mem -> Mem
+update computer mem =
+    mem
+
+
+view : Computer -> Mem -> List Shape
+view computer mem =
+    [ words black "Welcome to Adventure" ]
+
+
+main =
+    game view update init
