@@ -44,21 +44,19 @@ update computer mem =
     }
 
 
+angleFromToPt : Pt -> Pt -> Number
+angleFromToPt p1 p2 =
+    atan2 (p2.y - p1.y) (p2.x - p1.x)
+
+
 nextCurr : Mem -> Pt
-nextCurr ({ curr, end } as mem) =
+nextCurr ({ curr, st, end } as mem) =
     let
-        dx =
-            end.x - curr.x
-
-        dy =
-            end.y - curr.y
-
-        ( x, y ) =
-            toPolar ( dx, dy )
-                |> Tuple.mapFirst (add mem.speed)
+        ( dx, dy ) =
+            ( mem.speed, angleFromToPt st end )
                 |> fromPolar
     in
-    Pt x y
+    Pt (curr.x + dx) (curr.y + dy)
 
 
 add =
@@ -81,6 +79,8 @@ view computer mem =
         |> moveX (computer.screen.top + 100)
     , circle blue 20
         |> move mem.pos.x mem.pos.y
+    , circle red 30
+        |> move mem.curr.x mem.curr.y
     ]
 
 
