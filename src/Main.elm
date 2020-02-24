@@ -351,16 +351,16 @@ init =
 update : Computer -> Mem -> Mem
 update computer mem =
     let
-        ( newMonsters, newSeed ) =
+        ( generatedMonsters, newSeed ) =
             Random.step (randomMonsterSpawn mem) mem.seed
 
-        ( newBullets, newTower ) =
+        ( generatedBullets, newTower ) =
             stepTower mem.monsters mem.tower
     in
     { mem
-        | monsters = newMonsters ++ updateMonsters mem
+        | monsters = generatedMonsters ++ updateMonsters mem
         , seed = newSeed
-        , bullets = newBullets ++ mem.bullets
+        , bullets = generatedBullets ++ mem.bullets
         , tower = newTower
     }
 
