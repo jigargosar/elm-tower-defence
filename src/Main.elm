@@ -77,6 +77,12 @@ view : Computer -> Mem -> List Shape
 view computer mem =
     [ words black "Welcome to Adventure"
         |> moveX (computer.screen.top + 100)
+    , rectangle black 10 10
+        |> move mem.st.x mem.st.y
+        |> fade 0.8
+    , rectangle black 10 10
+        |> move mem.end.x mem.end.y
+        |> fade 0.8
     , circle blue 20
         |> move mem.pos.x mem.pos.y
         |> fade 0.5
