@@ -149,7 +149,7 @@ type Monster
 
 type alias Mem =
     { speed : Number
-    , monsters : List PtMovPath
+    , monsters : List Monster
     , pathStart : Pt
     , path : List Pt
     , seed : Seed
@@ -195,7 +195,7 @@ update computer mem =
                 |> Random.map
                     (\n ->
                         if n < 10 then
-                            [ initPtMovPath mem.pathStart mem.path mem.speed ]
+                            [ Monster (initPtMovPath mem.pathStart mem.path mem.speed) ]
 
                         else
                             []
@@ -210,9 +210,14 @@ update computer mem =
     }
 
 
-updateMonsters : Mem -> List PtMovPath
+updateMonsters : Mem -> List Monster
 updateMonsters mem =
-    List.map stepPtMovPath mem.monsters
+    let
+        stepMonster (Monster mp) =
+            stepPtMovPath mp
+                |> Tuple.mapSecond Monster
+    in
+    List.map stepMonster mem.monsters
         |> List.filterMap
             (\( remove, monster ) ->
                 if remove then
@@ -239,11 +244,12 @@ view computer mem =
     ]
 
 
-viewMonster monster =
+viewMonster : Monster -> Shape
+viewMonster (Monster mp) =
     circle red 10
         |> (let
                 pt =
-                    ptMovPathToCurr monster
+                    ptMovPathToCurr mp
             in
             move pt.x pt.y
            )
