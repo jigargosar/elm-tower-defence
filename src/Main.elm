@@ -238,8 +238,8 @@ initTower pt =
         }
 
 
-updateTower : List Monster -> Tower -> Tower
-updateTower monsters (Tower t) =
+stepTower : List Monster -> Tower -> Tower
+stepTower monsters (Tower t) =
     let
         ( fire, elapsed ) =
             if t.elapsed >= t.delay then
@@ -353,7 +353,7 @@ update computer mem =
     { mem
         | monsters = newMonsters ++ updateMonsters mem
         , seed = newSeed
-        , tower = updateTower mem.monsters mem.tower
+        , tower = stepTower mem.monsters mem.tower
     }
 
 
