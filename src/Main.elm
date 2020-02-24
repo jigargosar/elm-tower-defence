@@ -8,17 +8,35 @@ import Playground exposing (..)
 
 
 type PtMovPath
-    = PtMovPath
+    = PtMovPath PtMov (List Pt)
 
 
 initPtMovPath : Pt -> List Pt -> Number -> PtMovPath
 initPtMovPath st path speed =
-    PtMovPath
+    case path of
+        [] ->
+            PtMovPath (initPtMov st st speed) []
+
+        nxt :: rest ->
+            let
+                ptMov =
+                    initPtMov st nxt speed
+            in
+            PtMovPath ptMov rest
 
 
 stepPtMovPath : PtMovPath -> ( Bool, PtMovPath )
-stepPtMovPath m =
-    ( True, m )
+stepPtMovPath (PtMovPath mov path) =
+    let
+        ( done, nextMov ) =
+            stepPtMov mov
+    in
+    ( True, PtMovPath nextMov path )
+
+
+ptMovPathToCurr : PtMovPath -> Pt
+ptMovPathToCurr (PtMovPath mov _) =
+    ptMovToCurr mov
 
 
 
@@ -43,6 +61,7 @@ initPtMov st end speed =
         ( dx, dy ) =
             ( speed, angleFromToPt st end )
                 |> fromPolar
+                |> Debug.log "as"
     in
     PtMov end dx dy st
 
@@ -54,11 +73,14 @@ stepPtMov ((PtMov e dx dy c) as m) =
 
     else
         let
+            _ =
+                Debug.log "debug" m
+
             nc =
                 Pt (c.x + dx) (c.y + dy)
         in
         if ptEqw dx dy nc e then
-            ( True, PtMov e dx dy e )
+            ( False, PtMov e dx dy e )
 
         else
             ( False, PtMov e dx dy nc )
@@ -96,7 +118,7 @@ ptEqw dx dy p1 p2 =
 
 eqw : number -> number -> number -> Bool
 eqw tol a b =
-    abs a - abs b <= tol
+    abs (a - b) <= tol
 
 
 
@@ -122,7 +144,7 @@ init =
             Pt 100 100
 
         speed =
-            10
+            1
     in
     { speed = speed
     , st = st
@@ -165,6 +187,14 @@ view computer mem =
         |> (let
                 pt =
                     ptMovToCurr mem.ptMov
+            in
+            move pt.x pt.y
+           )
+        |> fade 0.5
+    , circle green 40
+        |> (let
+                pt =
+                    ptMovPathToCurr mem.ptMovPath
             in
             move pt.x pt.y
            )
