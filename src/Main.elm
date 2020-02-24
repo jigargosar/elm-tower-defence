@@ -155,6 +155,24 @@ randomMonster mem =
             )
 
 
+updateMonsters : Mem -> List Monster
+updateMonsters mem =
+    let
+        stepMonster (Monster mp) =
+            stepPtMovPath mp
+                |> Tuple.mapSecond Monster
+    in
+    List.map stepMonster mem.monsters
+        |> List.filterMap
+            (\( remove, monster ) ->
+                if remove then
+                    Nothing
+
+                else
+                    Just monster
+            )
+
+
 
 -- MEM
 
@@ -209,24 +227,6 @@ update computer mem =
         | monsters = newMonsters ++ updateMonsters mem
         , seed = newSeed
     }
-
-
-updateMonsters : Mem -> List Monster
-updateMonsters mem =
-    let
-        stepMonster (Monster mp) =
-            stepPtMovPath mp
-                |> Tuple.mapSecond Monster
-    in
-    List.map stepMonster mem.monsters
-        |> List.filterMap
-            (\( remove, monster ) ->
-                if remove then
-                    Nothing
-
-                else
-                    Just monster
-            )
 
 
 
