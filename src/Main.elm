@@ -229,6 +229,8 @@ view computer mem =
             move pt.x pt.y
            )
         |> fade 0.5
+    , viewPathPt mem.pathStart
+    , group (List.map viewPathPt mem.path)
     , circle red 10
         |> (let
                 pt =
@@ -238,6 +240,12 @@ view computer mem =
            )
         |> fade 0.4
     ]
+
+
+viewPathPt pt =
+    rectangle black 10 10
+        |> move pt.x pt.y
+        |> fade 0.8
 
 
 main =
