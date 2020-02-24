@@ -8,22 +8,30 @@ import Playground exposing (..)
 
 
 type PtMov
-    = PtMov
+    = PtMov Pt Pt Number Pt
 
 
 initPtMov : Pt -> Pt -> Number -> PtMov
-initPtMov _ _ _ =
-    PtMov
+initPtMov st end speed =
+    PtMov st end speed st
 
 
 stepPtMov : PtMov -> ( Bool, PtMov )
-stepPtMov m =
-    ( True, m )
+stepPtMov (PtMov s e speed c) =
+    let
+        ( dx, dy ) =
+            ( speed, angleFromToPt c e )
+                |> fromPolar
+
+        nc =
+            Pt (c.x + dx) (c.y + dy)
+    in
+    ( False, PtMov s e speed nc )
 
 
 ptMovToCurr : PtMov -> Pt
-ptMovToCurr m =
-    Pt 0 0
+ptMovToCurr (PtMov _ _ _ c) =
+    c
 
 
 
