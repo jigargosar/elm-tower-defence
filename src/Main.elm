@@ -178,8 +178,8 @@ randomMonsterSpawn mem =
             )
 
 
-updateMonsters : Mem -> List Monster
-updateMonsters mem =
+stepMonsters : Mem -> List Monster
+stepMonsters mem =
     let
         stepMonster (Monster id mp) =
             stepPtMovPath mp
@@ -358,7 +358,7 @@ update computer mem =
             stepTower mem.monsters mem.tower
     in
     { mem
-        | monsters = generatedMonsters ++ updateMonsters mem
+        | monsters = generatedMonsters ++ stepMonsters mem
         , seed = newSeed
         , bullets = generatedBullets ++ mem.bullets
         , tower = newTower
