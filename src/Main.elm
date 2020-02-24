@@ -17,20 +17,24 @@ initPtMov st end speed =
 
 
 stepPtMov : PtMov -> ( Bool, PtMov )
-stepPtMov (PtMov s e speed c) =
-    let
-        ( dx, dy ) =
-            ( speed, angleFromToPt c e )
-                |> fromPolar
-
-        nc =
-            Pt (c.x + dx) (c.y + dy)
-    in
-    if ptEqw speed nc e then
-        ( True, PtMov s e speed e )
+stepPtMov ((PtMov s e speed c) as m) =
+    if c == e then
+        ( True, m )
 
     else
-        ( False, PtMov s e speed nc )
+        let
+            ( dx, dy ) =
+                ( speed, angleFromToPt c e )
+                    |> fromPolar
+
+            nc =
+                Pt (c.x + dx) (c.y + dy)
+        in
+        if ptEqw speed nc e then
+            ( True, PtMov s e speed e )
+
+        else
+            ( False, PtMov s e speed nc )
 
 
 ptMovToCurr : PtMov -> Pt
