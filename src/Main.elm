@@ -174,7 +174,7 @@ init =
             Pt -100 100
 
         path =
-            [ Pt -100 50, Pt 50 100 ]
+            [ Pt -100 50, Pt -50 50 ]
     in
     { speed = speed
     , st = st
