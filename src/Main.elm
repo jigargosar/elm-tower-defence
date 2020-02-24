@@ -204,17 +204,25 @@ update computer mem =
         ( _, nextPtMovPath ) =
             stepPtMovPath mem.ptMovPath
 
-        newMonsters =
-            if wave 0 100 1 computer.time >= 99.9 then
-                [ initPtMovPath mem.pathStart mem.path mem.speed ]
+        randomMonster =
+            Random.int 0 1000
+                |> Random.map
+                    (\n ->
+                        if n < 10 then
+                            [ initPtMovPath mem.pathStart mem.path mem.speed ]
 
-            else
-                []
+                        else
+                            []
+                    )
+
+        ( newMonsters, newSeed ) =
+            Random.step randomMonster mem.seed
     in
     { mem
         | ptMov = nextPtMov
         , ptMovPath = nextPtMovPath
         , monsters = newMonsters ++ updateMonsters mem
+        , seed = newSeed
     }
 
 
@@ -255,7 +263,7 @@ view computer mem =
     --        move pt.x pt.y
     --       )
     --    |> fade 0.5
-    , viewPathPt mem.pathStart
+    --, viewPathPt mem.pathStart
     , group (List.map viewPathPt mem.path)
     , circle red 10
         |> (let
