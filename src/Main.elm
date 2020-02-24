@@ -149,7 +149,7 @@ monsterPos (Monster mp) =
 
 
 randomMonster mem =
-    Random.int 0 50
+    Random.int 0 500
         |> Random.map
             (\n ->
                 if n < 10 then
@@ -302,7 +302,7 @@ init : Mem
 init =
     let
         speed =
-            2
+            0.5
 
         pathStart =
             Pt -300 300
