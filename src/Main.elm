@@ -153,6 +153,8 @@ type alias Mem =
     , ptMov : PtMov
     , ptMovPath : PtMovPath
     , monsters : List PtMovPath
+    , pathStart : Pt
+    , path : List Pt
     }
 
 
@@ -166,14 +168,22 @@ init =
             Pt 100 100
 
         speed =
-            10
+            1
+
+        pathStart =
+            Pt -100 100
+
+        path =
+            [ Pt -100 50, Pt 50 100 ]
     in
     { speed = speed
     , st = st
     , end = end
     , ptMov = initPtMov st end speed
-    , ptMovPath = initPtMovPath st [ end, st, end, st, end ] speed
+    , ptMovPath = initPtMovPath pathStart path speed
     , monsters = []
+    , pathStart = pathStart
+    , path = path
     }
 
 
