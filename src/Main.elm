@@ -231,7 +231,9 @@ updateTower monsters (Tower t) =
                 ( False, t.elapsed + 1 )
 
         targetPt =
-            List.head monsters
+            monsters
+                |> List.reverse
+                |> List.head
                 |> Maybe.map monsterPos
 
         newBullets =
