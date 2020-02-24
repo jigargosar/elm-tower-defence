@@ -28,12 +28,16 @@ init =
 
 update : Computer -> Mem -> Mem
 update computer mem =
-    mem
+    { mem | ticks = mem.ticks + 1 }
 
 
 view : Computer -> Mem -> List Shape
 view computer mem =
-    [ words black "Welcome to Adventure" ]
+    [ words black "Welcome to Adventure"
+        |> moveX (computer.screen.top + 100)
+    , circle blue 20
+        |> move mem.start.x mem.start.y
+    ]
 
 
 main =
