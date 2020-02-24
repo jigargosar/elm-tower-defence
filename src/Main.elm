@@ -135,6 +135,14 @@ eqw tol a b =
 
 
 
+-- MONSTER
+
+
+type Monster
+    = Monster PtMovPath
+
+
+
 -- MEM
 
 
@@ -144,6 +152,7 @@ type alias Mem =
     , end : Pt
     , ptMov : PtMov
     , ptMovPath : PtMovPath
+    , monsters : List PtMovPath
     }
 
 
@@ -164,6 +173,7 @@ init =
     , end = end
     , ptMov = initPtMov st end speed
     , ptMovPath = initPtMovPath st [ end, st, end, st, end ] speed
+    , monsters = []
     }
 
 
