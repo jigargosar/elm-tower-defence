@@ -132,7 +132,7 @@ ptEqw dx dy p1 p2 =
 
 eqw : Float -> Float -> Float -> Bool
 eqw tol a b =
-    abs (a - b) <= abs (tol + 0.1)
+    abs (b - a) <= abs (tol + 0.1)
 
 
 
