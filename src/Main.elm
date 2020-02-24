@@ -189,12 +189,6 @@ type alias Mem =
 init : Mem
 init =
     let
-        st =
-            Pt -100 -100
-
-        end =
-            Pt 100 100
-
         speed =
             5
 
