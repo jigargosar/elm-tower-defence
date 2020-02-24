@@ -4,6 +4,19 @@ import Playground exposing (..)
 
 
 
+-- Move Point On Path
+
+
+type PtMovPath
+    = PtMovPath
+
+
+initPtMovPath : Pt -> List Pt -> Number -> PtMovPath
+initPtMovPath st path speed =
+    PtMovPath
+
+
+
 -- Move Point To
 
 
