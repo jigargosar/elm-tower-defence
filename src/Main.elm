@@ -224,7 +224,24 @@ type alias TowerRecord =
 
 
 type Bullet
-    = Bullet PtMov
+    = Bullet BulletId PtMov
+
+
+getBulletId (Bullet id _) =
+    id
+
+
+type BulletId
+    = BulletId Int
+
+
+randomBulletId : Generator BulletId
+randomBulletId =
+    Random.int 0 Random.maxInt |> Random.map BulletId
+
+
+bulletGenerator pos target =
+    randomBulletId |> Random.map (\id -> Bullet id (initPtMov pos target 20))
 
 
 initTower : Pt -> Tower
@@ -236,7 +253,7 @@ initTower pt =
         }
 
 
-stepTower : List Monster -> Tower -> ( List Bullet, Tower )
+stepTower : List Monster -> Tower -> ( Maybe (Generator (List Bullet)), Tower )
 stepTower monsters (Tower t) =
     let
         ( fire, elapsed ) =
@@ -256,19 +273,18 @@ stepTower monsters (Tower t) =
             if fire then
                 case targetPt of
                     Just e ->
-                        [ Bullet (initPtMov t.pos e 20) ]
+                        bulletGenerator t.pos e
+                            |> Random.list 1
+                            |> Just
 
                     Nothing ->
-                        []
+                        Nothing
 
             else
-                []
+                Nothing
     in
     ( newBullets
-    , Tower
-        { t
-            | elapsed = elapsed
-        }
+    , Tower { t | elapsed = elapsed }
     )
 
 
@@ -282,7 +298,7 @@ viewTower (Tower { pos }) =
 viewBullets : List Bullet -> Shape
 viewBullets bullets =
     let
-        viewBullet (Bullet mov) =
+        viewBullet (Bullet _ mov) =
             let
                 { x, y } =
                     ptMovToCurr mov
@@ -339,30 +355,64 @@ init =
 update : Computer -> Mem -> Mem
 update computer mem =
     let
-        ( generatedMonsters, newSeed ) =
+        ( generatedMonsters, newSeed0 ) =
             Random.step (randomMonsterSpawn mem) mem.seed
 
-        ( generatedBullets, updatedTower ) =
+        ( maybeBulletGen, updatedTower ) =
             stepTower mem.monsters mem.tower
+
+        ( generatedBullets, newSeed1 ) =
+            maybeBulletGen
+                |> Maybe.map (\gen -> Random.step gen newSeed0)
+                |> Maybe.withDefault ( [], newSeed0 )
     in
     { mem
         | monsters = generatedMonsters ++ stepMonsters mem
-        , seed = newSeed
+        , seed = newSeed0
         , bullets = generatedBullets ++ stepBullets mem.bullets
         , tower = updatedTower
     }
 
 
+type Actions
+    = DecrementMonsterHealth MonsterId
+    | RemoveBullet BulletId
+
+
+updateCollision : Mem -> Mem
+updateCollision mem =
+    let
+        foo bullet =
+            case didBulletReachMonster bullet of
+                Just monsterId ->
+                    [ DecrementMonsterHealth monsterId
+                    , RemoveBullet (getBulletId bullet)
+                    ]
+
+                Nothing ->
+                    []
+
+        actions =
+            List.concatMap foo mem.bullets
+    in
+    mem
+
+
+didBulletReachMonster : Bullet -> Maybe MonsterId
+didBulletReachMonster bullet =
+    Debug.todo "impl"
+
+
 stepBullets : List Bullet -> List Bullet
 stepBullets bullets =
     let
-        stepBullet (Bullet mov) =
+        stepBullet (Bullet id mov) =
             case stepPtMov mov of
                 ( True, _ ) ->
                     Nothing
 
                 ( False, nMov ) ->
-                    Just (Bullet nMov)
+                    Just (Bullet id nMov)
     in
     List.filterMap stepBullet bullets
 
