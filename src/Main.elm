@@ -173,6 +173,18 @@ updateMonsters mem =
             )
 
 
+viewMonster : Monster -> Shape
+viewMonster (Monster mp) =
+    circle red 10
+        |> (let
+                pt =
+                    ptMovPathToCurr mp
+            in
+            move pt.x pt.y
+           )
+        |> fade 0.4
+
+
 
 -- MEM
 
@@ -237,18 +249,6 @@ view computer mem =
     , List.map viewMonster mem.monsters
         |> group
     ]
-
-
-viewMonster : Monster -> Shape
-viewMonster (Monster mp) =
-    circle red 10
-        |> (let
-                pt =
-                    ptMovPathToCurr mp
-            in
-            move pt.x pt.y
-           )
-        |> fade 0.4
 
 
 viewPathPt pt =
