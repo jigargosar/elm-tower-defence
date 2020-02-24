@@ -193,6 +193,13 @@ type Tower
     = Tower Pt
 
 
+viewTower : Tower -> Shape
+viewTower (Tower pt) =
+    rectangle blue 30 30
+        |> move pt.x pt.y
+        |> fade 0.8
+
+
 
 -- MEM
 
@@ -258,6 +265,7 @@ view computer mem =
     , group (List.map viewPathPt mem.path)
     , List.map viewMonster mem.monsters
         |> group
+    , viewTower mem.tower
     ]
 
 
