@@ -25,7 +25,7 @@ stepPtMovPath m =
 -- Move Point To
 
 
-type PtMovTo
+type PtMov
     = PtMov
         -- End
         Pt
@@ -37,7 +37,7 @@ type PtMovTo
         Pt
 
 
-initPtMov : Pt -> Pt -> Number -> PtMovTo
+initPtMov : Pt -> Pt -> Number -> PtMov
 initPtMov st end speed =
     let
         ( dx, dy ) =
@@ -47,7 +47,7 @@ initPtMov st end speed =
     PtMov end dx dy st
 
 
-stepPtMov : PtMovTo -> ( Bool, PtMovTo )
+stepPtMov : PtMov -> ( Bool, PtMov )
 stepPtMov ((PtMov e dx dy c) as m) =
     if c == e then
         ( True, m )
@@ -64,7 +64,7 @@ stepPtMov ((PtMov e dx dy c) as m) =
             ( False, PtMov e dx dy nc )
 
 
-ptMovToCurr : PtMovTo -> Pt
+ptMovToCurr : PtMov -> Pt
 ptMovToCurr (PtMov _ _ _ c) =
     c
 
@@ -107,7 +107,7 @@ type alias Mem =
     { speed : Number
     , st : Pt
     , end : Pt
-    , ptMov : PtMovTo
+    , ptMov : PtMov
     , ptMovPath : PtMovPath
     }
 
