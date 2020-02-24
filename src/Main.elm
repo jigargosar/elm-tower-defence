@@ -197,12 +197,22 @@ type alias TowerRecord =
     { pos : Pt
     , delay : Number
     , elapsed : Number
+    , bullets : List Bullet
     }
+
+
+type Bullet
+    = Bullet PtMov
 
 
 initTower : Pt -> Tower
 initTower pt =
-    Tower { pos = pt, delay = 30, elapsed = 0 }
+    Tower
+        { pos = pt
+        , delay = 30
+        , elapsed = 0
+        , bullets = []
+        }
 
 
 viewTower : Tower -> Shape
