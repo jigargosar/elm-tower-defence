@@ -131,7 +131,7 @@ ptEqw dx dy p1 p2 =
 
 eqw : number -> number -> number -> Bool
 eqw tol a b =
-    abs (a - b) <= abs tol
+    abs (a - b) <= abs (tol + 1)
 
 
 
@@ -168,13 +168,13 @@ init =
             Pt 100 100
 
         speed =
-            1
+            10
 
         pathStart =
-            Pt -100 100
+            Pt -300 300
 
         path =
-            [ Pt -100 50, Pt -50 50 ]
+            [ Pt -300 200, Pt -200 100, Pt 0 100, Pt 0 0, Pt -100 0 ]
     in
     { speed = speed
     , st = st
