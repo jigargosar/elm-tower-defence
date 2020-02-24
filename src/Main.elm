@@ -7,20 +7,18 @@ import Playground exposing (..)
 -- Point Movement
 
 
-type alias PtMov =
-    { st : Pt
-    , end : Pt
-    , speed : Number
-    , curr : Pt
-    }
+type PtMov
+    = PtMov
 
 
-initPtMov st end speed =
-    { st = st
-    , end = end
-    , speed = speed
-    , curr = st
-    }
+initPtMov : Pt -> Pt -> Number -> PtMov
+initPtMov _ _ _ =
+    PtMov
+
+
+stepPtMov : PtMov -> ( Bool, PtMov )
+stepPtMov m =
+    ( True, m )
 
 
 
@@ -42,6 +40,7 @@ type alias Mem =
     , st : Pt
     , end : Pt
     , curr : Pt
+    , ptMov : PtMov
     }
 
 
@@ -50,13 +49,17 @@ init =
     let
         st =
             Pt -100 -100
+
+        end =
+            Pt 100 100
     in
     { pos = Pt -100 -100
     , speed = 1
     , deg = 45
     , st = st
-    , end = Pt 100 100
+    , end = end
     , curr = st
+    , ptMov = initPtMov st end 10
     }
 
 
@@ -66,9 +69,14 @@ init =
 
 update : Computer -> Mem -> Mem
 update computer mem =
+    let
+        ( _, nextPtMov ) =
+            stepPtMov mem.ptMov
+    in
     { mem
         | pos = nextPos mem
         , curr = nextCurr mem
+        , ptMov = nextPtMov
     }
 
 
