@@ -76,12 +76,9 @@ ptEqw tol p1 p2 =
 
 
 type alias Mem =
-    { pos : Pt
-    , speed : Number
-    , deg : Number
+    { speed : Number
     , st : Pt
     , end : Pt
-    , curr : Pt
     , ptMov : PtMov
     }
 
@@ -98,12 +95,9 @@ init =
         speed =
             10
     in
-    { pos = Pt -100 -100
-    , speed = speed
-    , deg = 45
+    { speed = speed
     , st = st
     , end = end
-    , curr = st
     , ptMov = initPtMov st end speed
     }
 
@@ -119,30 +113,8 @@ update computer mem =
             stepPtMov mem.ptMov
     in
     { mem
-        | pos = nextPos mem
-        , curr = nextCurr mem
-        , ptMov = nextPtMov
+        | ptMov = nextPtMov
     }
-
-
-nextCurr : Mem -> Pt
-nextCurr ({ curr, st, end } as mem) =
-    let
-        ( dx, dy ) =
-            ( mem.speed, angleFromToPt curr end )
-                |> fromPolar
-    in
-    Pt (curr.x + dx) (curr.y + dy)
-
-
-nextPos : Mem -> Pt
-nextPos mem =
-    let
-        ( dx, dy ) =
-            ( mem.speed, degrees mem.deg )
-                |> fromPolar
-    in
-    Pt (mem.pos.x + dx) (mem.pos.y + dy)
 
 
 view : Computer -> Mem -> List Shape
@@ -162,12 +134,6 @@ view computer mem =
             in
             move pt.x pt.y
            )
-        |> fade 0.5
-    , circle red 30
-        |> move mem.curr.x mem.curr.y
-        |> fade 0.5
-    , circle blue 20
-        |> move mem.pos.x mem.pos.y
         |> fade 0.5
     ]
 
