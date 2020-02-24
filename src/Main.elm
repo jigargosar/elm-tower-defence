@@ -21,7 +21,7 @@ type alias Mem =
 init : Mem
 init =
     { pos = Pt -100 -100
-    , speed = 10
+    , speed = 1
     , deg = 45
     }
 
