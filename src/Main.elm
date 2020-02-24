@@ -143,6 +143,18 @@ type Monster
     = Monster PtMovPath
 
 
+randomMonster mem =
+    Random.int 0 500
+        |> Random.map
+            (\n ->
+                if n < 10 then
+                    [ Monster (initPtMovPath mem.pathStart mem.path mem.speed) ]
+
+                else
+                    []
+            )
+
+
 
 -- MEM
 
@@ -190,19 +202,8 @@ init =
 update : Computer -> Mem -> Mem
 update computer mem =
     let
-        randomMonster =
-            Random.int 0 500
-                |> Random.map
-                    (\n ->
-                        if n < 10 then
-                            [ Monster (initPtMovPath mem.pathStart mem.path mem.speed) ]
-
-                        else
-                            []
-                    )
-
         ( newMonsters, newSeed ) =
-            Random.step randomMonster mem.seed
+            Random.step (randomMonster mem) mem.seed
     in
     { mem
         | monsters = newMonsters ++ updateMonsters mem
