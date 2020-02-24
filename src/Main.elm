@@ -191,7 +191,7 @@ update : Computer -> Mem -> Mem
 update computer mem =
     let
         randomMonster =
-            Random.int 0 1000
+            Random.int 0 500
                 |> Random.map
                     (\n ->
                         if n < 10 then
