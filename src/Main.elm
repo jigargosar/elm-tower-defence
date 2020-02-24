@@ -8,34 +8,47 @@ import Playground exposing (..)
 
 
 type PtMovPath
-    = PtMovPath PtMov (List Pt)
+    = PtMovPath PtMov (List Pt) Number
 
 
 initPtMovPath : Pt -> List Pt -> Number -> PtMovPath
 initPtMovPath st path speed =
     case path of
         [] ->
-            PtMovPath (initPtMov st st speed) []
+            PtMovPath (initPtMov st st speed) [] speed
 
         nxt :: rest ->
             let
                 ptMov =
                     initPtMov st nxt speed
             in
-            PtMovPath ptMov rest
+            PtMovPath ptMov rest speed
 
 
 stepPtMovPath : PtMovPath -> ( Bool, PtMovPath )
-stepPtMovPath (PtMovPath mov path) =
+stepPtMovPath (PtMovPath mov path speed) =
     let
         ( done, nextMov ) =
             stepPtMov mov
     in
-    ( True, PtMovPath nextMov path )
+    if done then
+        case path of
+            [] ->
+                ( True, PtMovPath nextMov [] speed )
+
+            nxt :: rest ->
+                let
+                    ptMov =
+                        initPtMov (ptMovToCurr mov) nxt speed
+                in
+                ( False, PtMovPath ptMov rest speed )
+
+    else
+        ( False, PtMovPath nextMov path speed )
 
 
 ptMovPathToCurr : PtMovPath -> Pt
-ptMovPathToCurr (PtMovPath mov _) =
+ptMovPathToCurr (PtMovPath mov _ _) =
     ptMovToCurr mov
 
 
