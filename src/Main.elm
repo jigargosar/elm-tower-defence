@@ -8,42 +8,47 @@ import Playground exposing (..)
 
 
 type PtMov
-    = PtMov Pt Number Pt
+    = PtMov
+        -- End
+        Pt
+        -- dx
+        Number
+        -- dy
+        Number
+        -- Current
+        Pt
 
 
 initPtMov : Pt -> Pt -> Number -> PtMov
 initPtMov st end speed =
-    PtMov end speed st
+    let
+        ( dx, dy ) =
+            ( speed, angleFromToPt st end )
+                |> fromPolar
+    in
+    PtMov end dx dy st
 
 
 stepPtMov : PtMov -> ( Bool, PtMov )
-stepPtMov ((PtMov e speed c) as m) =
+stepPtMov ((PtMov e dx dy c) as m) =
     if c == e then
         ( True, m )
 
     else
         let
-            ( dx, dy ) =
-                ( speed, angleFromToPt c e )
-                    |> fromPolar
-
             nc =
                 Pt (c.x + dx) (c.y + dy)
         in
-        if ptEqw speed nc e then
-            ( True, PtMov e speed e )
+        if ptEqw dx dy nc e then
+            ( True, PtMov e dx dy e )
 
         else
-            ( False, PtMov e speed nc )
+            ( False, PtMov e dx dy nc )
 
 
 ptMovToCurr : PtMov -> Pt
-ptMovToCurr (PtMov _ _ c) =
+ptMovToCurr (PtMov _ _ _ c) =
     c
-
-
-eqw tol a b =
-    abs a - abs b <= tol
 
 
 
@@ -66,9 +71,13 @@ lenFromToPt p1 p2 =
         |> sqrt
 
 
-ptEqw : Number -> Pt -> Pt -> Bool
-ptEqw tol p1 p2 =
-    abs (lenFromToPt p1 p2) <= tol
+ptEqw : Number -> Number -> Pt -> Pt -> Bool
+ptEqw dx dy p1 p2 =
+    eqw dx p1.x p2.x && eqw dy p1.y p2.y
+
+
+eqw tol a b =
+    abs a - abs b <= tol
 
 
 
