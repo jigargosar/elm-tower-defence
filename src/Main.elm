@@ -200,10 +200,18 @@ update computer mem =
 
         ( _, nextPtMovPath ) =
             stepPtMovPath mem.ptMovPath
+
+        newMonsters =
+            if wave 0 100 2 computer.time > 99 then
+                [ initPtMovPath mem.pathStart mem.path mem.speed ]
+
+            else
+                []
     in
     { mem
         | ptMov = nextPtMov
         , ptMovPath = nextPtMovPath
+        , monsters = newMonsters ++ mem.monsters
     }
 
 
