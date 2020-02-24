@@ -36,6 +36,10 @@ init =
     }
 
 
+
+--noinspection ElmUnusedSymbol
+
+
 update : Computer -> Mem -> Mem
 update computer mem =
     { mem
@@ -57,10 +61,6 @@ nextCurr ({ curr, st, end } as mem) =
                 |> fromPolar
     in
     Pt (curr.x + dx) (curr.y + dy)
-
-
-add =
-    (+)
 
 
 nextPos : Mem -> Pt
