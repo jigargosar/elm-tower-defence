@@ -79,8 +79,10 @@ view computer mem =
         |> moveX (computer.screen.top + 100)
     , circle blue 20
         |> move mem.pos.x mem.pos.y
+        |> fade 0.5
     , circle red 30
         |> move mem.curr.x mem.curr.y
+        |> fade 0.5
     ]
 
 
