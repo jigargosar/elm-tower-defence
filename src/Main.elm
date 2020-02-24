@@ -238,7 +238,7 @@ initTower pt =
         }
 
 
-stepTower : List Monster -> Tower -> Tower
+stepTower : List Monster -> Tower -> ( List Bullet, Tower )
 stepTower monsters (Tower t) =
     let
         ( fire, elapsed ) =
@@ -278,11 +278,13 @@ stepTower monsters (Tower t) =
             in
             List.filterMap stepBullet t.bullets
     in
-    Tower
+    ( newBullets
+    , Tower
         { t
             | elapsed = elapsed
             , bullets = newBullets ++ updatedBullets
         }
+    )
 
 
 viewTower : Tower -> Shape
@@ -311,6 +313,7 @@ viewTower (Tower { pos, bullets }) =
 type alias Mem =
     { speed : Number
     , monsters : List Monster
+    , bullets : List Bullet
     , pathStart : Pt
     , path : List Pt
     , seed : Seed
@@ -332,6 +335,7 @@ init =
     in
     { speed = speed
     , monsters = []
+    , bullets = []
     , pathStart = pathStart
     , path = path
     , seed = Random.initialSeed 0
@@ -349,11 +353,15 @@ update computer mem =
     let
         ( newMonsters, newSeed ) =
             Random.step (randomMonsterSpawn mem) mem.seed
+
+        ( newBullets, newTower ) =
+            stepTower mem.monsters mem.tower
     in
     { mem
         | monsters = newMonsters ++ updateMonsters mem
         , seed = newSeed
-        , tower = stepTower mem.monsters mem.tower
+        , bullets = newBullets ++ mem.bullets
+        , tower = newTower
     }
 
 
