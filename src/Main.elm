@@ -94,6 +94,7 @@ ptEqw dx dy p1 p2 =
     eqw dx p1.x p2.x && eqw dy p1.y p2.y
 
 
+eqw : number -> number -> number -> Bool
 eqw tol a b =
     abs a - abs b <= tol
 
