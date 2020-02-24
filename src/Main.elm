@@ -57,7 +57,7 @@ nextCurr : Mem -> Pt
 nextCurr ({ curr, st, end } as mem) =
     let
         ( dx, dy ) =
-            ( mem.speed, angleFromToPt st end )
+            ( mem.speed, angleFromToPt curr end )
                 |> fromPolar
     in
     Pt (curr.x + dx) (curr.y + dy)
