@@ -108,6 +108,7 @@ type alias Mem =
     , st : Pt
     , end : Pt
     , ptMov : PtMovTo
+    , ptMovPath : PtMovPath
     }
 
 
@@ -127,6 +128,7 @@ init =
     , st = st
     , end = end
     , ptMov = initPtMov st end speed
+    , ptMovPath = initPtMovPath st [ end ] speed
     }
 
 
@@ -139,9 +141,13 @@ update computer mem =
     let
         ( _, nextPtMov ) =
             stepPtMov mem.ptMov
+
+        ( _, nextPtMovPath ) =
+            stepPtMovPath mem.ptMovPath
     in
     { mem
         | ptMov = nextPtMov
+        , ptMovPath = nextPtMovPath
     }
 
 
