@@ -231,7 +231,7 @@ init =
     , pathStart = pathStart
     , path = path
     , seed = Random.initialSeed 0
-    , tower = Tower (Pt 0 0)
+    , tower = Tower (Pt 50 50)
     }
 
 
