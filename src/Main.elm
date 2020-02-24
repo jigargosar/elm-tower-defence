@@ -38,15 +38,17 @@ init =
 
 update : Computer -> Mem -> Mem
 update computer mem =
+    { mem | pos = nextPos mem }
+
+
+nextPos : Mem -> Pt
+nextPos mem =
     let
         ( dx, dy ) =
             ( mem.speed, degrees mem.deg )
                 |> fromPolar
-
-        newPos =
-            Pt (mem.pos.x + dx) (mem.pos.y + dy)
     in
-    { mem | pos = newPos }
+    Pt (mem.pos.x + dx) (mem.pos.y + dy)
 
 
 view : Computer -> Mem -> List Shape
