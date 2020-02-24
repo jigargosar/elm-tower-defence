@@ -149,10 +149,6 @@ type Monster
 
 type alias Mem =
     { speed : Number
-    , st : Pt
-    , end : Pt
-    , ptMov : PtMov
-    , ptMovPath : PtMovPath
     , monsters : List PtMovPath
     , pathStart : Pt
     , path : List Pt
@@ -179,10 +175,6 @@ init =
             [ Pt -300 200, Pt -200 100, Pt 0 100, Pt 0 0, Pt -100 -200, Pt 300 -200 ]
     in
     { speed = speed
-    , st = st
-    , end = end
-    , ptMov = initPtMov st end speed
-    , ptMovPath = initPtMovPath pathStart path speed
     , monsters = []
     , pathStart = pathStart
     , path = path
@@ -198,12 +190,6 @@ init =
 update : Computer -> Mem -> Mem
 update computer mem =
     let
-        ( _, nextPtMov ) =
-            stepPtMov mem.ptMov
-
-        ( _, nextPtMovPath ) =
-            stepPtMovPath mem.ptMovPath
-
         randomMonster =
             Random.int 0 1000
                 |> Random.map
@@ -219,9 +205,7 @@ update computer mem =
             Random.step randomMonster mem.seed
     in
     { mem
-        | ptMov = nextPtMov
-        , ptMovPath = nextPtMovPath
-        , monsters = newMonsters ++ updateMonsters mem
+        | monsters = newMonsters ++ updateMonsters mem
         , seed = newSeed
     }
 
