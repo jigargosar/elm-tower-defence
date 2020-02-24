@@ -143,6 +143,11 @@ type Monster
     = Monster PtMovPath
 
 
+monsterPos : Monster -> Pt
+monsterPos (Monster mp) =
+    ptMovPathToCurr mp
+
+
 randomMonster mem =
     Random.int 0 500
         |> Random.map
@@ -225,9 +230,18 @@ updateTower monsters (Tower t) =
             else
                 ( False, t.elapsed + 1 )
 
+        targetPt =
+            List.head monsters
+                |> Maybe.map monsterPos
+
         newBullets =
             if fire then
-                [ Bullet (initPtMov t.pos (Pt 200 200) 10) ]
+                case targetPt of
+                    Just e ->
+                        [ Bullet (initPtMov t.pos e 10) ]
+
+                    Nothing ->
+                        []
 
             else
                 []
