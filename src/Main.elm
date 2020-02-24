@@ -211,8 +211,21 @@ update computer mem =
     { mem
         | ptMov = nextPtMov
         , ptMovPath = nextPtMovPath
-        , monsters = newMonsters ++ mem.monsters
+        , monsters = newMonsters ++ updateMonsters mem
     }
+
+
+updateMonsters : Mem -> List PtMovPath
+updateMonsters mem =
+    List.map stepPtMovPath mem.monsters
+        |> List.filterMap
+            (\( remove, monster ) ->
+                if remove then
+                    Nothing
+
+                else
+                    Just monster
+            )
 
 
 
