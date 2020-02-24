@@ -7,7 +7,7 @@ import Playground exposing (..)
 -- Point Movement
 
 
-type PtMov
+type PtMovTo
     = PtMov
         -- End
         Pt
@@ -19,7 +19,7 @@ type PtMov
         Pt
 
 
-initPtMov : Pt -> Pt -> Number -> PtMov
+initPtMov : Pt -> Pt -> Number -> PtMovTo
 initPtMov st end speed =
     let
         ( dx, dy ) =
@@ -29,7 +29,7 @@ initPtMov st end speed =
     PtMov end dx dy st
 
 
-stepPtMov : PtMov -> ( Bool, PtMov )
+stepPtMov : PtMovTo -> ( Bool, PtMovTo )
 stepPtMov ((PtMov e dx dy c) as m) =
     if c == e then
         ( True, m )
@@ -46,7 +46,7 @@ stepPtMov ((PtMov e dx dy c) as m) =
             ( False, PtMov e dx dy nc )
 
 
-ptMovToCurr : PtMov -> Pt
+ptMovToCurr : PtMovTo -> Pt
 ptMovToCurr (PtMov _ _ _ c) =
     c
 
@@ -88,7 +88,7 @@ type alias Mem =
     { speed : Number
     , st : Pt
     , end : Pt
-    , ptMov : PtMov
+    , ptMov : PtMovTo
     }
 
 
