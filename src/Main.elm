@@ -26,10 +26,6 @@ init =
     }
 
 
-uncurry f ( a, b ) =
-    f a b
-
-
 update : Computer -> Mem -> Mem
 update computer mem =
     let
