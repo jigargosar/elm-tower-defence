@@ -1,7 +1,7 @@
 module Main exposing (main)
 
 import Playground exposing (..)
-import Random exposing (Seed)
+import Random exposing (Generator, Seed)
 
 
 
@@ -152,15 +152,29 @@ monsterPos (Monster _ mp) =
     ptMovPathToCurr mp
 
 
+randomMonsterId =
+    Random.int 0 Random.maxInt |> Random.map MonsterId
+
+
+randomMonster : Mem -> Generator Monster
 randomMonster mem =
-    Random.int 0 500
+    randomMonsterId
         |> Random.map
+            (\id ->
+                Monster id (initPtMovPath mem.pathStart mem.path mem.speed)
+            )
+
+
+randomMonsterSpawn : Mem -> Generator (List Monster)
+randomMonsterSpawn mem =
+    Random.int 0 500
+        |> Random.andThen
             (\n ->
                 if n < 10 then
-                    [ Monster (MonsterId 1) (initPtMovPath mem.pathStart mem.path mem.speed) ]
+                    randomMonster mem |> Random.map List.singleton
 
                 else
-                    []
+                    Random.constant []
             )
 
 
@@ -334,7 +348,7 @@ update : Computer -> Mem -> Mem
 update computer mem =
     let
         ( newMonsters, newSeed ) =
-            Random.step (randomMonster mem) mem.seed
+            Random.step (randomMonsterSpawn mem) mem.seed
     in
     { mem
         | monsters = newMonsters ++ updateMonsters mem
