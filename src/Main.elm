@@ -263,16 +263,16 @@ view computer mem =
     --        move pt.x pt.y
     --       )
     --    |> fade 0.5
-    --, viewPathPt mem.pathStart
+    --, circle red 10
+    --    |> (let
+    --            pt =
+    --                ptMovPathToCurr mem.ptMovPath
+    --        in
+    --        move pt.x pt.y
+    --       )
+    --    |> fade 0.4
+    , viewPathPt mem.pathStart
     , group (List.map viewPathPt mem.path)
-    , circle red 10
-        |> (let
-                pt =
-                    ptMovPathToCurr mem.ptMovPath
-            in
-            move pt.x pt.y
-           )
-        |> fade 0.4
     , List.map viewMonster mem.monsters
         |> group
     ]
