@@ -127,12 +127,12 @@ lenFromToPt p1 p2 =
 
 ptEqw : Number -> Number -> Pt -> Pt -> Bool
 ptEqw dx dy p1 p2 =
-    eqw dx p1.x p2.x && eqw dy p1.y p2.y
+    eqw (max 1 (abs dx)) p1.x p2.x && eqw (max 1 (abs dy)) p1.y p2.y
 
 
 eqw : Float -> Float -> Float -> Bool
 eqw tol a b =
-    abs (b - a) <= abs (tol + 0.1)
+    abs (b - a) <= tol
 
 
 
@@ -149,7 +149,7 @@ monsterPos (Monster mp) =
 
 
 randomMonster mem =
-    Random.int 0 500
+    Random.int 0 50
         |> Random.map
             (\n ->
                 if n < 10 then
@@ -302,7 +302,7 @@ init : Mem
 init =
     let
         speed =
-            1
+            4
 
         pathStart =
             Pt -300 300
