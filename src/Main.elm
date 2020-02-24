@@ -139,12 +139,16 @@ eqw tol a b =
 -- MONSTER
 
 
+type MonsterId
+    = MonsterId Int
+
+
 type Monster
-    = Monster PtMovPath
+    = Monster MonsterId PtMovPath
 
 
 monsterPos : Monster -> Pt
-monsterPos (Monster mp) =
+monsterPos (Monster _ mp) =
     ptMovPathToCurr mp
 
 
@@ -153,7 +157,7 @@ randomMonster mem =
         |> Random.map
             (\n ->
                 if n < 10 then
-                    [ Monster (initPtMovPath mem.pathStart mem.path mem.speed) ]
+                    [ Monster (MonsterId 1) (initPtMovPath mem.pathStart mem.path mem.speed) ]
 
                 else
                     []
@@ -163,9 +167,9 @@ randomMonster mem =
 updateMonsters : Mem -> List Monster
 updateMonsters mem =
     let
-        stepMonster (Monster mp) =
+        stepMonster (Monster id mp) =
             stepPtMovPath mp
-                |> Tuple.mapSecond Monster
+                |> Tuple.mapSecond (Monster id)
     in
     List.map stepMonster mem.monsters
         |> List.filterMap
@@ -179,7 +183,7 @@ updateMonsters mem =
 
 
 viewMonster : Monster -> Shape
-viewMonster (Monster mp) =
+viewMonster (Monster _ mp) =
     circle red 10
         |> (let
                 pt =
