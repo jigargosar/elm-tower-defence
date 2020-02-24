@@ -72,7 +72,7 @@ init =
     , st = st
     , end = end
     , curr = st
-    , ptMov = initPtMov st end 10
+    , ptMov = initPtMov st end 25
     }
 
 
