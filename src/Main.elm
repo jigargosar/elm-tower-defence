@@ -12,23 +12,35 @@ type alias Pt =
 
 
 type alias Mem =
-    { start : Pt
-    , end : Pt
-    , ticks : Number
+    { pos : Pt
+    , speed : Number
+    , deg : Number
     }
 
 
 init : Mem
 init =
-    { start = Pt -100 -100
-    , end = Pt 100 100
-    , ticks = 0
+    { pos = Pt -100 -100
+    , speed = 10
+    , deg = 45
     }
+
+
+uncurry f ( a, b ) =
+    f a b
 
 
 update : Computer -> Mem -> Mem
 update computer mem =
-    { mem | ticks = mem.ticks + 1 }
+    let
+        ( dx, dy ) =
+            ( mem.speed, degrees mem.deg )
+                |> fromPolar
+
+        newPos =
+            Pt (mem.pos.x + dx) (mem.pos.y + dy)
+    in
+    { mem | pos = newPos }
 
 
 view : Computer -> Mem -> List Shape
@@ -36,7 +48,7 @@ view computer mem =
     [ words black "Welcome to Adventure"
         |> moveX (computer.screen.top + 100)
     , circle blue 20
-        |> move mem.start.x mem.start.y
+        |> move mem.pos.x mem.pos.y
     ]
 
 
