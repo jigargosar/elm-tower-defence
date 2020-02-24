@@ -130,9 +130,9 @@ ptEqw dx dy p1 p2 =
     eqw dx p1.x p2.x && eqw dy p1.y p2.y
 
 
-eqw : number -> number -> number -> Bool
+eqw : Float -> Float -> Float -> Bool
 eqw tol a b =
-    abs (a - b) <= abs (tol + 1)
+    abs (a - b) <= abs (tol + 0.1)
 
 
 
