@@ -168,7 +168,7 @@ init =
             Pt 100 100
 
         speed =
-            10
+            5
 
         pathStart =
             Pt -300 300
@@ -202,7 +202,7 @@ update computer mem =
             stepPtMovPath mem.ptMovPath
 
         newMonsters =
-            if wave 0 100 2 computer.time > 99 then
+            if wave 0 100 1 computer.time >= 99.9 then
                 [ initPtMovPath mem.pathStart mem.path mem.speed ]
 
             else
@@ -262,7 +262,20 @@ view computer mem =
             move pt.x pt.y
            )
         |> fade 0.4
+    , List.map viewMonster mem.monsters
+        |> group
     ]
+
+
+viewMonster monster =
+    circle red 10
+        |> (let
+                pt =
+                    ptMovPathToCurr monster
+            in
+            move pt.x pt.y
+           )
+        |> fade 0.4
 
 
 viewPathPt pt =
