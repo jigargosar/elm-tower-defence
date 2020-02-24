@@ -238,7 +238,7 @@ updateTower monsters (Tower t) =
             if fire then
                 case targetPt of
                     Just e ->
-                        [ Bullet (initPtMov t.pos e 10) ]
+                        [ Bullet (initPtMov t.pos e 20) ]
 
                     Nothing ->
                         []
