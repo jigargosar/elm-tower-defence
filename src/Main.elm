@@ -8,16 +8,16 @@ import Playground exposing (..)
 
 
 type PtMov
-    = PtMov Pt Pt Number Pt
+    = PtMov Pt Number Pt
 
 
 initPtMov : Pt -> Pt -> Number -> PtMov
 initPtMov st end speed =
-    PtMov st end speed st
+    PtMov end speed st
 
 
 stepPtMov : PtMov -> ( Bool, PtMov )
-stepPtMov ((PtMov s e speed c) as m) =
+stepPtMov ((PtMov e speed c) as m) =
     if c == e then
         ( True, m )
 
@@ -31,14 +31,14 @@ stepPtMov ((PtMov s e speed c) as m) =
                 Pt (c.x + dx) (c.y + dy)
         in
         if ptEqw speed nc e then
-            ( True, PtMov s e speed e )
+            ( True, PtMov e speed e )
 
         else
-            ( False, PtMov s e speed nc )
+            ( False, PtMov e speed nc )
 
 
 ptMovToCurr : PtMov -> Pt
-ptMovToCurr (PtMov _ _ _ c) =
+ptMovToCurr (PtMov _ _ c) =
     c
 
 
