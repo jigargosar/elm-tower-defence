@@ -100,6 +100,10 @@ angleFromToPt p1 p2 =
     atan2 (p2.y - p1.y) (p2.x - p1.x)
 
 
+
+--noinspection ElmUnusedSymbol
+
+
 lenFromToPt : Pt -> Pt -> Number
 lenFromToPt p1 p2 =
     ((p2.y - p1.y) ^ 2)
