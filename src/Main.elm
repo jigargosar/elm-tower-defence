@@ -94,14 +94,17 @@ init =
 
         end =
             Pt 100 100
+
+        speed =
+            10
     in
     { pos = Pt -100 -100
-    , speed = 1
+    , speed = speed
     , deg = 45
     , st = st
     , end = end
     , curr = st
-    , ptMov = initPtMov st end 25
+    , ptMov = initPtMov st end speed
     }
 
 
