@@ -186,6 +186,14 @@ viewMonster (Monster mp) =
 
 
 
+-- TOWER
+
+
+type Tower
+    = Tower Pt
+
+
+
 -- MEM
 
 
@@ -195,6 +203,7 @@ type alias Mem =
     , pathStart : Pt
     , path : List Pt
     , seed : Seed
+    , tower : Tower
     }
 
 
@@ -215,6 +224,7 @@ init =
     , pathStart = pathStart
     , path = path
     , seed = Random.initialSeed 0
+    , tower = Tower (Pt 0 0)
     }
 
 
