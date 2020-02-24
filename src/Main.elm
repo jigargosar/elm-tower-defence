@@ -23,17 +23,14 @@ stepPtMov (PtMov s e speed c) =
             ( speed, angleFromToPt c e )
                 |> fromPolar
 
-        ncComputed =
-            Pt (c.x + dx) (c.y + dy)
-
         nc =
-            if ptEqw speed ncComputed e then
-                e
-
-            else
-                ncComputed
+            Pt (c.x + dx) (c.y + dy)
     in
-    ( False, PtMov s e speed nc )
+    if ptEqw speed nc e then
+        ( True, PtMov s e speed e )
+
+    else
+        ( False, PtMov s e speed nc )
 
 
 ptMovToCurr : PtMov -> Pt
