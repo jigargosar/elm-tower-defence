@@ -163,7 +163,7 @@ init =
     , st = st
     , end = end
     , ptMov = initPtMov st end speed
-    , ptMovPath = initPtMovPath st [ end, st, end, st ] speed
+    , ptMovPath = initPtMovPath st [ end ] speed
     }
 
 
