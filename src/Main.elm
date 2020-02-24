@@ -302,7 +302,7 @@ init : Mem
 init =
     let
         speed =
-            4
+            2
 
         pathStart =
             Pt -300 300
