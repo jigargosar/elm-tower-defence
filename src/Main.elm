@@ -16,6 +16,11 @@ initPtMovPath st path speed =
     PtMovPath
 
 
+stepPtMovPath : PtMovPath -> ( Bool, PtMovPath )
+stepPtMovPath m =
+    ( True, m )
+
+
 
 -- Move Point To
 
