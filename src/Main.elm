@@ -214,21 +214,23 @@ update computer mem =
 view : Computer -> Mem -> List Shape
 view computer mem =
     [ words black "Welcome to Adventure"
-        |> moveX (computer.screen.top + 100)
-    , rectangle black 10 10
-        |> move mem.st.x mem.st.y
-        |> fade 0.8
-    , rectangle black 10 10
-        |> move mem.end.x mem.end.y
-        |> fade 0.8
-    , circle green 40
-        |> (let
-                pt =
-                    ptMovToCurr mem.ptMov
-            in
-            move pt.x pt.y
-           )
-        |> fade 0.5
+        |> moveY computer.screen.top
+        |> moveDown 50
+
+    --, rectangle black 10 10
+    --    |> move mem.st.x mem.st.y
+    --    |> fade 0.8
+    --, rectangle black 10 10
+    --    |> move mem.end.x mem.end.y
+    --    |> fade 0.8
+    --, circle green 40
+    --    |> (let
+    --            pt =
+    --                ptMovToCurr mem.ptMov
+    --        in
+    --        move pt.x pt.y
+    --       )
+    --    |> fade 0.5
     , viewPathPt mem.pathStart
     , group (List.map viewPathPt mem.path)
     , circle red 10
