@@ -131,7 +131,7 @@ ptEqw dx dy p1 p2 =
 
 eqw : number -> number -> number -> Bool
 eqw tol a b =
-    abs (a - b) <= tol
+    abs (a - b) <= abs tol
 
 
 
@@ -162,8 +162,8 @@ init =
     { speed = speed
     , st = st
     , end = end
-    , ptMov = initPtMov st end speed
-    , ptMovPath = initPtMovPath end [ st ] speed
+    , ptMov = initPtMov end st speed
+    , ptMovPath = initPtMovPath st [ end ] speed
     }
 
 
