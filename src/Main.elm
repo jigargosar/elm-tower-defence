@@ -193,6 +193,11 @@ type Tower
     = Tower Pt
 
 
+initTower : Pt -> Tower
+initTower pt =
+    Tower pt
+
+
 viewTower : Tower -> Shape
 viewTower (Tower pt) =
     rectangle blue 30 30
@@ -231,7 +236,7 @@ init =
     , pathStart = pathStart
     , path = path
     , seed = Random.initialSeed 0
-    , tower = Tower (Pt 50 50)
+    , tower = initTower (Pt 50 50)
     }
 
 
