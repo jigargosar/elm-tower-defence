@@ -162,8 +162,8 @@ init =
     { speed = speed
     , st = st
     , end = end
-    , ptMov = initPtMov end st speed
-    , ptMovPath = initPtMovPath st [ end ] speed
+    , ptMov = initPtMov st end speed
+    , ptMovPath = initPtMovPath st [ end, st, end, st, end ] speed
     }
 
 
