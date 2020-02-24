@@ -220,7 +220,6 @@ type alias TowerRecord =
     { pos : Pt
     , delay : Number
     , elapsed : Number
-    , bullets : List Bullet
     }
 
 
@@ -234,7 +233,6 @@ initTower pt =
         { pos = pt
         , delay = 30
         , elapsed = 0
-        , bullets = []
         }
 
 
@@ -265,30 +263,24 @@ stepTower monsters (Tower t) =
 
             else
                 []
-
-        updatedBullets =
-            let
-                stepBullet (Bullet mov) =
-                    case stepPtMov mov of
-                        ( True, _ ) ->
-                            Nothing
-
-                        ( False, nMov ) ->
-                            Just (Bullet nMov)
-            in
-            List.filterMap stepBullet t.bullets
     in
     ( newBullets
     , Tower
         { t
             | elapsed = elapsed
-            , bullets = newBullets ++ updatedBullets
         }
     )
 
 
 viewTower : Tower -> Shape
-viewTower (Tower { pos, bullets }) =
+viewTower (Tower { pos }) =
+    rectangle blue 30 30
+        |> move pos.x pos.y
+        |> fade 0.8
+
+
+viewBullets : List Bullet -> Shape
+viewBullets bullets =
     let
         viewBullet (Bullet mov) =
             let
@@ -298,11 +290,7 @@ viewTower (Tower { pos, bullets }) =
             circle green 5
                 |> move x y
     in
-    (rectangle blue 30 30
-        |> move pos.x pos.y
-        |> fade 0.8
-    )
-        :: List.map viewBullet bullets
+    List.map viewBullet bullets
         |> group
 
 
@@ -360,9 +348,23 @@ update computer mem =
     { mem
         | monsters = generatedMonsters ++ stepMonsters mem
         , seed = newSeed
-        , bullets = generatedBullets ++ mem.bullets
+        , bullets = generatedBullets ++ stepBullets mem.bullets
         , tower = newTower
     }
+
+
+stepBullets : List Bullet -> List Bullet
+stepBullets bullets =
+    let
+        stepBullet (Bullet mov) =
+            case stepPtMov mov of
+                ( True, _ ) ->
+                    Nothing
+
+                ( False, nMov ) ->
+                    Just (Bullet nMov)
+    in
+    List.filterMap stepBullet bullets
 
 
 
@@ -379,6 +381,7 @@ view computer mem =
     , List.map viewMonster mem.monsters
         |> group
     , viewTower mem.tower
+    , viewBullets mem.bullets
     ]
 
 
