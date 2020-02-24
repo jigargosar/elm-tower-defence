@@ -216,10 +216,22 @@ initTower pt =
 
 
 viewTower : Tower -> Shape
-viewTower (Tower { pos }) =
-    rectangle blue 30 30
+viewTower (Tower { pos, bullets }) =
+    let
+        viewBullet (Bullet mov) =
+            let
+                { x, y } =
+                    ptMovToCurr mov
+            in
+            circle green 5
+                |> move x y
+    in
+    (rectangle blue 30 30
         |> move pos.x pos.y
         |> fade 0.8
+    )
+        :: List.map viewBullet bullets
+        |> group
 
 
 
