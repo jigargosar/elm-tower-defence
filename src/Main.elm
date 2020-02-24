@@ -248,29 +248,6 @@ view computer mem =
     [ words black "Welcome to Adventure"
         |> moveY computer.screen.top
         |> moveDown 50
-
-    --, rectangle black 10 10
-    --    |> move mem.st.x mem.st.y
-    --    |> fade 0.8
-    --, rectangle black 10 10
-    --    |> move mem.end.x mem.end.y
-    --    |> fade 0.8
-    --, circle green 40
-    --    |> (let
-    --            pt =
-    --                ptMovToCurr mem.ptMov
-    --        in
-    --        move pt.x pt.y
-    --       )
-    --    |> fade 0.5
-    --, circle red 10
-    --    |> (let
-    --            pt =
-    --                ptMovPathToCurr mem.ptMovPath
-    --        in
-    --        move pt.x pt.y
-    --       )
-    --    |> fade 0.4
     , viewPathPt mem.pathStart
     , group (List.map viewPathPt mem.path)
     , List.map viewMonster mem.monsters
