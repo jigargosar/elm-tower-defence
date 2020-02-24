@@ -140,7 +140,7 @@ init =
             Pt 100 100
 
         speed =
-            1
+            10
     in
     { speed = speed
     , st = st
@@ -187,14 +187,14 @@ view computer mem =
             move pt.x pt.y
            )
         |> fade 0.5
-    , circle green 40
+    , circle red 10
         |> (let
                 pt =
                     ptMovPathToCurr mem.ptMovPath
             in
             move pt.x pt.y
            )
-        |> fade 0.5
+        |> fade 0.4
     ]
 
 
