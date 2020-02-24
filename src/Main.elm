@@ -23,8 +23,15 @@ stepPtMov (PtMov s e speed c) =
             ( speed, angleFromToPt c e )
                 |> fromPolar
 
-        nc =
+        ncc =
             Pt (c.x + dx) (c.y + dy)
+
+        nc =
+            if ptEqw speed ncc e then
+                e
+
+            else
+                ncc
     in
     ( False, PtMov s e speed nc )
 
@@ -34,12 +41,33 @@ ptMovToCurr (PtMov _ _ _ c) =
     c
 
 
+eqw tol a b =
+    abs a - abs b <= tol
+
+
 
 -- Point
 
 
 type alias Pt =
     { x : Number, y : Number }
+
+
+angleFromToPt : Pt -> Pt -> Number
+angleFromToPt p1 p2 =
+    atan2 (p2.y - p1.y) (p2.x - p1.x)
+
+
+lenFromToPt : Pt -> Pt -> Number
+lenFromToPt p1 p2 =
+    ((p2.y - p1.y) ^ 2)
+        + ((p2.x - p1.x) ^ 2)
+        |> sqrt
+
+
+ptEqw : Number -> Pt -> Pt -> Bool
+ptEqw tol p1 p2 =
+    abs (lenFromToPt p1 p2) <= tol
 
 
 
@@ -91,11 +119,6 @@ update computer mem =
         , curr = nextCurr mem
         , ptMov = nextPtMov
     }
-
-
-angleFromToPt : Pt -> Pt -> Number
-angleFromToPt p1 p2 =
-    atan2 (p2.y - p1.y) (p2.x - p1.x)
 
 
 nextCurr : Mem -> Pt
