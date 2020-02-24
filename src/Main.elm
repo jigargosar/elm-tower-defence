@@ -61,7 +61,6 @@ initPtMov st end speed =
         ( dx, dy ) =
             ( speed, angleFromToPt st end )
                 |> fromPolar
-                |> Debug.log "as"
     in
     PtMov end dx dy st
 
@@ -73,9 +72,6 @@ stepPtMov ((PtMov e dx dy c) as m) =
 
     else
         let
-            _ =
-                Debug.log "debug" m
-
             nc =
                 Pt (c.x + dx) (c.y + dy)
         in
