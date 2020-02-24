@@ -1,6 +1,7 @@
 module Main exposing (main)
 
 import Playground exposing (..)
+import Random exposing (Seed)
 
 
 
@@ -155,6 +156,7 @@ type alias Mem =
     , monsters : List PtMovPath
     , pathStart : Pt
     , path : List Pt
+    , seed : Seed
     }
 
 
@@ -184,6 +186,7 @@ init =
     , monsters = []
     , pathStart = pathStart
     , path = path
+    , seed = Random.initialSeed 0
     }
 
 
