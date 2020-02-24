@@ -215,6 +215,42 @@ initTower pt =
         }
 
 
+updateTower : Tower -> Tower
+updateTower (Tower t) =
+    let
+        ( fire, elapsed ) =
+            if t.elapsed >= t.delay then
+                ( True, 0 )
+
+            else
+                ( False, t.elapsed + 1 )
+
+        newBullets =
+            if fire then
+                [ Bullet (initPtMov t.pos (Pt 200 200) 10) ]
+
+            else
+                []
+
+        updatedBullets =
+            let
+                stepBullet (Bullet mov) =
+                    case stepPtMov mov of
+                        ( True, _ ) ->
+                            Nothing
+
+                        ( False, nMov ) ->
+                            Just (Bullet nMov)
+            in
+            List.filterMap stepBullet t.bullets
+    in
+    Tower
+        { t
+            | elapsed = elapsed
+            , bullets = newBullets ++ updatedBullets
+        }
+
+
 viewTower : Tower -> Shape
 viewTower (Tower { pos, bullets }) =
     let
