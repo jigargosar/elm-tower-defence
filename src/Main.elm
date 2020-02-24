@@ -4,7 +4,7 @@ import Playground exposing (..)
 
 
 
--- Point Movement
+-- Move Point To
 
 
 type PtMovTo
