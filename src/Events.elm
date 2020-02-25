@@ -527,7 +527,7 @@ viewMonster pathLength monster =
                 |> group
                 |> moveRight x
 
-        Dying { travel, remainingTicks } ->
+        Dying { travel, remainingTicks, overKill } ->
             let
                 x =
                     (travel - 0.5) * pathLength
@@ -539,8 +539,7 @@ viewMonster pathLength monster =
                 |> group
                 |> fade (1 - dyingProgress)
                 |> scale (1 + dyingProgress)
-
-            --, words white (fromInt (round health))
+            , words white (fromInt (round overKill))
             ]
                 |> group
                 |> moveRight x
