@@ -55,7 +55,7 @@ initMonster idx =
     , maxHealth = maxHealth
     , health = maxHealth
     , travel = 0
-    , speed = 1 / 58
+    , speed = 1 / (60 * 10)
     }
 
 
