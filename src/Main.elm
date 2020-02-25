@@ -158,6 +158,27 @@ type alias MonsterRec =
     }
 
 
+decrementMonsterHealth : Monster -> Monster
+decrementMonsterHealth m =
+    case m of
+        FollowingPath mr ->
+            let
+                newHealth =
+                    mr.health - 1
+            in
+            if newHealth <= 0 then
+                Dead { mr | health = 0 }
+
+            else
+                Dead { mr | health = newHealth }
+
+        Dead mr ->
+            Dead mr
+
+        ReachedPathEnd mr ->
+            ReachedPathEnd mr
+
+
 posOfMonster : Monster -> Pt
 posOfMonster m =
     case m of
@@ -476,7 +497,12 @@ updateMemWithEvent : Event -> Mem -> Mem
 updateMemWithEvent event mem =
     case event of
         DecrementMonsterHealth monsterId ->
-            mem
+            { mem
+                | monsters =
+                    List.Extra.updateIf (idOfMonster >> eq monsterId)
+                        decrementMonsterHealth
+                        mem.monsters
+            }
 
         RemoveBullet bulletId ->
             { mem | bullets = rejectWhen (idOfBullet >> eq bulletId) mem.bullets }
