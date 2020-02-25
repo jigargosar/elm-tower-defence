@@ -117,8 +117,8 @@ initHouse =
 
 
 healthOfHouse : House -> Number
-healthOfHouse house =
-    1
+healthOfHouse =
+    .health
 
 
 decrementHouseHealth : House -> House
