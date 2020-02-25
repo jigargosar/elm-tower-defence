@@ -527,16 +527,18 @@ viewMonster pathLength monster =
                 x =
                     (travel - 0.5) * pathLength
 
-                dyingPct =
-                    remainingTicks / monster.dyingTicks
+                dyingProgress =
+                    1 - (remainingTicks / monster.dyingTicks)
             in
-            [ [ circle red 30 |> fade 0.7 ] |> group
+            [ [ circle red 30 |> fade 0.7 ]
+                |> group
+                |> fade (1 - dyingProgress)
+                |> scale (1 + dyingProgress)
 
             --, words white (fromInt (round health))
             ]
                 |> group
                 |> moveRight x
-                |> fade dyingPct
 
         ReachedHouse _ ->
             group []
