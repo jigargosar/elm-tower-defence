@@ -444,7 +444,7 @@ updateMemWithEvent event mem =
 
 
 eq =
-    (/=)
+    (==)
 
 
 rejectWhen : (a -> Bool) -> List a -> List a
