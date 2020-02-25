@@ -147,9 +147,14 @@ type Monster
     = Monster MonsterId PtMovPath
 
 
-monsterPos : Monster -> Pt
-monsterPos (Monster _ mp) =
+posOfMonster : Monster -> Pt
+posOfMonster (Monster _ mp) =
     ptMovPathToCurr mp
+
+
+idOfMonster : Monster -> MonsterId
+idOfMonster (Monster id _) =
+    id
 
 
 randomMonsterId =
@@ -224,7 +229,7 @@ type alias TowerRecord =
 
 
 type Bullet
-    = Bullet BulletId PtMov
+    = Bullet BulletId PtMov MonsterId
 
 
 type BulletId
@@ -236,9 +241,9 @@ randomBulletId =
     Random.int 0 Random.maxInt |> Random.map BulletId
 
 
-newBullet : Pt -> Pt -> Generator Bullet
-newBullet pos target =
-    randomBulletId |> Random.map (\id -> Bullet id (initPtMov pos target 20))
+newBullet : Pt -> Pt -> MonsterId -> Generator Bullet
+newBullet pos target monsterId =
+    randomBulletId |> Random.map (\id -> Bullet id (initPtMov pos target 20) monsterId)
 
 
 initTower : Pt -> Tower
@@ -260,17 +265,15 @@ stepTower monsters (Tower t) =
             else
                 ( False, t.elapsed + 1 )
 
-        targetPt =
-            monsters
-                |> List.reverse
-                |> List.head
-                |> Maybe.map monsterPos
-
         newBullets =
             if fire then
-                case targetPt of
-                    Just e ->
-                        newBullet t.pos e
+                case
+                    monsters
+                        |> List.reverse
+                        |> List.head
+                of
+                    Just monster ->
+                        newBullet t.pos (posOfMonster monster) (idOfMonster monster)
                             |> Random.list 1
                             |> Just
 
@@ -295,7 +298,7 @@ viewTower (Tower { pos }) =
 viewBullets : List Bullet -> Shape
 viewBullets bullets =
     let
-        viewBullet (Bullet _ mov) =
+        viewBullet (Bullet _ mov _) =
             let
                 { x, y } =
                     ptMovToCurr mov
@@ -346,13 +349,16 @@ init =
 
 
 -- UPDATE MEM
---noinspection ElmUnusedSymbol
 
 
 update : Computer -> Mem -> Mem
 update computer mem =
     updateCollision mem
         |> update2 computer
+
+
+
+--noinspection ElmUnusedSymbol
 
 
 update2 : Computer -> Mem -> Mem
@@ -379,7 +385,6 @@ update2 computer mem =
 
 type Actions
     = DecrementMonsterHealth MonsterId
-    | RemoveBullet BulletId
 
 
 updateCollision : Mem -> Mem
@@ -408,13 +413,13 @@ didBulletReachMonster bullet =
 stepBullets : List Bullet -> List Bullet
 stepBullets bullets =
     let
-        stepBullet (Bullet id mov) =
+        stepBullet (Bullet id mov monsterId) =
             case stepPtMov mov of
                 ( True, _ ) ->
                     Nothing
 
                 ( False, nMov ) ->
-                    Just (Bullet id nMov)
+                    Just (Bullet id nMov monsterId)
     in
     List.filterMap stepBullet bullets
 
