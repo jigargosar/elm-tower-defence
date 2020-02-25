@@ -3,6 +3,7 @@ module Main exposing (main)
 import List.Extra
 import Playground exposing (..)
 import Random exposing (Generator, Seed)
+import String exposing (fromFloat)
 
 
 
@@ -630,7 +631,11 @@ stepMonsters mem =
 
 view : Computer -> Mem -> List Shape
 view computer mem =
-    [ words black "Welcome to Adventure"
+    [ [ words black "Welcome to Adventure"
+      , words black ("House Health: " ++ fromFloat mem.houseHealth)
+            |> moveDown 50
+      ]
+        |> group
         |> moveY computer.screen.top
         |> moveDown 50
     , viewPathPt mem.pathStart
