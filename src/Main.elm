@@ -229,7 +229,15 @@ type alias TowerRecord =
 
 
 type Bullet
-    = Bullet BulletId PtMov MonsterId
+    = InFlight BulletRec
+    | ReachedMonster BulletRec
+
+
+type alias BulletRec =
+    { id : BulletId
+    , mov : PtMov
+    , monsterId : MonsterId
+    }
 
 
 type BulletId
@@ -243,7 +251,15 @@ randomBulletId =
 
 newBullet : Pt -> Pt -> MonsterId -> Generator Bullet
 newBullet pos target monsterId =
-    randomBulletId |> Random.map (\id -> Bullet id (initPtMov pos target 20) monsterId)
+    randomBulletId
+        |> Random.map
+            (\id ->
+                InFlight
+                    { id = id
+                    , mov = initPtMov pos target 20
+                    , monsterId = monsterId
+                    }
+            )
 
 
 initTower : Pt -> Tower
@@ -298,13 +314,23 @@ viewTower (Tower { pos }) =
 viewBullets : List Bullet -> Shape
 viewBullets bullets =
     let
-        viewBullet (Bullet _ mov _) =
-            let
-                { x, y } =
-                    ptMovToCurr mov
-            in
-            circle green 5
-                |> move x y
+        viewBullet b =
+            case b of
+                InFlight br ->
+                    let
+                        { x, y } =
+                            ptMovToCurr br.mov
+                    in
+                    circle green 5
+                        |> move x y
+
+                ReachedMonster br ->
+                    let
+                        { x, y } =
+                            ptMovToCurr br.mov
+                    in
+                    circle green 5
+                        |> move x y
     in
     List.map viewBullet bullets
         |> group
@@ -413,15 +439,21 @@ didBulletReachMonster bullet =
 stepBullets : List Bullet -> List Bullet
 stepBullets bullets =
     let
-        stepBullet (Bullet id mov monsterId) =
-            case stepPtMov mov of
-                ( True, _ ) ->
-                    Nothing
+        stepBullet : Bullet -> Bullet
+        stepBullet b =
+            case b of
+                InFlight br ->
+                    case stepPtMov br.mov of
+                        ( True, nm ) ->
+                            ReachedMonster { br | mov = nm }
 
-                ( False, nMov ) ->
-                    Just (Bullet id nMov monsterId)
+                        ( False, nm ) ->
+                            InFlight { br | mov = nm }
+
+                ReachedMonster _ ->
+                    b
     in
-    List.filterMap stepBullet bullets
+    List.map stepBullet bullets
 
 
 
