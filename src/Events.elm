@@ -64,8 +64,8 @@ decrementMonsterHealth monster =
     { monster | health = max 0 (monster.health - 1) }
 
 
-remainingProgressOfMonster : Monster -> Number
-remainingProgressOfMonster monster =
+remainingTravelPctOfMonster : Monster -> Number
+remainingTravelPctOfMonster monster =
     1 - monster.travel
 
 
@@ -199,12 +199,12 @@ updateWorld world =
         ( selfUpdatedHouse, houseEvents ) =
             stepHouse world.house
 
-        sortedMonsters =
+        sortedByRemainingDistanceToHouse =
             world.monsters
-                |> List.sortBy remainingProgressOfMonster
+                |> List.sortBy remainingTravelPctOfMonster
 
         ( selfUpdatedTowers, towerEventGroups ) =
-            List.map (stepTower sortedMonsters) world.towers
+            List.map (stepTower sortedByRemainingDistanceToHouse) world.towers
                 |> List.unzip
 
         ( selfUpdatedBullets, bulletEventGroups ) =
