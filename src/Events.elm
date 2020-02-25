@@ -99,8 +99,31 @@ initLair =
     }
 
 
-type House
-    = House
+type alias House =
+    { maxHealth : Number
+    , health : Number
+    }
+
+
+initHouse : House
+initHouse =
+    let
+        maxHealth =
+            10
+    in
+    { maxHealth = maxHealth
+    , health = maxHealth
+    }
+
+
+healthOfHouse : House -> Number
+healthOfHouse house =
+    1
+
+
+decrementHouseHealth : House -> House
+decrementHouseHealth house =
+    { house | health = max 0 (house.health - 1) }
 
 
 type Game
@@ -115,7 +138,7 @@ init =
         , towers = List.range 0 1 |> List.map initTower
         , bullets = []
         , monsters = []
-        , house = House
+        , house = initHouse
         , nextIdx = 0
         }
 
@@ -165,11 +188,6 @@ update computer game =
 hasHouseBurnedDown : World -> Bool
 hasHouseBurnedDown world =
     healthOfHouse world.house == 0
-
-
-healthOfHouse : House -> Number
-healthOfHouse house =
-    1
 
 
 updateWorld : World -> World
@@ -240,7 +258,7 @@ handleEvent world event acc =
             { acc | monsters = List.filter (idOfMonster >> isNot monsterId) acc.monsters }
 
         MonsterReachedHouse ->
-            acc
+            { acc | house = decrementHouseHealth acc.house }
 
         SpawnMonster ->
             { acc
