@@ -324,7 +324,15 @@ view computer game =
                 |> group
                 |> moveY computer.screen.top
                 |> moveDown 50
+            , List.map viewMonster world.monsters
+                |> group
             ]
 
         GameOver world ->
             [ words red "GAME OVER" |> scale 3 ]
+
+
+viewMonster : Monster -> Shape
+viewMonster monster =
+    [ circle red 50 ]
+        |> group
