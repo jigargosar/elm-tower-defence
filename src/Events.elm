@@ -1,6 +1,6 @@
-module Events exposing (Game, init, update)
+module Events exposing (Game, init, update, view)
 
-import Playground exposing (Number)
+import Playground exposing (..)
 
 
 type Bullet
@@ -62,6 +62,10 @@ type Event
     | RemoveBullet BulletId
     | RemoveMonster MonsterId
     | MonsterReachedHouse
+
+
+
+-- UPDATE
 
 
 update : Game -> Game
@@ -182,3 +186,12 @@ stepMonster monster =
 stepBullet : Bullet -> ( Bullet, List Event )
 stepBullet bullet =
     ( bullet, [] )
+
+
+
+-- View
+
+
+view : Game -> Shape
+view game =
+    group []
