@@ -5,13 +5,22 @@ import Random exposing (Seed, initialSeed)
 import String exposing (fromFloat, fromInt)
 
 
-type Bullet
-    = Bullet BulletId MonsterId
+type alias Bullet =
+    { id : BulletId
+    , monsterId : MonsterId
+    , elapsed : Number
+    , ticksToHit : Number
+    }
 
 
 initBullet : Int -> MonsterId -> Bullet
 initBullet idx monsterId =
-    Bullet (BulletId idx) monsterId
+    Bullet (BulletId idx) monsterId 0 100
+
+
+idOfBullet : Bullet -> BulletId
+idOfBullet bullet =
+    bullet.id
 
 
 type BulletId
@@ -186,7 +195,11 @@ handleEvent world event acc =
             acc
 
         RemoveBullet bulletId ->
-            acc
+            let
+                isNot =
+                    (/=)
+            in
+            { acc | bullets = List.filter (idOfBullet >> isNot bulletId) acc.bullets }
 
         RemoveMonster monsterId ->
             acc
@@ -258,7 +271,11 @@ stepMonster monster =
 
 stepBullet : Bullet -> ( Bullet, List Event )
 stepBullet bullet =
-    ( bullet, [] )
+    if bullet.elapsed >= bullet.ticksToHit then
+        ( bullet, [ RemoveBullet bullet.id, BulletHitMonster bullet.monsterId ] )
+
+    else
+        ( { bullet | elapsed = bullet.elapsed + 1 }, [] )
 
 
 
