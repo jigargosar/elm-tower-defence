@@ -356,12 +356,12 @@ view computer game =
                 |> moveY computer.screen.top
                 |> moveDown 50
             , viewWorldStats computer world |> moveDown 50
-            , viewWorld world
+            , viewWorld computer world
             ]
 
         GameOver world ->
             [ [ viewWorldStats computer world |> moveDown 50
-              , viewWorld world
+              , viewWorld computer world
               ]
                 |> group
                 |> fade 0.5
@@ -388,20 +388,25 @@ viewWorldStats computer world =
         |> group
 
 
-viewWorld : World -> Shape
-viewWorld world =
-    [ viewPath
-    , List.map viewMonster world.monsters
+viewWorld : Computer -> World -> Shape
+viewWorld computer world =
+    let
+        pathLength =
+            computePathLength computer.screen
+    in
+    [ viewPath pathLength
+    , List.map (viewMonster pathLength) world.monsters
         |> group
     ]
         |> group
 
 
-pathLength =
-    400
+computePathLength : Screen -> Number
+computePathLength s =
+    s.width * 0.9
 
 
-viewPath =
+viewPath pathLength =
     let
         ep =
             circle black 8
@@ -411,8 +416,8 @@ viewPath =
         |> group
 
 
-viewMonster : Monster -> Shape
-viewMonster monster =
+viewMonster : Number -> Monster -> Shape
+viewMonster pathLength monster =
     let
         x =
             (monster.travel - 0.5) * pathLength
