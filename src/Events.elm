@@ -40,13 +40,14 @@ type alias Monster =
     { id : MonsterId
     , maxHealth : Number
     , speed : Number
+    , dyingTicks : Number
     , state : MonsterState
     }
 
 
 type MonsterState
     = AliveAndKicking { health : Number, travel : Number }
-    | Dead { travel : Number }
+    | Dying { travel : Number, remainingTicks : Number }
     | ReachedHouse { health : Number }
     | ReadyForRemoval
 
@@ -61,6 +62,7 @@ initMonster idx =
     , maxHealth = maxHealth
     , state = AliveAndKicking { health = maxHealth, travel = 0 }
     , speed = 1 / (60 * 10)
+    , dyingTicks = 120
     }
 
 
@@ -75,14 +77,14 @@ decrementMonsterHealth monster =
                             health - 1
                     in
                     (if newHealth <= 0 then
-                        Dead { travel = travel }
+                        Dying { travel = travel, remainingTicks = monster.dyingTicks }
 
                      else
                         AliveAndKicking { health = newHealth, travel = travel }
                     )
                         |> Just
 
-                Dead _ ->
+                Dying _ ->
                     Nothing
 
                 ReachedHouse _ ->
@@ -105,7 +107,7 @@ remainingTravelPctOfMonster monster =
         AliveAndKicking { travel } ->
             1 - travel
 
-        Dead _ ->
+        Dying _ ->
             0
 
         ReachedHouse _ ->
@@ -388,8 +390,14 @@ stepMonster monster =
                     else
                         ( AliveAndKicking { health = health, travel = newTravel }, [] )
 
-                Dead _ ->
-                    ( ReadyForRemoval, [ RemoveMonster monster.id ] )
+                Dying { travel, remainingTicks } ->
+                    if remainingTicks <= 0 then
+                        ( ReadyForRemoval, [ RemoveMonster monster.id ] )
+
+                    else
+                        ( Dying { travel = travel, remainingTicks = max 0 (remainingTicks - 1) }
+                        , []
+                        )
 
                 ReachedHouse _ ->
                     ( ReadyForRemoval, [ RemoveMonster monster.id ] )
@@ -497,7 +505,7 @@ viewMonster pathLength monster =
                 |> group
                 |> moveRight x
 
-        Dead _ ->
+        Dying _ ->
             group []
 
         ReachedHouse _ ->
