@@ -73,7 +73,10 @@ type alias Lair =
 
 initLair : Lair
 initLair =
-    Lair (initialSeed 0) 100 0
+    { seed = initialSeed 0
+    , delay = 100
+    , elapsed = 0
+    }
 
 
 type House
