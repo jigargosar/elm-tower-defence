@@ -1,5 +1,6 @@
 module Main exposing (main)
 
+import List.Extra
 import Playground exposing (..)
 import Random exposing (Generator, Seed)
 
@@ -233,6 +234,15 @@ type Bullet
     | ReachedMonster BulletRec
 
 
+idOfBullet b =
+    case b of
+        InFlight br ->
+            br.id
+
+        ReachedMonster br ->
+            br.id
+
+
 type alias BulletRec =
     { id : BulletId
     , mov : PtMov
@@ -379,7 +389,7 @@ init =
 
 update : Computer -> Mem -> Mem
 update computer mem =
-    computeEvents mem
+    computeEventsAndUpdateMem mem
         |> update2 computer
 
 
@@ -411,24 +421,51 @@ update2 computer mem =
 
 type Event
     = DecrementMonsterHealth MonsterId
+    | RemoveBullet BulletId
 
 
-computeEvents : Mem -> Mem
+computeEventsAndUpdateMem : Mem -> Mem
+computeEventsAndUpdateMem mem =
+    let
+        events =
+            computeEvents mem
+    in
+    List.foldl updateMemWithEvent mem events
+
+
+updateMemWithEvent : Event -> Mem -> Mem
+updateMemWithEvent event mem =
+    case event of
+        DecrementMonsterHealth monsterId ->
+            mem
+
+        RemoveBullet bulletId ->
+            { mem | bullets = rejectWhen (idOfBullet >> eq bulletId) mem.bullets }
+
+
+eq =
+    (/=)
+
+
+rejectWhen : (a -> Bool) -> List a -> List a
+rejectWhen pred =
+    List.filter (pred >> not)
+
+
+computeEvents : Mem -> List Event
 computeEvents mem =
     let
-        foo bullet =
-            case didBulletReachMonster bullet of
-                Just monsterId ->
-                    [ DecrementMonsterHealth monsterId
-                    ]
-
-                Nothing ->
+        eventsFromBulletState bullet =
+            case bullet of
+                InFlight _ ->
                     []
 
-        events =
-            List.concatMap foo mem.bullets
+                ReachedMonster br ->
+                    [ DecrementMonsterHealth br.monsterId
+                    , RemoveBullet (idOfBullet bullet)
+                    ]
     in
-    mem
+    List.concatMap eventsFromBulletState mem.bullets
 
 
 didBulletReachMonster : Bullet -> Maybe MonsterId
