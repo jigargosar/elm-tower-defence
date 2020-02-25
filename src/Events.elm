@@ -38,8 +38,9 @@ type BulletId
 
 type alias Monster =
     { id : MonsterId
-    , health : Number
     , maxHealth : Number
+    , health : Number
+    , travel : Number
     }
 
 
@@ -49,7 +50,11 @@ initMonster idx =
         maxHealth =
             15
     in
-    Monster (MonsterId idx) maxHealth maxHealth
+    { id = MonsterId idx
+    , maxHealth = maxHealth
+    , health = maxHealth
+    , travel = 0
+    }
 
 
 decrementMonsterHealth : Monster -> Monster
