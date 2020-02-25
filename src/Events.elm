@@ -21,12 +21,22 @@ type MonsterId
     = MonsterId
 
 
-type Tower
-    = Tower
+type alias Tower =
+    {}
+
+
+initTower : Int -> Tower
+initTower int =
+    Tower
 
 
 type alias Lair =
     { seed : Seed, delay : Number, elapsed : Number }
+
+
+initLair : Lair
+initLair =
+    Lair (initialSeed 0) 10 0
 
 
 type House
@@ -41,8 +51,8 @@ type Game
 init : Game
 init =
     Running
-        { lair = Lair (initialSeed 0) 10 0
-        , towers = []
+        { lair = initLair
+        , towers = List.range 0 3 |> List.map initTower
         , bullets = []
         , monsters = []
         , house = House
