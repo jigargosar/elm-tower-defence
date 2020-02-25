@@ -494,7 +494,7 @@ update2 computer mem =
     { mem
         | monsters = generatedMonsters ++ stepMonsters mem
         , seed = newSeed0
-        , bullets = generatedBullets ++ stepBullets mem.bullets
+        , bullets = generatedBullets ++ mem.bullets
         , tower = updatedTower
     }
 
@@ -589,26 +589,6 @@ computeEvents mem =
     in
     List.concatMap eventsFromBulletState mem.bullets
         ++ List.concatMap eventsFromMonsterState mem.monsters
-
-
-stepBullets : List Bullet -> List Bullet
-stepBullets bullets =
-    let
-        stepBullet : Bullet -> Bullet
-        stepBullet b =
-            case b of
-                InFlight br ->
-                    case stepPtMov br.mov of
-                        ( True, nm ) ->
-                            ReachedMonster { br | mov = nm }
-
-                        ( False, nm ) ->
-                            InFlight { br | mov = nm }
-
-                ReachedMonster _ ->
-                    b
-    in
-    List.map stepBullet bullets
 
 
 
