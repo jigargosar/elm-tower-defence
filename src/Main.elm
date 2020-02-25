@@ -179,6 +179,24 @@ decrementMonsterHealth m =
             ReachedPathEnd mr
 
 
+moveMonsterOnPath : Monster -> Monster
+moveMonsterOnPath monster =
+    case monster of
+        FollowingPath mr ->
+            case stepPtMovPath mr.movPath of
+                ( True, nmp ) ->
+                    ReachedPathEnd { mr | movPath = nmp }
+
+                ( False, nmp ) ->
+                    FollowingPath { mr | movPath = nmp }
+
+        Dead _ ->
+            monster
+
+        ReachedPathEnd _ ->
+            monster
+
+
 posOfMonster : Monster -> Pt
 posOfMonster m =
     case m of
@@ -485,6 +503,7 @@ type Action
     | SetBulletReachedMonster BulletId
     | DecrementHouseHealth
     | NoAction
+    | MoveMonsterOnPath MonsterId
 
 
 computeActionsAndUpdateMem : Mem -> Mem
@@ -525,6 +544,14 @@ updateMemWithAction event mem =
         DecrementHouseHealth ->
             Debug.todo "impl"
 
+        MoveMonsterOnPath monsterId ->
+            { mem
+                | monsters =
+                    List.Extra.updateIf (idOfMonster >> eq monsterId)
+                        moveMonsterOnPath
+                        mem.monsters
+            }
+
 
 eq =
     (==)
@@ -560,8 +587,8 @@ computeActions mem =
 
         eventsFromMonsterState monster =
             case monster of
-                FollowingPath _ ->
-                    []
+                FollowingPath r ->
+                    [ MoveMonsterOnPath r.id ]
 
                 Dead _ ->
                     [ RemoveMonster (idOfMonster monster) ]
