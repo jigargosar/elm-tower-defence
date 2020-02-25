@@ -355,12 +355,15 @@ view computer game =
                 |> scale 3
                 |> moveY computer.screen.top
                 |> moveDown 50
-            , viewWorldStats computer world
-                |> moveDown 50
+            , viewWorldStats computer world |> moveDown 50
+            , viewWorld world
             ]
 
         GameOver world ->
-            [ viewWorldStats computer world
+            [ [ viewWorldStats computer world |> moveDown 50
+              , viewWorld world
+              ]
+                |> group
                 |> fade 0.5
             , words red "GAME OVER" |> scale 3
             ]
@@ -381,7 +384,13 @@ viewWorldStats computer world =
         |> group
         |> moveY computer.screen.top
         |> moveDown 50
-    , viewPath
+    ]
+        |> group
+
+
+viewWorld : World -> Shape
+viewWorld world =
+    [ viewPath
     , List.map viewMonster world.monsters
         |> group
     ]
