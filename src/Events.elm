@@ -395,7 +395,7 @@ pathLength =
 viewPath =
     let
         ep =
-            circle black 5
+            circle black 8
                 |> fade 0.8
     in
     [ ep |> moveLeft (pathLength / 2), ep |> moveRight (pathLength / 2) ]
