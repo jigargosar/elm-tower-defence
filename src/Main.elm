@@ -303,6 +303,26 @@ idOfBullet b =
             br.id
 
 
+setBulletMov : PtMov -> Bullet -> Bullet
+setBulletMov ptMov bullet =
+    case bullet of
+        InFlight r ->
+            InFlight { r | mov = ptMov }
+
+        ReachedMonster r ->
+            ReachedMonster { r | mov = ptMov }
+
+
+setBulletReachedMonster : Bullet -> Bullet
+setBulletReachedMonster bullet =
+    case bullet of
+        InFlight r ->
+            ReachedMonster r
+
+        ReachedMonster _ ->
+            bullet
+
+
 type alias BulletRec =
     { id : BulletId
     , mov : PtMov
@@ -449,7 +469,7 @@ init =
 
 update : Computer -> Mem -> Mem
 update computer mem =
-    computeEventsAndUpdateMem mem
+    computeActionsAndUpdateMem mem
         |> update2 computer
 
 
@@ -479,23 +499,26 @@ update2 computer mem =
     }
 
 
-type Event
+type Action
     = DecrementMonsterHealth MonsterId
     | RemoveBullet BulletId
     | RemoveMonster MonsterId
+    | UpdateBulletMov BulletId PtMov
+    | SetBulletReachedMonster BulletId
+    | NoAction
 
 
-computeEventsAndUpdateMem : Mem -> Mem
-computeEventsAndUpdateMem mem =
+computeActionsAndUpdateMem : Mem -> Mem
+computeActionsAndUpdateMem mem =
     let
         events =
             computeEvents mem
     in
-    List.foldl updateMemWithEvent mem events
+    List.foldl updateMemWithAction mem events
 
 
-updateMemWithEvent : Event -> Mem -> Mem
-updateMemWithEvent event mem =
+updateMemWithAction : Action -> Mem -> Mem
+updateMemWithAction event mem =
     case event of
         DecrementMonsterHealth monsterId ->
             { mem
@@ -511,6 +534,15 @@ updateMemWithEvent event mem =
         RemoveMonster monsterId ->
             { mem | monsters = rejectWhen (idOfMonster >> eq monsterId) mem.monsters }
 
+        UpdateBulletMov bulletId ptMov ->
+            { mem | bullets = List.Extra.updateIf (idOfBullet >> eq bulletId) (setBulletMov ptMov) mem.bullets }
+
+        SetBulletReachedMonster bulletId ->
+            { mem | bullets = List.Extra.updateIf (idOfBullet >> eq bulletId) setBulletReachedMonster mem.bullets }
+
+        NoAction ->
+            mem
+
 
 eq =
     (==)
@@ -521,13 +553,23 @@ rejectWhen pred =
     List.filter (pred >> not)
 
 
-computeEvents : Mem -> List Event
+computeEvents : Mem -> List Action
 computeEvents mem =
     let
         eventsFromBulletState bullet =
             case bullet of
-                InFlight _ ->
-                    []
+                InFlight br ->
+                    let
+                        ( reached, nm ) =
+                            stepPtMov br.mov
+                    in
+                    [ UpdateBulletMov br.id nm
+                    , if reached then
+                        SetBulletReachedMonster br.id
+
+                      else
+                        NoAction
+                    ]
 
                 ReachedMonster br ->
                     [ DecrementMonsterHealth br.monsterId
