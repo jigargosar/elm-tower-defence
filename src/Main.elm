@@ -145,29 +145,64 @@ type MonsterId
 
 
 type Monster
-    = Monster MonsterId PtMovPath
+    = FollowingPath MonsterRec
+    | Dead MonsterRec
+    | ReachedPathEnd MonsterRec
+
+
+type alias MonsterRec =
+    { id : MonsterId
+    , movPath : PtMovPath
+    , health : Number
+    , maxHealth : Number
+    }
 
 
 posOfMonster : Monster -> Pt
-posOfMonster (Monster _ mp) =
-    ptMovPathToCurr mp
+posOfMonster m =
+    case m of
+        FollowingPath mr ->
+            ptMovPathToCurr mr.movPath
+
+        Dead mr ->
+            ptMovPathToCurr mr.movPath
+
+        ReachedPathEnd mr ->
+            ptMovPathToCurr mr.movPath
 
 
 idOfMonster : Monster -> MonsterId
-idOfMonster (Monster id _) =
-    id
+idOfMonster m =
+    case m of
+        FollowingPath mr ->
+            mr.id
+
+        Dead mr ->
+            mr.id
+
+        ReachedPathEnd mr ->
+            mr.id
 
 
 randomMonsterId =
     Random.int 0 Random.maxInt |> Random.map MonsterId
 
 
-randomMonster : Mem -> Generator Monster
-randomMonster mem =
+newMonster : Mem -> Generator Monster
+newMonster mem =
     randomMonsterId
         |> Random.map
             (\id ->
-                Monster id (initPtMovPath mem.pathStart mem.path mem.speed)
+                let
+                    maxHealth =
+                        10
+                in
+                FollowingPath
+                    { id = id
+                    , movPath = initPtMovPath mem.pathStart mem.path mem.speed
+                    , health = maxHealth
+                    , maxHealth = maxHealth
+                    }
             )
 
 
@@ -177,7 +212,7 @@ randomMonsterSpawn mem =
         |> Random.andThen
             (\n ->
                 if n < 10 then
-                    randomMonster mem |> Random.map List.singleton
+                    newMonster mem |> Random.map List.singleton
 
                 else
                     Random.constant []
@@ -187,27 +222,31 @@ randomMonsterSpawn mem =
 stepMonsters : Mem -> List Monster
 stepMonsters mem =
     let
-        stepMonster (Monster id mp) =
-            stepPtMovPath mp
-                |> Tuple.mapSecond (Monster id)
+        stepMonster m =
+            case m of
+                FollowingPath mr ->
+                    case stepPtMovPath mr.movPath of
+                        ( True, nmp ) ->
+                            ReachedPathEnd { mr | movPath = nmp }
+
+                        ( False, nmp ) ->
+                            FollowingPath { mr | movPath = nmp }
+
+                Dead mr ->
+                    Dead mr
+
+                ReachedPathEnd mr ->
+                    ReachedPathEnd mr
     in
     List.map stepMonster mem.monsters
-        |> List.filterMap
-            (\( remove, monster ) ->
-                if remove then
-                    Nothing
-
-                else
-                    Just monster
-            )
 
 
 viewMonster : Monster -> Shape
-viewMonster (Monster _ mp) =
+viewMonster m =
     circle red 10
         |> (let
                 pt =
-                    ptMovPathToCurr mp
+                    posOfMonster m
             in
             move pt.x pt.y
            )
