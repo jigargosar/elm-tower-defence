@@ -199,12 +199,12 @@ updateWorld world =
         ( selfUpdatedHouse, houseEvents ) =
             stepHouse world.house
 
-        sortedByRemainingDistanceToHouse =
+        monstersSortedByClosestToHouse =
             world.monsters
                 |> List.sortBy remainingTravelPctOfMonster
 
         ( selfUpdatedTowers, towerEventGroups ) =
-            List.map (stepTower sortedByRemainingDistanceToHouse) world.towers
+            List.map (stepTower monstersSortedByClosestToHouse) world.towers
                 |> List.unzip
 
         ( selfUpdatedBullets, bulletEventGroups ) =
