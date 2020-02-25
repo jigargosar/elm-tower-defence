@@ -64,6 +64,11 @@ decrementMonsterHealth monster =
     { monster | health = max 0 (monster.health - 1) }
 
 
+remainingProgressOfMonster : Monster -> Number
+remainingProgressOfMonster monster =
+    1 - monster.travel
+
+
 idOfMonster : Monster -> MonsterId
 idOfMonster =
     .id
@@ -198,6 +203,10 @@ updateWorld world =
 
         ( selfUpdatedHouse, houseEvents ) =
             stepHouse world.house
+
+        sortedMonsters =
+            world.monsters
+                |> List.sortBy remainingProgressOfMonster
 
         ( selfUpdatedTowers, towerEventGroups ) =
             List.map (stepTower world.monsters) world.towers
