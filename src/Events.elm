@@ -41,6 +41,7 @@ type alias Monster =
     , maxHealth : Number
     , health : Number
     , travel : Number
+    , speed : Number
     }
 
 
@@ -54,6 +55,7 @@ initMonster idx =
     , maxHealth = maxHealth
     , health = maxHealth
     , travel = 0
+    , speed = 0.1
     }
 
 
@@ -307,8 +309,11 @@ stepMonster monster =
     if monster.health <= 0 then
         ( monster, [ RemoveMonster monster.id ] )
 
+    else if monster.travel >= 1 then
+        ( monster, [ RemoveMonster monster.id, MonsterReachedHouse ] )
+
     else
-        ( monster, [] )
+        ( { monster | travel = monster.travel + monster.speed }, [] )
 
 
 stepBullet : Bullet -> ( Bullet, List Event )
