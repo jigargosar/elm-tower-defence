@@ -512,7 +512,7 @@ computeActionsAndUpdateMem : Mem -> Mem
 computeActionsAndUpdateMem mem =
     let
         events =
-            computeEvents mem
+            computeActions mem
     in
     List.foldl updateMemWithAction mem events
 
@@ -553,8 +553,8 @@ rejectWhen pred =
     List.filter (pred >> not)
 
 
-computeEvents : Mem -> List Action
-computeEvents mem =
+computeActions : Mem -> List Action
+computeActions mem =
     let
         eventsFromBulletState bullet =
             case bullet of
