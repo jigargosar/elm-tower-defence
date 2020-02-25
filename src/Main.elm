@@ -227,10 +227,6 @@ type Bullet
     = Bullet BulletId PtMov
 
 
-getBulletId (Bullet id _) =
-    id
-
-
 type BulletId
     = BulletId Int
 
@@ -240,7 +236,8 @@ randomBulletId =
     Random.int 0 Random.maxInt |> Random.map BulletId
 
 
-bulletGenerator pos target =
+newBullet : Pt -> Pt -> Generator Bullet
+newBullet pos target =
     randomBulletId |> Random.map (\id -> Bullet id (initPtMov pos target 20))
 
 
@@ -273,7 +270,7 @@ stepTower monsters (Tower t) =
             if fire then
                 case targetPt of
                     Just e ->
-                        bulletGenerator t.pos e
+                        newBullet t.pos e
                             |> Random.list 1
                             |> Just
 
@@ -392,7 +389,6 @@ updateCollision mem =
             case didBulletReachMonster bullet of
                 Just monsterId ->
                     [ DecrementMonsterHealth monsterId
-                    , RemoveBullet (getBulletId bullet)
                     ]
 
                 Nothing ->
