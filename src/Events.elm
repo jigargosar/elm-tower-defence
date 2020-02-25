@@ -196,7 +196,10 @@ handleEvent world event acc =
             acc
 
         BulletHitMonster monsterId ->
-            { acc | monsters = List.filter (idOfMonster >> isNot monsterId) acc.monsters }
+            { acc
+                | monsters =
+                    List.filter (idOfMonster >> isNot monsterId) acc.monsters
+            }
 
         RemoveBullet bulletId ->
             { acc | bullets = List.filter (idOfBullet >> isNot bulletId) acc.bullets }
