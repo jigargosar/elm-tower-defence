@@ -522,8 +522,17 @@ viewMonster pathLength monster =
                 |> group
                 |> moveRight x
 
-        Dying _ ->
-            group []
+        Dying { travel, remainingTicks } ->
+            let
+                x =
+                    (travel - 0.5) * pathLength
+            in
+            [ [ circle red 30 |> fade 0.7 ] |> group
+
+            --, words white (fromInt (round health))
+            ]
+                |> group
+                |> moveRight x
 
         ReachedHouse _ ->
             group []
