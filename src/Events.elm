@@ -22,12 +22,12 @@ type MonsterId
 
 
 type alias Tower =
-    {}
+    { delay : Number, elapsed : Number }
 
 
 initTower : Int -> Tower
-initTower int =
-    Tower
+initTower _ =
+    Tower 10 0
 
 
 type alias Lair =
@@ -181,7 +181,11 @@ handleEvent world event acc =
 
 stepTower : Tower -> ( Tower, List Event )
 stepTower tower =
-    ( tower, [] )
+    if tower.elapsed >= tower.delay then
+        ( { tower | elapsed = 0 }, [] )
+
+    else
+        ( { tower | elapsed = tower.elapsed + 1 }, [] )
 
 
 stepLair : Lair -> ( Lair, List Event )
