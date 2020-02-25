@@ -55,7 +55,7 @@ initMonster idx =
     , maxHealth = maxHealth
     , health = maxHealth
     , travel = 0
-    , speed = 0.1
+    , speed = 0.01
     }
 
 
@@ -378,5 +378,18 @@ viewWorldStats computer world =
         |> group
         |> moveY computer.screen.top
         |> moveDown 50
+    , List.map viewMonster world.monsters
+        |> group
     ]
         |> group
+
+
+viewMonster : Monster -> Shape
+viewMonster monster =
+    let
+        x =
+            (monster.travel - 0.5) * 200
+    in
+    circle red 44
+        |> fade 0.7
+        |> moveRight x
