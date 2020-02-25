@@ -546,11 +546,7 @@ computeEvents mem =
                     []
     in
     List.concatMap eventsFromBulletState mem.bullets
-
-
-didBulletReachMonster : Bullet -> Maybe MonsterId
-didBulletReachMonster bullet =
-    Nothing
+        ++ List.concatMap eventsFromMonsterState mem.monsters
 
 
 stepBullets : List Bullet -> List Bullet
