@@ -92,7 +92,7 @@ init : Game
 init =
     Running
         { lair = initLair
-        , towers = List.range 0 3 |> List.map initTower
+        , towers = List.range 0 1 |> List.map initTower
         , bullets = []
         , monsters = []
         , house = House
@@ -334,6 +334,10 @@ view computer game =
 
 viewMonster : Int -> Monster -> Shape
 viewMonster idx monster =
-    [ circle red 50 ]
+    [ circle red 100
+    , words white (Debug.toString monster.id)
+    , words white (Debug.toString monster.health)
+        |> moveDown 20
+    ]
         |> group
-        |> moveDown (toFloat idx * 100)
+        |> moveDown (toFloat idx * 200)
