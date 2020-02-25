@@ -408,6 +408,6 @@ viewMonster monster =
         x =
             (monster.travel - 0.5) * pathLength
     in
-    circle red 10
+    circle red 30
         |> fade 0.7
         |> moveRight x
