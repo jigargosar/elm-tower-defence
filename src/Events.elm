@@ -324,7 +324,7 @@ view computer game =
                 |> group
                 |> moveY computer.screen.top
                 |> moveDown 50
-            , List.map viewMonster world.monsters
+            , List.indexedMap viewMonster world.monsters
                 |> group
             ]
 
@@ -332,7 +332,8 @@ view computer game =
             [ words red "GAME OVER" |> scale 3 ]
 
 
-viewMonster : Monster -> Shape
-viewMonster monster =
+viewMonster : Int -> Monster -> Shape
+viewMonster idx monster =
     [ circle red 50 ]
         |> group
+        |> moveDown (toFloat idx * 100)
