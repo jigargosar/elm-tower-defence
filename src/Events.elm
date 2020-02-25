@@ -68,8 +68,8 @@ type Event
 -- UPDATE
 
 
-update : Game -> Game
-update game =
+update : Computer -> Game -> Game
+update computer game =
     case game of
         Running world ->
             let
@@ -192,6 +192,6 @@ stepBullet bullet =
 -- View
 
 
-view : Game -> Shape
-view game =
-    group []
+view : Computer -> Game -> List Shape
+view computer game =
+    []

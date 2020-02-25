@@ -1,5 +1,6 @@
 module Main exposing (main)
 
+import Events
 import List.Extra
 import Playground exposing (..)
 import Random exposing (Generator, Seed)
@@ -655,3 +656,4 @@ viewPathPt pt =
 
 main =
     game view update init
+        |> always (game Events.view Events.update Events.init)
