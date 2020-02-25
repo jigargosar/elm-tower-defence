@@ -351,21 +351,32 @@ view : Computer -> Game -> List Shape
 view computer game =
     case game of
         Running world ->
-            [ [ words blue "Game Running" |> scale 3
-              , words black ("House Health: " ++ fromInt (round (healthOfHouse world.house)))
-                    |> scale 2
-              , words black ("Monster Count: " ++ fromInt (List.length world.monsters))
-                    |> scale 2
-              , words black ("Tower Count: " ++ fromInt (List.length world.towers))
-                    |> scale 2
-              , words black ("Bullet Count: " ++ fromInt (List.length world.bullets))
-                    |> scale 2
-              ]
-                |> List.indexedMap (toFloat >> (\idx -> moveDown (idx * 50)))
-                |> group
+            [ words blue "Game Running"
+                |> scale 3
                 |> moveY computer.screen.top
+                |> moveDown 50
+            , viewWorld computer world
                 |> moveDown 50
             ]
 
         GameOver world ->
-            [ words red "GAME OVER" |> scale 3 ]
+            [ words red "GAME OVER" |> scale 3, viewWorld computer world ]
+
+
+viewWorld : Computer -> World -> Shape
+viewWorld computer world =
+    [ [ words black ("House Health: " ++ fromInt (round (healthOfHouse world.house)))
+            |> scale 2
+      , words black ("Monster Count: " ++ fromInt (List.length world.monsters))
+            |> scale 2
+      , words black ("Tower Count: " ++ fromInt (List.length world.towers))
+            |> scale 2
+      , words black ("Bullet Count: " ++ fromInt (List.length world.bullets))
+            |> scale 2
+      ]
+        |> List.indexedMap (toFloat >> (\idx -> moveDown (idx * 50)))
+        |> group
+        |> moveY computer.screen.top
+        |> moveDown 50
+    ]
+        |> group
