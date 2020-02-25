@@ -431,6 +431,7 @@ type alias Mem =
     , monsters : List Monster
     , bullets : List Bullet
     , pathStart : Pt
+    , houseHealth : Number
     , path : List Pt
     , seed : Seed
     , tower : Tower
@@ -450,6 +451,7 @@ init =
             [ Pt -300 200, Pt -200 100, Pt 0 100, Pt 0 0, Pt -100 -200, Pt 300 -200 ]
     in
     { speed = speed
+    , houseHealth = 10
     , monsters = []
     , bullets = []
     , pathStart = pathStart
@@ -542,7 +544,7 @@ updateMemWithAction event mem =
             mem
 
         DecrementHouseHealth ->
-            Debug.todo "impl"
+            { mem | houseHealth = max 0 (mem.houseHealth - 1) }
 
         MoveMonsterOnPath monsterId ->
             { mem
