@@ -337,22 +337,7 @@ view computer game =
                 |> group
                 |> moveY computer.screen.top
                 |> moveDown 50
-            , world.monsters
-                |> List.sortBy comparableIdOfMonster
-                |> List.indexedMap viewMonster
-                |> group
             ]
 
         GameOver world ->
             [ words red "GAME OVER" |> scale 3 ]
-
-
-viewMonster : Int -> Monster -> Shape
-viewMonster idx monster =
-    [ circle red 100
-    , words white (Debug.toString monster.id)
-    , words white (Debug.toString monster.health)
-        |> moveDown 20
-    ]
-        |> group
-        |> moveDown (toFloat idx * 200)
