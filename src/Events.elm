@@ -395,8 +395,8 @@ pathLength =
 viewPath =
     let
         ep =
-            circle black 3
-                |> fade 0.7
+            circle black 5
+                |> fade 0.8
     in
     [ ep |> moveLeft (pathLength / 2), ep |> moveRight (pathLength / 2) ]
         |> group
