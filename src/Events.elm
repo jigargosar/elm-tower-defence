@@ -47,7 +47,7 @@ initMonster : Int -> Monster
 initMonster idx =
     let
         maxHealth =
-            10
+            15
     in
     Monster (MonsterId idx) maxHealth maxHealth
 
@@ -60,6 +60,11 @@ decrementMonsterHealth monster =
 idOfMonster : Monster -> MonsterId
 idOfMonster =
     .id
+
+
+comparableIdOfMonster : Monster -> Int
+comparableIdOfMonster =
+    idOfMonster >> (\(MonsterId int) -> int)
 
 
 type MonsterId
@@ -332,7 +337,9 @@ view computer game =
                 |> group
                 |> moveY computer.screen.top
                 |> moveDown 50
-            , List.indexedMap viewMonster world.monsters
+            , world.monsters
+                |> List.sortBy comparableIdOfMonster
+                |> List.indexedMap viewMonster
                 |> group
             ]
 
