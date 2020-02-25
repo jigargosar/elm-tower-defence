@@ -3,7 +3,7 @@ module Events exposing (Game, init, update, view)
 import List.Extra
 import Playground exposing (..)
 import Random exposing (Seed, initialSeed)
-import String exposing (fromFloat, fromInt)
+import String exposing (fromInt)
 
 
 bulletFireDelay =
