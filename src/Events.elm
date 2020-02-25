@@ -1,6 +1,7 @@
 module Events exposing (Game, init, update, view)
 
 import Playground exposing (..)
+import Random exposing (Seed, initialSeed)
 
 
 type Bullet
@@ -23,8 +24,8 @@ type Tower
     = Tower
 
 
-type Lair
-    = Lair
+type alias Lair =
+    { seed : Seed, delay : Number, elapsed : Number }
 
 
 type House
@@ -39,7 +40,7 @@ type Game
 init : Game
 init =
     Running
-        { lair = Lair
+        { lair = Lair (initialSeed 0) 10 0
         , towers = []
         , bullets = []
         , monsters = []
@@ -58,6 +59,7 @@ type alias World =
 
 type Event
     = NoEvent
+    | SpawnMonster
     | BulletHitMonster MonsterId
     | RemoveBullet BulletId
     | RemoveMonster MonsterId
@@ -162,6 +164,9 @@ handleEvent world event acc =
         MonsterReachedHouse ->
             acc
 
+        SpawnMonster ->
+            acc
+
 
 stepTower : Tower -> ( Tower, List Event )
 stepTower tower =
@@ -170,7 +175,27 @@ stepTower tower =
 
 stepLair : Lair -> ( Lair, List Event )
 stepLair lair =
-    ( lair, [] )
+    if lair.elapsed >= lair.delay then
+        let
+            is =
+                (==)
+
+            randomBool =
+                Random.int 0 1 |> Random.map (is 0)
+
+            ( bool, seed ) =
+                Random.step randomBool lair.seed
+        in
+        ( { lair | elapsed = 0, seed = seed }
+        , if bool then
+            [ SpawnMonster ]
+
+          else
+            []
+        )
+
+    else
+        ( lair, [] )
 
 
 stepHouse : House -> ( House, List Event )
