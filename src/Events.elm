@@ -6,6 +6,14 @@ import Random exposing (Seed, initialSeed)
 import String exposing (fromFloat, fromInt)
 
 
+bulletFireDelay =
+    5
+
+
+bulletTicksToHitMonster =
+    20
+
+
 type alias Bullet =
     { id : BulletId
     , monsterId : MonsterId
@@ -16,7 +24,7 @@ type alias Bullet =
 
 initBullet : Int -> MonsterId -> Bullet
 initBullet idx monsterId =
-    Bullet (BulletId idx) monsterId 0 10
+    Bullet (BulletId idx) monsterId 0 bulletTicksToHitMonster
 
 
 idOfBullet : Bullet -> BulletId
@@ -64,7 +72,7 @@ type alias Tower =
 
 initTower : Int -> Tower
 initTower _ =
-    { delay = 10, elapsed = 0 }
+    { delay = bulletFireDelay, elapsed = 0 }
 
 
 type alias Lair =
