@@ -74,11 +74,6 @@ idOfMonster =
     .id
 
 
-comparableIdOfMonster : Monster -> Int
-comparableIdOfMonster =
-    idOfMonster >> (\(MonsterId int) -> int)
-
-
 type MonsterId
     = MonsterId Int
 
@@ -209,7 +204,7 @@ updateWorld world =
                 |> List.sortBy remainingProgressOfMonster
 
         ( selfUpdatedTowers, towerEventGroups ) =
-            List.map (stepTower world.monsters) world.towers
+            List.map (stepTower sortedMonsters) world.towers
                 |> List.unzip
 
         ( selfUpdatedBullets, bulletEventGroups ) =
