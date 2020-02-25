@@ -198,10 +198,6 @@ handleEvents world events acc =
     List.foldl (handleEvent world) acc events
 
 
-isNot =
-    (/=)
-
-
 handleEvent : World -> Event -> World -> World
 handleEvent world event acc =
     case event of
@@ -211,8 +207,7 @@ handleEvent world event acc =
         BulletHitMonster monsterId ->
             { acc
                 | monsters =
-                    -- List.filter (idOfMonster >> isNot monsterId) acc.monsters
-                    List.Extra.updateIf (idOfMonster >> isNot monsterId) decrementMonsterHealth acc.monsters
+                    List.Extra.updateIf (idOfMonster >> is monsterId) decrementMonsterHealth acc.monsters
             }
 
         RemoveBullet bulletId ->
@@ -251,13 +246,18 @@ stepTower monsters tower =
         ( { tower | elapsed = tower.elapsed + 1 }, [] )
 
 
+is =
+    (==)
+
+
+isNot =
+    (/=)
+
+
 stepLair : Lair -> ( Lair, List Event )
 stepLair lair =
     if lair.elapsed >= lair.delay then
         let
-            is =
-                (==)
-
             randomBool =
                 Random.int 0 1 |> Random.map (is 0)
 
