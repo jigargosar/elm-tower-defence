@@ -219,4 +219,14 @@ stepBullet bullet =
 
 view : Computer -> Game -> List Shape
 view computer game =
-    []
+    case game of
+        Running world ->
+            [ [ words blue "Game Running" |> scale 3
+              ]
+                |> group
+                |> moveY computer.screen.top
+                |> moveDown 50
+            ]
+
+        GameOver world ->
+            [ words red "GAME OVER" |> scale 3 ]
