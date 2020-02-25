@@ -40,9 +40,15 @@ type alias Monster =
     { id : MonsterId
     , maxHealth : Number
     , speed : Number
-    , health : Number
-    , travel : Number
+    , state : MonsterState
     }
+
+
+type MonsterState
+    = AliveAndKicking { health : Number, travel : Number }
+    | Dead { travel : Number }
+    | ReachedHouse { health : Number }
+    | ReadyForRemoval
 
 
 initMonster : Int -> Monster
@@ -53,20 +59,60 @@ initMonster idx =
     in
     { id = MonsterId idx
     , maxHealth = maxHealth
-    , health = maxHealth
-    , travel = 0
+    , state = AliveAndKicking { health = maxHealth, travel = 0 }
     , speed = 1 / (60 * 10)
     }
 
 
 decrementMonsterHealth : Monster -> Monster
 decrementMonsterHealth monster =
-    { monster | health = max 0 (monster.health - 1) }
+    let
+        func state =
+            case state of
+                AliveAndKicking { health, travel } ->
+                    let
+                        newHealth =
+                            health - 1
+                    in
+                    (if newHealth <= 0 then
+                        Dead { travel = travel }
+
+                     else
+                        AliveAndKicking { health = newHealth, travel = travel }
+                    )
+                        |> Just
+
+                Dead _ ->
+                    Nothing
+
+                ReachedHouse _ ->
+                    Nothing
+
+                ReadyForRemoval ->
+                    Nothing
+    in
+    case func monster.state of
+        Nothing ->
+            monster
+
+        Just state ->
+            { monster | state = state }
 
 
 remainingTravelPctOfMonster : Monster -> Number
 remainingTravelPctOfMonster monster =
-    1 - monster.travel
+    case monster.state of
+        AliveAndKicking { travel } ->
+            1 - travel
+
+        Dead _ ->
+            0
+
+        ReachedHouse _ ->
+            0
+
+        ReadyForRemoval ->
+            0
 
 
 idOfMonster : Monster -> MonsterId
@@ -328,14 +374,31 @@ stepHouse house =
 
 stepMonster : Monster -> ( Monster, List Event )
 stepMonster monster =
-    if monster.health <= 0 then
-        ( monster, [ RemoveMonster monster.id ] )
+    let
+        func state =
+            case state of
+                AliveAndKicking { health, travel } ->
+                    let
+                        newTravel =
+                            travel + monster.speed
+                    in
+                    if newTravel >= 1 then
+                        ( ReachedHouse { health = health }, [ MonsterReachedHouse ] )
 
-    else if monster.travel >= 1 then
-        ( monster, [ RemoveMonster monster.id, MonsterReachedHouse ] )
+                    else
+                        ( AliveAndKicking { health = health, travel = newTravel }, [] )
 
-    else
-        ( { monster | travel = monster.travel + monster.speed }, [] )
+                Dead _ ->
+                    ( ReadyForRemoval, [ RemoveMonster monster.id ] )
+
+                ReachedHouse _ ->
+                    ( ReadyForRemoval, [ RemoveMonster monster.id ] )
+
+                ReadyForRemoval ->
+                    ( ReadyForRemoval, [] )
+    in
+    func monster.state
+        |> Tuple.mapFirst (\state -> { monster | state = state })
 
 
 stepBullet : Bullet -> ( Bullet, List Event )
@@ -422,12 +485,23 @@ viewPath pathLength =
 
 viewMonster : Number -> Monster -> Shape
 viewMonster pathLength monster =
-    let
-        x =
-            (monster.travel - 0.5) * pathLength
-    in
-    [ [ circle red 30 |> fade 0.7 ] |> group
-    , words white (fromInt (round monster.health))
-    ]
-        |> group
-        |> moveRight x
+    case monster.state of
+        AliveAndKicking { travel, health } ->
+            let
+                x =
+                    (travel - 0.5) * pathLength
+            in
+            [ [ circle red 30 |> fade 0.7 ] |> group
+            , words white (fromInt (round health))
+            ]
+                |> group
+                |> moveRight x
+
+        Dead _ ->
+            group []
+
+        ReachedHouse _ ->
+            group []
+
+        ReadyForRemoval ->
+            group []
