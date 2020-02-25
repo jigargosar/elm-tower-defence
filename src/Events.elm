@@ -378,9 +378,24 @@ viewWorldStats computer world =
         |> group
         |> moveY computer.screen.top
         |> moveDown 50
+    , viewPath
     , List.map viewMonster world.monsters
         |> group
     ]
+        |> group
+
+
+pathLength =
+    400
+
+
+viewPath =
+    let
+        ep =
+            circle black 3
+                |> fade 0.7
+    in
+    [ ep |> moveLeft (pathLength / 2), ep |> moveRight (pathLength / 2) ]
         |> group
 
 
@@ -388,7 +403,7 @@ viewMonster : Monster -> Shape
 viewMonster monster =
     let
         x =
-            (monster.travel - 0.5) * 200
+            (monster.travel - 0.5) * pathLength
     in
     circle red 10
         |> fade 0.7
