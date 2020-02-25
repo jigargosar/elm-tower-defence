@@ -3,7 +3,7 @@ module Events exposing (Game, init, update, view)
 import List.Extra
 import Playground exposing (..)
 import Random exposing (Seed, initialSeed)
-import String exposing (fromInt)
+import String exposing (fromFloat, fromInt)
 
 
 bulletFireDelay =
@@ -422,6 +422,8 @@ viewMonster pathLength monster =
         x =
             (monster.travel - 0.5) * pathLength
     in
-    circle red 30
-        |> fade 0.7
+    [ [ circle red 30 |> fade 0.7 ] |> group
+    , words white (fromInt (round monster.health))
+    ]
+        |> group
         |> moveRight x
