@@ -360,7 +360,10 @@ view computer game =
             ]
 
         GameOver world ->
-            [ words red "GAME OVER" |> scale 3, viewWorldStats computer world ]
+            [ viewWorldStats computer world
+                |> fade 0.5
+            , words red "GAME OVER" |> scale 3
+            ]
 
 
 viewWorldStats : Computer -> World -> Shape
