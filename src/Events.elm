@@ -252,6 +252,12 @@ view computer game =
               , words black ("Monster Count: " ++ fromInt (List.length world.monsters))
                     |> scale 2
                     |> moveDown 50
+              , words black ("Tower Count: " ++ fromInt (List.length world.towers))
+                    |> scale 2
+                    |> moveDown 100
+              , words black ("Bullet Count: " ++ fromInt (List.length world.bullets))
+                    |> scale 2
+                    |> moveDown 150
               ]
                 |> group
                 |> moveY computer.screen.top
