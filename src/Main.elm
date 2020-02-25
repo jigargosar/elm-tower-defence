@@ -170,7 +170,7 @@ decrementMonsterHealth m =
                 Dead { mr | health = 0 }
 
             else
-                Dead { mr | health = newHealth }
+                FollowingPath { mr | health = newHealth }
 
         Dead mr ->
             Dead mr
