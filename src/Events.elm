@@ -196,7 +196,7 @@ stepLair lair =
         )
 
     else
-        ( lair, [] )
+        ( { lair | elapsed = lair.elapsed + 1 }, [] )
 
 
 stepHouse : House -> ( House, List Event )
