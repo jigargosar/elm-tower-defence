@@ -185,6 +185,10 @@ handleEvents world events acc =
     List.foldl (handleEvent world) acc events
 
 
+isNot =
+    (/=)
+
+
 handleEvent : World -> Event -> World -> World
 handleEvent world event acc =
     case event of
@@ -192,13 +196,9 @@ handleEvent world event acc =
             acc
 
         BulletHitMonster monsterId ->
-            acc
+            { acc | monsters = List.filter (idOfMonster >> isNot monsterId) acc.monsters }
 
         RemoveBullet bulletId ->
-            let
-                isNot =
-                    (/=)
-            in
             { acc | bullets = List.filter (idOfBullet >> isNot bulletId) acc.bullets }
 
         RemoveMonster monsterId ->
