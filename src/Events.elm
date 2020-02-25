@@ -3,7 +3,7 @@ module Events exposing (Game, init, update, view)
 import List.Extra
 import Playground exposing (..)
 import Random exposing (Seed, initialSeed)
-import String exposing (fromFloat, fromInt)
+import String exposing (fromInt)
 
 
 bulletFireDelay =
@@ -47,7 +47,7 @@ type alias Monster =
 
 type MonsterState
     = AliveAndKicking { health : Number, travel : Number }
-    | Dying { travel : Number, remainingTicks : Number }
+    | Dying { travel : Number, remainingTicks : Number, overKill : Number }
     | ReachedHouse { health : Number }
     | ReadyForRemoval
 
@@ -93,15 +93,16 @@ decrementMonsterHealth monster =
                             health - 1
                     in
                     (if newHealth <= 0 then
-                        Dying { travel = travel, remainingTicks = monster.dyingTicks }
+                        Dying { travel = travel, remainingTicks = monster.dyingTicks, overKill = abs newHealth }
 
                      else
                         AliveAndKicking { health = newHealth, travel = travel }
                     )
                         |> Just
 
-                Dying _ ->
-                    Nothing
+                Dying r ->
+                    Dying { r | overKill = r.overKill + 1 }
+                        |> Just
 
                 ReachedHouse _ ->
                     Nothing
@@ -407,12 +408,16 @@ stepMonster monster =
                     else
                         ( AliveAndKicking { health = health, travel = newTravel }, [] )
 
-                Dying { travel, remainingTicks } ->
+                Dying { travel, remainingTicks, overKill } ->
                     if remainingTicks <= 0 then
                         ( ReadyForRemoval, [ RemoveMonster monster.id ] )
 
                     else
-                        ( Dying { travel = travel, remainingTicks = max 0 (remainingTicks - 1) }
+                        ( Dying
+                            { travel = travel
+                            , remainingTicks = max 0 (remainingTicks - 1)
+                            , overKill = overKill
+                            }
                         , []
                         )
 
