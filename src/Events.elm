@@ -165,7 +165,7 @@ handleEvent world event acc =
             acc
 
         SpawnMonster ->
-            acc
+            { acc | monsters = Monster :: acc.monsters }
 
 
 stepTower : Tower -> ( Tower, List Event )
