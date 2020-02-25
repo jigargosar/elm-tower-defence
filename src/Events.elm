@@ -390,6 +390,6 @@ viewMonster monster =
         x =
             (monster.travel - 0.5) * 200
     in
-    circle red 44
+    circle red 10
         |> fade 0.7
         |> moveRight x
