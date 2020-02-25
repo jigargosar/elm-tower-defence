@@ -352,16 +352,16 @@ view computer game =
     case game of
         Running world ->
             [ [ words blue "Game Running" |> scale 3
+              , words black ("House Health: " ++ fromInt (round (healthOfHouse world.house)))
+                    |> scale 2
               , words black ("Monster Count: " ++ fromInt (List.length world.monsters))
                     |> scale 2
-                    |> moveDown 50
               , words black ("Tower Count: " ++ fromInt (List.length world.towers))
                     |> scale 2
-                    |> moveDown 100
               , words black ("Bullet Count: " ++ fromInt (List.length world.bullets))
                     |> scale 2
-                    |> moveDown 150
               ]
+                |> List.indexedMap (toFloat >> (\idx -> moveDown (idx * 50)))
                 |> group
                 |> moveY computer.screen.top
                 |> moveDown 50
