@@ -1,5 +1,6 @@
 module Events exposing (Game, init, update, view)
 
+import List.Extra
 import Playground exposing (..)
 import Random exposing (Seed, initialSeed)
 import String exposing (fromFloat, fromInt)
@@ -27,18 +28,30 @@ type BulletId
     = BulletId Int
 
 
-type Monster
-    = Monster MonsterId
+type alias Monster =
+    { id : MonsterId
+    , health : Number
+    , maxHealth : Number
+    }
 
 
 initMonster : Int -> Monster
 initMonster idx =
-    Monster (MonsterId idx)
+    let
+        maxHealth =
+            10
+    in
+    Monster (MonsterId idx) maxHealth maxHealth
+
+
+decrementMonsterHealth : Monster -> Monster
+decrementMonsterHealth monster =
+    { monster | health = max 0 (monster.health - 1) }
 
 
 idOfMonster : Monster -> MonsterId
-idOfMonster (Monster id) =
-    id
+idOfMonster =
+    .id
 
 
 type MonsterId
@@ -198,7 +211,8 @@ handleEvent world event acc =
         BulletHitMonster monsterId ->
             { acc
                 | monsters =
-                    List.filter (idOfMonster >> isNot monsterId) acc.monsters
+                    -- List.filter (idOfMonster >> isNot monsterId) acc.monsters
+                    List.Extra.updateIf (idOfMonster >> isNot monsterId) decrementMonsterHealth acc.monsters
             }
 
         RemoveBullet bulletId ->
