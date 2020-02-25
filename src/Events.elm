@@ -66,6 +66,22 @@ initMonster idx =
     }
 
 
+isMonsterHealthy : Monster -> Bool
+isMonsterHealthy monster =
+    case monster.state of
+        AliveAndKicking _ ->
+            True
+
+        Dying _ ->
+            False
+
+        ReachedHouse _ ->
+            False
+
+        ReadyForRemoval ->
+            False
+
+
 decrementMonsterHealth : Monster -> Monster
 decrementMonsterHealth monster =
     let
@@ -247,12 +263,13 @@ updateWorld world =
         ( selfUpdatedHouse, houseEvents ) =
             stepHouse world.house
 
-        monstersSortedByClosestToHouse =
+        healthyMonstersSortedByClosestToHouse =
             world.monsters
                 |> List.sortBy remainingTravelPctOfMonster
+                |> List.filter isMonsterHealthy
 
         ( selfUpdatedTowers, towerEventGroups ) =
-            List.map (stepTower monstersSortedByClosestToHouse) world.towers
+            List.map (stepTower healthyMonstersSortedByClosestToHouse) world.towers
                 |> List.unzip
 
         ( selfUpdatedBullets, bulletEventGroups ) =
