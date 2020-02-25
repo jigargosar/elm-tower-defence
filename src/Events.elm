@@ -2,6 +2,7 @@ module Events exposing (Game, init, update, view)
 
 import Playground exposing (..)
 import Random exposing (Seed, initialSeed)
+import String exposing (fromFloat, fromInt)
 
 
 type Bullet
@@ -222,6 +223,9 @@ view computer game =
     case game of
         Running world ->
             [ [ words blue "Game Running" |> scale 3
+              , words black ("Monster Count: " ++ fromInt (List.length world.monsters))
+                    |> scale 2
+                    |> moveDown 50
               ]
                 |> group
                 |> moveY computer.screen.top
