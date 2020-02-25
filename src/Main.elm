@@ -482,6 +482,7 @@ update2 computer mem =
 type Event
     = DecrementMonsterHealth MonsterId
     | RemoveBullet BulletId
+    | RemoveMonster MonsterId
 
 
 computeEventsAndUpdateMem : Mem -> Mem
@@ -507,6 +508,9 @@ updateMemWithEvent event mem =
         RemoveBullet bulletId ->
             { mem | bullets = rejectWhen (idOfBullet >> eq bulletId) mem.bullets }
 
+        RemoveMonster monsterId ->
+            { mem | monsters = rejectWhen (idOfMonster >> eq monsterId) mem.monsters }
+
 
 eq =
     (==)
@@ -529,6 +533,17 @@ computeEvents mem =
                     [ DecrementMonsterHealth br.monsterId
                     , RemoveBullet (idOfBullet bullet)
                     ]
+
+        eventsFromMonsterState monster =
+            case monster of
+                FollowingPath _ ->
+                    []
+
+                Dead _ ->
+                    [ RemoveMonster (idOfMonster monster) ]
+
+                ReachedPathEnd _ ->
+                    []
     in
     List.concatMap eventsFromBulletState mem.bullets
 
