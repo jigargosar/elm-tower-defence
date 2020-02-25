@@ -240,28 +240,6 @@ randomMonsterSpawn mem =
             )
 
 
-stepMonsters : Mem -> List Monster
-stepMonsters mem =
-    let
-        stepMonster m =
-            case m of
-                FollowingPath mr ->
-                    case stepPtMovPath mr.movPath of
-                        ( True, nmp ) ->
-                            ReachedPathEnd { mr | movPath = nmp }
-
-                        ( False, nmp ) ->
-                            FollowingPath { mr | movPath = nmp }
-
-                Dead mr ->
-                    Dead mr
-
-                ReachedPathEnd mr ->
-                    ReachedPathEnd mr
-    in
-    List.map stepMonster mem.monsters
-
-
 viewMonster : Monster -> Shape
 viewMonster m =
     circle red 10
@@ -505,6 +483,7 @@ type Action
     | RemoveMonster MonsterId
     | UpdateBulletMov BulletId PtMov
     | SetBulletReachedMonster BulletId
+    | DecrementHouseHealth
     | NoAction
 
 
@@ -542,6 +521,9 @@ updateMemWithAction event mem =
 
         NoAction ->
             mem
+
+        DecrementHouseHealth ->
+            Debug.todo "impl"
 
 
 eq =
@@ -585,10 +567,32 @@ computeActions mem =
                     [ RemoveMonster (idOfMonster monster) ]
 
                 ReachedPathEnd _ ->
-                    []
+                    [ RemoveMonster (idOfMonster monster), DecrementHouseHealth ]
     in
     List.concatMap eventsFromBulletState mem.bullets
         ++ List.concatMap eventsFromMonsterState mem.monsters
+
+
+stepMonsters : Mem -> List Monster
+stepMonsters mem =
+    let
+        stepMonster m =
+            case m of
+                FollowingPath mr ->
+                    case stepPtMovPath mr.movPath of
+                        ( True, nmp ) ->
+                            ReachedPathEnd { mr | movPath = nmp }
+
+                        ( False, nmp ) ->
+                            FollowingPath { mr | movPath = nmp }
+
+                Dead mr ->
+                    Dead mr
+
+                ReachedPathEnd mr ->
+                    ReachedPathEnd mr
+    in
+    List.map stepMonster mem.monsters
 
 
 
