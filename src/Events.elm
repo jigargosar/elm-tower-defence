@@ -16,7 +16,7 @@ type alias Bullet =
 
 initBullet : Int -> MonsterId -> Bullet
 initBullet idx monsterId =
-    Bullet (BulletId idx) monsterId 0 100
+    Bullet (BulletId idx) monsterId 0 10
 
 
 idOfBullet : Bullet -> BulletId
@@ -73,7 +73,7 @@ type alias Lair =
 
 initLair : Lair
 initLair =
-    Lair (initialSeed 0) 10 0
+    Lair (initialSeed 0) 100 0
 
 
 type House
