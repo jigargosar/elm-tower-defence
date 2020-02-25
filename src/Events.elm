@@ -6,11 +6,16 @@ import String exposing (fromFloat, fromInt)
 
 
 type Bullet
-    = Bullet
+    = Bullet BulletId MonsterId
+
+
+initBullet : Int -> MonsterId -> Bullet
+initBullet idx monsterId =
+    Bullet (BulletId idx) monsterId
 
 
 type BulletId
-    = BulletId
+    = BulletId Int
 
 
 type Monster
@@ -56,6 +61,7 @@ init =
         , bullets = []
         , monsters = []
         , house = House
+        , nextIdx = 0
         }
 
 
@@ -65,12 +71,14 @@ type alias World =
     , bullets : List Bullet
     , monsters : List Monster
     , house : House
+    , nextIdx : Int
     }
 
 
 type Event
     = NoEvent
     | SpawnMonster
+    | SpawnBullet MonsterId
     | BulletHitMonster MonsterId
     | RemoveBullet BulletId
     | RemoveMonster MonsterId
@@ -137,6 +145,7 @@ updateWorld world =
             , towers = selfUpdatedTowers
             , bullets = selfUpdatedBullets
             , monsters = selfUpdatedMonsters
+            , nextIdx = world.nextIdx
             }
     in
     acc
@@ -177,6 +186,9 @@ handleEvent world event acc =
 
         SpawnMonster ->
             { acc | monsters = Monster :: acc.monsters }
+
+        SpawnBullet monsterId ->
+            { acc | nextIdx = acc.nextIdx + 1, bullets = initBullet acc.nextIdx monsterId :: acc.bullets }
 
 
 stepTower : Tower -> ( Tower, List Event )
