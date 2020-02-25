@@ -353,7 +353,7 @@ init =
 
 update : Computer -> Mem -> Mem
 update computer mem =
-    updateCollision mem
+    computeEvents mem
         |> update2 computer
 
 
@@ -383,12 +383,12 @@ update2 computer mem =
     }
 
 
-type Actions
+type Event
     = DecrementMonsterHealth MonsterId
 
 
-updateCollision : Mem -> Mem
-updateCollision mem =
+computeEvents : Mem -> Mem
+computeEvents mem =
     let
         foo bullet =
             case didBulletReachMonster bullet of
@@ -399,7 +399,7 @@ updateCollision mem =
                 Nothing ->
                     []
 
-        actions =
+        events =
             List.concatMap foo mem.bullets
     in
     mem
