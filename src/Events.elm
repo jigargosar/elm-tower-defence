@@ -19,11 +19,21 @@ type BulletId
 
 
 type Monster
-    = Monster
+    = Monster MonsterId
+
+
+initMonster : Int -> Monster
+initMonster idx =
+    Monster (MonsterId idx)
+
+
+idOfMonster : Monster -> MonsterId
+idOfMonster (Monster id) =
+    id
 
 
 type MonsterId
-    = MonsterId
+    = MonsterId Int
 
 
 type alias Tower =
@@ -127,7 +137,7 @@ updateWorld world =
             stepHouse world.house
 
         ( selfUpdatedTowers, towerEventGroups ) =
-            List.map stepTower world.towers
+            List.map (stepTower world.monsters) world.towers
                 |> List.unzip
 
         ( selfUpdatedBullets, bulletEventGroups ) =
@@ -185,16 +195,27 @@ handleEvent world event acc =
             acc
 
         SpawnMonster ->
-            { acc | monsters = Monster :: acc.monsters }
+            { acc
+                | monsters = initMonster acc.nextIdx :: acc.monsters
+                , nextIdx = acc.nextIdx + 1
+            }
 
         SpawnBullet monsterId ->
-            { acc | nextIdx = acc.nextIdx + 1, bullets = initBullet acc.nextIdx monsterId :: acc.bullets }
+            { acc
+                | bullets = initBullet acc.nextIdx monsterId :: acc.bullets
+                , nextIdx = acc.nextIdx + 1
+            }
 
 
-stepTower : Tower -> ( Tower, List Event )
-stepTower tower =
+stepTower : List Monster -> Tower -> ( Tower, List Event )
+stepTower monsters tower =
     if tower.elapsed >= tower.delay then
-        ( { tower | elapsed = 0 }, [] )
+        case monsters of
+            fst :: _ ->
+                ( { tower | elapsed = 0 }, [ SpawnBullet (idOfMonster fst) ] )
+
+            _ ->
+                ( tower, [] )
 
     else
         ( { tower | elapsed = tower.elapsed + 1 }, [] )
