@@ -1,4 +1,6 @@
-module Events exposing (Mem)
+module Events exposing (Game, init, update)
+
+import Playground exposing (Number)
 
 
 type Bullet
@@ -29,7 +31,23 @@ type House
     = House
 
 
-type alias Mem =
+type Game
+    = Running World
+    | GameOver World
+
+
+init : Game
+init =
+    Running
+        { lair = Lair
+        , towers = []
+        , bullets = []
+        , monsters = []
+        , house = House
+        }
+
+
+type alias World =
     { lair : Lair
     , towers : List Tower
     , bullets : List Bullet
@@ -46,28 +64,56 @@ type Event
     | MonsterReachedHouse
 
 
-update : Mem -> Mem
-update mem =
+update : Game -> Game
+update game =
+    case game of
+        Running world ->
+            let
+                newWorld =
+                    updateWorld world
+            in
+            if hasHouseBurnedDown newWorld then
+                GameOver newWorld
+
+            else
+                Running newWorld
+
+        GameOver world ->
+            GameOver world
+
+
+hasHouseBurnedDown : World -> Bool
+hasHouseBurnedDown world =
+    healthOfHouse world.house == 0
+
+
+healthOfHouse : House -> Number
+healthOfHouse house =
+    1
+
+
+updateWorld : World -> World
+updateWorld world =
     let
         ( selfUpdatedLair, lairEvents ) =
-            stepLair mem.lair
+            stepLair world.lair
 
         ( selfUpdatedHouse, houseEvents ) =
-            stepHouse mem.house
+            stepHouse world.house
 
         ( selfUpdatedTowers, towerEventGroups ) =
-            List.map stepTower mem.towers
+            List.map stepTower world.towers
                 |> List.unzip
 
         ( selfUpdatedBullets, bulletEventGroups ) =
-            List.map stepBullet mem.bullets
+            List.map stepBullet world.bullets
                 |> List.unzip
 
         ( selfUpdatedMonsters, monsterEventGroups ) =
-            List.map stepMonster mem.monsters
+            List.map stepMonster world.monsters
                 |> List.unzip
 
-        acc : Mem
+        acc : World
         acc =
             { lair = selfUpdatedLair
             , house = selfUpdatedHouse
@@ -77,25 +123,25 @@ update mem =
             }
     in
     acc
-        |> handleEvents mem lairEvents
-        |> handleEvents mem houseEvents
-        |> handleEventGroups mem towerEventGroups
-        |> handleEventGroups mem bulletEventGroups
-        |> handleEventGroups mem monsterEventGroups
+        |> handleEvents world lairEvents
+        |> handleEvents world houseEvents
+        |> handleEventGroups world towerEventGroups
+        |> handleEventGroups world bulletEventGroups
+        |> handleEventGroups world monsterEventGroups
 
 
-handleEventGroups : Mem -> List (List Event) -> Mem -> Mem
-handleEventGroups mem lists acc =
-    List.foldl (handleEvents mem) acc lists
+handleEventGroups : World -> List (List Event) -> World -> World
+handleEventGroups world lists acc =
+    List.foldl (handleEvents world) acc lists
 
 
-handleEvents : Mem -> List Event -> Mem -> Mem
-handleEvents mem events acc =
-    List.foldl (handleEvent mem) acc events
+handleEvents : World -> List Event -> World -> World
+handleEvents world events acc =
+    List.foldl (handleEvent world) acc events
 
 
-handleEvent : Mem -> Event -> Mem -> Mem
-handleEvent mem event acc =
+handleEvent : World -> Event -> World -> World
+handleEvent world event acc =
     case event of
         NoEvent ->
             acc
