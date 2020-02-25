@@ -39,9 +39,9 @@ type BulletId
 type alias Monster =
     { id : MonsterId
     , maxHealth : Number
+    , speed : Number
     , health : Number
     , travel : Number
-    , speed : Number
     }
 
 
