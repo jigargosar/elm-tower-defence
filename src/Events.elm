@@ -526,6 +526,9 @@ viewMonster pathLength monster =
             let
                 x =
                     (travel - 0.5) * pathLength
+
+                dyingPct =
+                    remainingTicks / monster.dyingTicks
             in
             [ [ circle red 30 |> fade 0.7 ] |> group
 
@@ -533,6 +536,7 @@ viewMonster pathLength monster =
             ]
                 |> group
                 |> moveRight x
+                |> fade dyingPct
 
         ReachedHouse _ ->
             group []
