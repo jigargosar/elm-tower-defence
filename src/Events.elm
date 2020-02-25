@@ -64,7 +64,7 @@ type alias Tower =
 
 initTower : Int -> Tower
 initTower _ =
-    Tower 10 0
+    { delay = 10, elapsed = 0 }
 
 
 type alias Lair =
@@ -74,7 +74,7 @@ type alias Lair =
 initLair : Lair
 initLair =
     { seed = initialSeed 0
-    , delay = 100
+    , delay = 30
     , elapsed = 0
     }
 
