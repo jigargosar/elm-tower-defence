@@ -219,7 +219,7 @@ handleEvent world event acc =
             { acc | bullets = List.filter (idOfBullet >> isNot bulletId) acc.bullets }
 
         RemoveMonster monsterId ->
-            acc
+            { acc | monsters = List.filter (idOfMonster >> isNot monsterId) acc.monsters }
 
         MonsterReachedHouse ->
             acc
@@ -283,7 +283,11 @@ stepHouse house =
 
 stepMonster : Monster -> ( Monster, List Event )
 stepMonster monster =
-    ( monster, [] )
+    if monster.health <= 0 then
+        ( monster, [ RemoveMonster monster.id ] )
+
+    else
+        ( monster, [] )
 
 
 stepBullet : Bullet -> ( Bullet, List Event )
