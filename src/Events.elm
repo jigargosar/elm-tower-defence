@@ -7,7 +7,7 @@ import String exposing (fromInt)
 
 
 bulletFireDelay =
-    5
+    10
 
 
 bulletTicksToHitMonster =
@@ -153,13 +153,16 @@ initTower _ =
 
 
 type alias Lair =
-    { seed : Seed, delay : Number, elapsed : Number }
+    { seed : Seed
+    , delay : Number
+    , elapsed : Number
+    }
 
 
 initLair : Lair
 initLair =
     { seed = initialSeed 0
-    , delay = 30
+    , delay = 60
     , elapsed = 0
     }
 
