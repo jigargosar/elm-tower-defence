@@ -355,16 +355,16 @@ view computer game =
                 |> scale 3
                 |> moveY computer.screen.top
                 |> moveDown 50
-            , viewWorld computer world
+            , viewWorldStats computer world
                 |> moveDown 50
             ]
 
         GameOver world ->
-            [ words red "GAME OVER" |> scale 3, viewWorld computer world ]
+            [ words red "GAME OVER" |> scale 3, viewWorldStats computer world ]
 
 
-viewWorld : Computer -> World -> Shape
-viewWorld computer world =
+viewWorldStats : Computer -> World -> Shape
+viewWorldStats computer world =
     [ [ words black ("House Health: " ++ fromInt (round (healthOfHouse world.house)))
             |> scale 2
       , words black ("Monster Count: " ++ fromInt (List.length world.monsters))
