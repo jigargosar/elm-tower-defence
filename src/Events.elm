@@ -70,10 +70,13 @@ initMonster idx =
         maxHealth =
             15
     in
-    { id = MonsterId idx
+    { -- CONFIG
+      id = MonsterId idx
     , maxHealth = maxHealth
     , speed = 1 / (60 * 10)
     , dyingTicks = 120
+
+    -- STATE
     , state = AliveAndKicking { health = maxHealth, travel = 0 }
     }
 
