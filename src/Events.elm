@@ -223,7 +223,7 @@ initTower _ =
 
 isLocationInRangeOfTower : Location -> Tower -> Bool
 isLocationInRangeOfTower location tower =
-    Debug.todo "impl"
+    distanceFromToLocation location tower.location <= tower.radius
 
 
 
