@@ -287,8 +287,8 @@ type alias AAKMonster =
     { id : MonsterId, location : Location, progress : Number }
 
 
-travelProgressAndLocationOfAliveAndKickingMonster : Monster -> Maybe AAKMonster
-travelProgressAndLocationOfAliveAndKickingMonster monster =
+akkMonsterState : Monster -> Maybe AAKMonster
+akkMonsterState monster =
     case monster.state of
         AliveAndKicking { travel } ->
             Just (AAKMonster monster.id (locationOfPathProgress travel) (pathProgressToPct travel))
@@ -498,10 +498,7 @@ updateWorld world =
 
         healthyMonstersSortedByClosestToHouse =
             world.monsters
-                |> List.filterMap
-                    (\m ->
-                        travelProgressAndLocationOfAliveAndKickingMonster m
-                    )
+                |> List.filterMap akkMonsterState
                 |> List.sortBy (.progress >> negate)
 
         ( selfUpdatedTowers, towerEventGroups ) =
