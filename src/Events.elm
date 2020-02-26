@@ -124,9 +124,9 @@ initPathProgress path speed =
         }
 
 
-pathProgressToLocation : PathProgress -> Location
-pathProgressToLocation (PathProgress _) =
-    Location 0 0
+locationOfPathProgress : PathProgress -> Location
+locationOfPathProgress (PathProgress { location }) =
+    location
 
 
 stepPathProgress : PathProgress -> Maybe PathProgress
@@ -235,7 +235,7 @@ travelProgressAndLocationOfAliveAndKickingMonster : Monster -> Maybe AAKMonster
 travelProgressAndLocationOfAliveAndKickingMonster monster =
     case monster.state of
         AliveAndKicking { travel } ->
-            Just (AAKMonster monster.id (pathProgressToLocation travel) (pathProgressToPct travel))
+            Just (AAKMonster monster.id (locationOfPathProgress travel) (pathProgressToPct travel))
 
         Dying { travel } ->
             Nothing
@@ -686,7 +686,7 @@ viewMonster monster =
         AliveAndKicking { travel, health } ->
             let
                 (Location x y) =
-                    pathProgressToLocation travel
+                    locationOfPathProgress travel
             in
             [ [ circle red radius |> fade 0.7 ] |> group
             , words white (fromInt (round health))
@@ -697,7 +697,7 @@ viewMonster monster =
         Dying { travel, remainingTicks, overKill } ->
             let
                 (Location x y) =
-                    pathProgressToLocation travel
+                    locationOfPathProgress travel
 
                 dyingProgress =
                     1 - (remainingTicks / monster.dyingTicks)
