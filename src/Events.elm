@@ -259,10 +259,16 @@ initTower n =
 
         offset =
             4
+
+        x =
+            (toFloat (n - 1) * (w * (offset + 1))) + (w * 2)
+
+        y =
+            w * -offset
     in
     { delay = bulletFireDelay
     , range = w * (offset + 1)
-    , location = Location (toFloat (n - 1) * (w * offset)) (w * -offset)
+    , location = Location x y
     , w = w
     , elapsed = 0
     }
