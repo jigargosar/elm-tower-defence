@@ -6,12 +6,20 @@ import Random exposing (Seed, initialSeed)
 import String exposing (fromInt)
 
 
+
+-- Config
+
+
 bulletFireDelay =
     10
 
 
 bulletTicksToHitMonster =
     20
+
+
+
+-- Bullet
 
 
 type alias Bullet =
@@ -34,6 +42,10 @@ idOfBullet bullet =
 
 type BulletId
     = BulletId Int
+
+
+
+-- Monster
 
 
 type alias Monster =
@@ -147,6 +159,10 @@ type MonsterId
     = MonsterId Int
 
 
+
+-- Tower
+
+
 type alias Tower =
     { delay : Number, elapsed : Number }
 
@@ -154,6 +170,10 @@ type alias Tower =
 initTower : Int -> Tower
 initTower _ =
     { delay = bulletFireDelay, elapsed = 0 }
+
+
+
+-- LAIR
 
 
 type alias Lair =
@@ -169,6 +189,10 @@ initLair =
     , delay = 60
     , elapsed = 0
     }
+
+
+
+-- HOUSE
 
 
 type alias House =
@@ -198,6 +222,24 @@ decrementHouseHealth house =
     { house | health = max 0 (house.health - 1) }
 
 
+
+-- WORLD
+
+
+type alias World =
+    { lair : Lair
+    , towers : List Tower
+    , bullets : List Bullet
+    , monsters : List Monster
+    , house : House
+    , nextIdx : Int
+    }
+
+
+
+-- GAME
+
+
 type Game
     = Running World
     | GameOver World
@@ -213,16 +255,6 @@ init =
         , house = initHouse
         , nextIdx = 0
         }
-
-
-type alias World =
-    { lair : Lair
-    , towers : List Tower
-    , bullets : List Bullet
-    , monsters : List Monster
-    , house : House
-    , nextIdx : Int
-    }
 
 
 type Event
