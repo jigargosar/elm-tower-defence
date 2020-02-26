@@ -19,7 +19,11 @@ bulletSpeed =
 
 
 monsterSpeed =
-    2
+    1
+
+
+monsterHealth =
+    10
 
 
 
@@ -239,7 +243,7 @@ initMonster : Int -> Path -> Monster
 initMonster idx path =
     let
         maxHealth =
-            15
+            monsterHealth
 
         speed =
             monsterSpeed
