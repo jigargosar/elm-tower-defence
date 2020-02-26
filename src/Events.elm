@@ -222,6 +222,22 @@ travelProgressOfAliveAndKickingMonster monster =
             Nothing
 
 
+travelProgressAndLocationOfAliveAndKickingMonster : Monster -> Maybe ( Number, Location )
+travelProgressAndLocationOfAliveAndKickingMonster monster =
+    case monster.state of
+        AliveAndKicking { travel } ->
+            Just ( pathProgressToNumber travel, pathProgressToLocation travel )
+
+        Dying { travel } ->
+            Nothing
+
+        ReachedHouse _ ->
+            Nothing
+
+        ReadyForRemoval ->
+            Nothing
+
+
 idOfMonster : Monster -> MonsterId
 idOfMonster =
     .id
