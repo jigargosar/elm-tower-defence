@@ -236,6 +236,11 @@ type alias World =
     }
 
 
+hasHouseBurnedDown : World -> Bool
+hasHouseBurnedDown world =
+    healthOfHouse world.house == 0
+
+
 
 -- GAME
 
@@ -287,11 +292,6 @@ update computer game =
 
         GameOver world ->
             GameOver world
-
-
-hasHouseBurnedDown : World -> Bool
-hasHouseBurnedDown world =
-    healthOfHouse world.house == 0
 
 
 updateWorld : World -> World
@@ -394,14 +394,6 @@ stepTower monsters tower =
 
     else
         ( { tower | elapsed = tower.elapsed + 1 }, [] )
-
-
-is =
-    (==)
-
-
-isNot =
-    (/=)
 
 
 stepLair : Lair -> ( Lair, List Event )
@@ -588,3 +580,15 @@ viewMonster pathLength monster =
 
         ReadyForRemoval ->
             group []
+
+
+
+-- EXTRA
+
+
+is =
+    (==)
+
+
+isNot =
+    (/=)
