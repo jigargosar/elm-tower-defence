@@ -200,7 +200,9 @@ type alias Tower =
 
 initTower : Int -> Tower
 initTower _ =
-    { delay = bulletFireDelay, elapsed = 0 }
+    { delay = bulletFireDelay
+    , elapsed = 0
+    }
 
 
 isLocationInRangeOfTower : Location -> Tower -> Bool
