@@ -45,6 +45,14 @@ type BulletId
 
 
 
+-- MONSTER PATH
+
+
+type Path
+    = Path
+
+
+
 -- Monster
 
 
