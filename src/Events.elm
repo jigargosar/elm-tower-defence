@@ -53,8 +53,11 @@ type Location
 
 
 stepLocationTowards : Location -> Number -> Location -> Maybe Location
-stepLocationTowards (Location tx ty) speed location =
+stepLocationTowards target speed location =
     let
+        (Location tx ty) =
+            target
+
         (Location x y) =
             location
 
@@ -70,7 +73,7 @@ stepLocationTowards (Location tx ty) speed location =
         newLocation =
             Location nx ny
     in
-    if locationEqWithin speed location newLocation then
+    if locationEqWithin speed newLocation target then
         Nothing
 
     else
