@@ -197,7 +197,7 @@ type alias Tower =
       delay : Number -- RELOAD TIME
 
     -- STATE
-    , elapsed : Number
+    , elapsed : Number -- RELOAD PROGRESS
     }
 
 
