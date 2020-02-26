@@ -547,7 +547,7 @@ updateWorld world =
         akaMonstersSortedByRemainingDistance =
             world.monsters
                 |> List.filterMap akkMonsterState
-                |> List.sortBy (.remainingDistance >> negate)
+                |> List.sortBy .remainingDistance
 
         ( selfUpdatedTowers, towerEventGroups ) =
             List.map (stepTower akaMonstersSortedByRemainingDistance) world.towers
