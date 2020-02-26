@@ -258,10 +258,10 @@ initTower n =
             30
 
         offset =
-            5
+            4
     in
     { delay = bulletFireDelay
-    , range = w * (offset + 2)
+    , range = w * (offset + 1)
     , location = Location (toFloat (n - 1) * (w * offset)) (w * -offset)
     , w = w
     , elapsed = 0
@@ -644,13 +644,17 @@ viewPath path =
 
 viewMonster : Monster -> Shape
 viewMonster monster =
+    let
+        radius =
+            20
+    in
     case monster.state of
         AliveAndKicking { travel, health } ->
             let
                 (Location x y) =
                     pathProgressToLocation travel
             in
-            [ [ circle red 30 |> fade 0.7 ] |> group
+            [ [ circle red radius |> fade 0.7 ] |> group
             , words white (fromInt (round health))
             ]
                 |> group
@@ -664,7 +668,7 @@ viewMonster monster =
                 dyingProgress =
                     1 - (remainingTicks / monster.dyingTicks)
             in
-            [ [ circle red 30 |> fade 0.7 ]
+            [ [ circle red radius |> fade 0.7 ]
                 |> group
                 |> fade (1 - dyingProgress)
                 |> scale (1 + dyingProgress)
