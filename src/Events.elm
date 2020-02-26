@@ -117,8 +117,8 @@ stepPathProgress (PathProgress n) =
         Just (PathProgress { n | progress = min 1 (n.progress + n.speed) })
 
 
-pathProgressToNumber : PathProgress -> Number
-pathProgressToNumber (PathProgress p) =
+pathProgressToPct : PathProgress -> Number
+pathProgressToPct (PathProgress p) =
     p.progress
 
 
@@ -214,7 +214,7 @@ travelProgressAndLocationOfAliveAndKickingMonster : Monster -> Maybe AAKMonster
 travelProgressAndLocationOfAliveAndKickingMonster monster =
     case monster.state of
         AliveAndKicking { travel } ->
-            Just (AAKMonster monster.id (pathProgressToLocation travel) (pathProgressToNumber travel))
+            Just (AAKMonster monster.id (pathProgressToLocation travel) (pathProgressToPct travel))
 
         Dying { travel } ->
             Nothing
@@ -264,7 +264,8 @@ initTower n =
             (toFloat n * (w * offset)) - (w * offset)
 
         y =
-            w * offset
+            w
+                * offset
                 * (if modBy 2 n == 0 then
                     -1
 
