@@ -484,8 +484,8 @@ stepTower : List AAKMonster -> Tower -> ( Tower, List Event )
 stepTower monsters tower =
     if tower.elapsed >= tower.delay then
         case List.Extra.find (\aak -> isLocationInRangeOfTower aak.location tower) monsters of
-            Just fst ->
-                ( { tower | elapsed = 0 }, [ SpawnBullet fst.id ] )
+            Just aak ->
+                ( { tower | elapsed = 0 }, [ SpawnBullet aak.id ] )
 
             Nothing ->
                 ( tower, [] )
