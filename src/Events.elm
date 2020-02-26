@@ -611,7 +611,7 @@ viewWorldStats computer world =
 
 
 viewWorld : Computer -> World -> Shape
-viewWorld computer world =
+viewWorld _ world =
     [ viewPath world.path
     , List.map viewMonster world.monsters
         |> group
