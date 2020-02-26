@@ -206,27 +206,15 @@ decrementMonsterHealth monster =
             { monster | state = state }
 
 
-travelProgressOfAliveAndKickingMonster : Monster -> Maybe Number
-travelProgressOfAliveAndKickingMonster monster =
-    case monster.state of
-        AliveAndKicking { travel } ->
-            Just (pathProgressToNumber travel)
-
-        Dying { travel } ->
-            Nothing
-
-        ReachedHouse _ ->
-            Nothing
-
-        ReadyForRemoval ->
-            Nothing
+type alias AAKMonster =
+    { id : MonsterId, location : Location, progress : Number }
 
 
-travelProgressAndLocationOfAliveAndKickingMonster : Monster -> Maybe ( Number, Location )
+travelProgressAndLocationOfAliveAndKickingMonster : Monster -> Maybe AAKMonster
 travelProgressAndLocationOfAliveAndKickingMonster monster =
     case monster.state of
         AliveAndKicking { travel } ->
-            Just ( pathProgressToNumber travel, pathProgressToLocation travel )
+            Just (AAKMonster monster.id (pathProgressToLocation travel) (pathProgressToNumber travel))
 
         Dying { travel } ->
             Nothing
@@ -413,11 +401,9 @@ updateWorld world =
             world.monsters
                 |> List.filterMap
                     (\m ->
-                        travelProgressOfAliveAndKickingMonster m
-                            |> Maybe.map (\p -> ( 1 - p, m ))
+                        travelProgressAndLocationOfAliveAndKickingMonster m
                     )
-                |> List.sortBy Tuple.first
-                |> List.map Tuple.second
+                |> List.sortBy (.progress >> negate)
 
         ( selfUpdatedTowers, towerEventGroups ) =
             List.map (stepTower healthyMonstersSortedByClosestToHouse) world.towers
@@ -494,14 +480,14 @@ handleEvent world event acc =
             }
 
 
-stepTower : List Monster -> Tower -> ( Tower, List Event )
+stepTower : List AAKMonster -> Tower -> ( Tower, List Event )
 stepTower monsters tower =
     if tower.elapsed >= tower.delay then
-        case monsters of
-            fst :: _ ->
-                ( { tower | elapsed = 0 }, [ SpawnBullet (idOfMonster fst) ] )
+        case List.Extra.find (\aak -> isLocationInRangeOfTower aak.location tower) monsters of
+            Just fst ->
+                ( { tower | elapsed = 0 }, [ SpawnBullet fst.id ] )
 
-            _ ->
+            Nothing ->
                 ( tower, [] )
 
     else
