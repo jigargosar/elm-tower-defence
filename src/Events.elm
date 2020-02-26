@@ -279,7 +279,7 @@ decrementMonsterHealth monster =
 type alias AAKMonster =
     { id : MonsterId
     , location : Location
-    , progress : Number
+    , remainingDistance : Number
     }
 
 
@@ -507,7 +507,7 @@ updateWorld world =
         healthyMonstersSortedByClosestToHouse =
             world.monsters
                 |> List.filterMap akkMonsterState
-                |> List.sortBy (.progress >> negate)
+                |> List.sortBy (.remainingDistance >> negate)
 
         ( selfUpdatedTowers, towerEventGroups ) =
             List.map (stepTower healthyMonstersSortedByClosestToHouse) world.towers
