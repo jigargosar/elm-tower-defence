@@ -72,9 +72,9 @@ initMonster idx =
     in
     { id = MonsterId idx
     , maxHealth = maxHealth
-    , state = AliveAndKicking { health = maxHealth, travel = 0 }
     , speed = 1 / (60 * 10)
     , dyingTicks = 120
+    , state = AliveAndKicking { health = maxHealth, travel = 0 }
     }
 
 
