@@ -504,13 +504,13 @@ updateWorld world =
         ( selfUpdatedHouse, houseEvents ) =
             stepHouse world.house
 
-        healthyMonstersSortedByClosestToHouse =
+        akaMonstersSortedByRemainingDistance =
             world.monsters
                 |> List.filterMap akkMonsterState
                 |> List.sortBy (.remainingDistance >> negate)
 
         ( selfUpdatedTowers, towerEventGroups ) =
-            List.map (stepTower healthyMonstersSortedByClosestToHouse) world.towers
+            List.map (stepTower akaMonstersSortedByRemainingDistance) world.towers
                 |> List.unzip
 
         ( selfUpdatedBullets, bulletEventGroups ) =
