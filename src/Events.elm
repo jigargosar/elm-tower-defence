@@ -97,17 +97,31 @@ lengthOfPath (Path l _ _) =
     l
 
 
+startOfPath (Path _ s _) =
+    s
+
+
 
 -- TRAVEL PATH PROGRESS
 
 
 type PathProgress
-    = PathProgress { path : Path, speed : Number, progress : Number }
+    = PathProgress
+        { path : Path
+        , speed : Number
+        , progress : Number
+        , location : Location
+        }
 
 
 initPathProgress : Path -> Number -> PathProgress
 initPathProgress path speed =
-    PathProgress { path = path, speed = speed, progress = 0 }
+    PathProgress
+        { path = path
+        , speed = speed
+        , progress = 0
+        , location = startOfPath path
+        }
 
 
 pathProgressToLocation : PathProgress -> Location
