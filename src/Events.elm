@@ -622,9 +622,9 @@ viewWorldStats computer world =
 
 viewWorld : Computer -> World -> Shape
 viewWorld _ world =
-    [ viewPath world.path
+    [ List.map viewTower world.towers |> group
+    , viewPath world.path
     , List.map viewMonster world.monsters |> group
-    , List.map viewTower world.towers |> group
     ]
         |> group
 
