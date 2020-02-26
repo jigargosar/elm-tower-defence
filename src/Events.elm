@@ -151,7 +151,6 @@ type PathProgress
     = PathProgress
         { path : Path
         , speed : Number
-        , progress : Number
         , location : Location
         , wayPoints : List Location
         }
@@ -162,7 +161,6 @@ initPathProgress path speed =
     PathProgress
         { path = path
         , speed = speed
-        , progress = 0
         , location = startOfPath path
         , wayPoints = restOfPath path
         }
@@ -480,7 +478,7 @@ type Event
 
 
 update : Computer -> Game -> Game
-update computer game =
+update _ game =
     case game of
         Running world ->
             let
