@@ -18,6 +18,10 @@ bulletSpeed =
     8
 
 
+monsterSpeed =
+    2
+
+
 
 -- Bullet
 
@@ -238,7 +242,7 @@ initMonster idx path =
             15
 
         speed =
-            2
+            monsterSpeed
     in
     { id = MonsterId idx
     , maxHealth = maxHealth
