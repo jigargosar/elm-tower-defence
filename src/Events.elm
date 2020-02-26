@@ -69,6 +69,11 @@ type Path
     = Path Number
 
 
+initPath : Path
+initPath =
+    Path 500
+
+
 pathToLocations : Path -> List Location
 pathToLocations (Path l) =
     let
@@ -312,6 +317,7 @@ decrementHouseHealth house =
 
 type alias World =
     { lair : Lair
+    , path : Path
     , towers : List Tower
     , bullets : List Bullet
     , monsters : List Monster
@@ -338,6 +344,7 @@ init : Game
 init =
     Running
         { lair = initLair
+        , path = initPath
         , towers = List.range 0 1 |> List.map initTower
         , bullets = []
         , monsters = []
@@ -412,6 +419,7 @@ updateWorld world =
         acc : World
         acc =
             { lair = selfUpdatedLair
+            , path = world.path
             , house = selfUpdatedHouse
             , towers = selfUpdatedTowers
             , bullets = selfUpdatedBullets
@@ -604,30 +612,23 @@ viewWorldStats computer world =
 
 viewWorld : Computer -> World -> Shape
 viewWorld computer world =
-    let
-        pathLength =
-            computePathLength computer.screen
-    in
-    [ viewPath pathLength
+    [ viewPath world.path
     , List.map viewMonster world.monsters
         |> group
     ]
         |> group
 
 
-computePathLength : Screen -> Number
-computePathLength s =
-    s.width * 0.9
-
-
-viewPath : Float -> Shape
-viewPath pathLength =
+viewPath : Path -> Shape
+viewPath path =
     let
-        ep =
+        ep (Location x y) =
             circle black 8
                 |> fade 0.8
+                |> move x y
     in
-    [ ep |> moveLeft (pathLength / 2), ep |> moveRight (pathLength / 2) ]
+    pathToLocations path
+        |> List.map ep
         |> group
 
 
