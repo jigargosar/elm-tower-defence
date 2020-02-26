@@ -95,6 +95,11 @@ stepPathProgress (PathProgress n) =
         Just (PathProgress { n | progress = min 1 (n.progress + n.speed) })
 
 
+pathProgressToNumber : PathProgress -> Number
+pathProgressToNumber (PathProgress p) =
+    p.progress
+
+
 
 -- Monster
 
@@ -112,8 +117,8 @@ type alias Monster =
 
 
 type MonsterState
-    = AliveAndKicking { health : Number, travel : Number }
-    | Dying { travel : Number, remainingTicks : Number, overKill : Number }
+    = AliveAndKicking { health : Number, travel : PathProgress }
+    | Dying { travel : PathProgress, remainingTicks : Number, overKill : Number }
     | ReachedHouse { health : Number }
     | ReadyForRemoval
 
@@ -123,29 +128,16 @@ initMonster idx =
     let
         maxHealth =
             15
+
+        speed =
+            1 / (60 * 10)
     in
     { id = MonsterId idx
     , maxHealth = maxHealth
-    , speed = 1 / (60 * 10)
+    , speed = speed
     , dyingTicks = 120
-    , state = AliveAndKicking { health = maxHealth, travel = 0 }
+    , state = AliveAndKicking { health = maxHealth, travel = initPathProgress speed }
     }
-
-
-isMonsterHealthy : Monster -> Bool
-isMonsterHealthy monster =
-    case monster.state of
-        AliveAndKicking _ ->
-            True
-
-        Dying _ ->
-            False
-
-        ReachedHouse _ ->
-            False
-
-        ReadyForRemoval ->
-            False
 
 
 decrementMonsterHealth : Monster -> Monster
@@ -188,20 +180,20 @@ decrementMonsterHealth monster =
             { monster | state = state }
 
 
-remainingTravelPctOfMonster : Monster -> Number
-remainingTravelPctOfMonster monster =
+travelProgressOfAliveAndKickingMonster : Monster -> Maybe Number
+travelProgressOfAliveAndKickingMonster monster =
     case monster.state of
         AliveAndKicking { travel } ->
-            1 - travel
+            Just (pathProgressToNumber travel)
 
-        Dying _ ->
-            0
+        Dying { travel } ->
+            Nothing
 
         ReachedHouse _ ->
-            0
+            Nothing
 
         ReadyForRemoval ->
-            0
+            Nothing
 
 
 locationOfMonster : Monster -> Location
@@ -380,8 +372,13 @@ updateWorld world =
 
         healthyMonstersSortedByClosestToHouse =
             world.monsters
-                |> List.sortBy remainingTravelPctOfMonster
-                |> List.filter isMonsterHealthy
+                |> List.filterMap
+                    (\m ->
+                        travelProgressOfAliveAndKickingMonster m
+                            |> Maybe.map (\p -> ( 1 - p, m ))
+                    )
+                |> List.sortBy Tuple.first
+                |> List.map Tuple.second
 
         ( selfUpdatedTowers, towerEventGroups ) =
             List.map (stepTower healthyMonstersSortedByClosestToHouse) world.towers
@@ -504,15 +501,12 @@ stepMonster monster =
         func state =
             case state of
                 AliveAndKicking { health, travel } ->
-                    let
-                        newTravel =
-                            travel + monster.speed
-                    in
-                    if newTravel >= 1 then
-                        ( ReachedHouse { health = health }, [ MonsterReachedHouse ] )
+                    case stepPathProgress travel of
+                        Just nt ->
+                            ( AliveAndKicking { health = health, travel = nt }, [] )
 
-                    else
-                        ( AliveAndKicking { health = health, travel = newTravel }, [] )
+                        Nothing ->
+                            ( ReachedHouse { health = health }, [ MonsterReachedHouse ] )
 
                 Dying { travel, remainingTicks, overKill } ->
                     if remainingTicks <= 0 then
@@ -625,19 +619,19 @@ viewMonster pathLength monster =
     case monster.state of
         AliveAndKicking { travel, health } ->
             let
-                x =
-                    (travel - 0.5) * pathLength
+                (Location x y) =
+                    pathProgressToLocation travel
             in
             [ [ circle red 30 |> fade 0.7 ] |> group
             , words white (fromInt (round health))
             ]
                 |> group
-                |> moveRight x
+                |> move x y
 
         Dying { travel, remainingTicks, overKill } ->
             let
-                x =
-                    (travel - 0.5) * pathLength
+                (Location x y) =
+                    pathProgressToLocation travel
 
                 dyingProgress =
                     1 - (remainingTicks / monster.dyingTicks)
@@ -649,7 +643,7 @@ viewMonster pathLength monster =
             , words white (fromInt (round overKill))
             ]
                 |> group
-                |> moveRight x
+                |> move x y
 
         ReachedHouse _ ->
             group []
