@@ -66,17 +66,28 @@ distanceFromToLocation (Location x1 y1) (Location x2 y2) =
 
 
 type PathProgress
-    = PathProgress
+    = PathProgress { speed : Number, progress : Number }
 
 
 pathProgressToLocation : PathProgress -> Location
-pathProgressToLocation =
-    Debug.todo "impl"
+pathProgressToLocation (PathProgress n) =
+    let
+        pathLength =
+            500
+
+        x =
+            (n.progress - 0.5) * pathLength
+    in
+    Location x 0
 
 
 stepPathProgress : PathProgress -> Maybe PathProgress
-stepPathProgress =
-    Debug.todo "impl"
+stepPathProgress (PathProgress n) =
+    if n.progress >= 1 then
+        Nothing
+
+    else
+        Just (PathProgress { n | progress = min 1 (n.progress + n.speed) })
 
 
 
