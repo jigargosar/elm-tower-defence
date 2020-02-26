@@ -193,7 +193,10 @@ type MonsterId
 
 
 type alias Tower =
-    { delay : Number
+    { -- CONFIG
+      delay : Number -- RELOAD TIME
+
+    -- STATE
     , elapsed : Number
     }
 
