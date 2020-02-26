@@ -349,7 +349,7 @@ handleEvents world events acc =
 
 
 handleEvent : World -> Event -> World -> World
-handleEvent world event acc =
+handleEvent _ event acc =
     case event of
         NoEvent ->
             acc
