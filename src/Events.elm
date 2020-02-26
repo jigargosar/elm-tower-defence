@@ -88,19 +88,19 @@ pathToLocations (Path l) =
 
 
 type PathProgress
-    = PathProgress { speed : Number, progress : Number }
+    = PathProgress { path : Path, speed : Number, progress : Number }
 
 
 initPathProgress : Path -> Number -> PathProgress
 initPathProgress path speed =
-    PathProgress { speed = speed, progress = 0 }
+    PathProgress { path = path, speed = speed, progress = 0 }
 
 
 pathProgressToLocation : PathProgress -> Location
 pathProgressToLocation (PathProgress n) =
     let
-        pathLength =
-            500
+        (Path pathLength) =
+            n.path
 
         x =
             (n.progress - 0.5) * pathLength
@@ -220,11 +220,6 @@ travelProgressOfAliveAndKickingMonster monster =
 
         ReadyForRemoval ->
             Nothing
-
-
-locationOfMonster : Monster -> Location
-locationOfMonster monster =
-    Debug.todo "impl"
 
 
 idOfMonster : Monster -> MonsterId
