@@ -66,21 +66,24 @@ distanceFromToLocation (Location x1 y1) (Location x2 y2) =
 
 
 type Path
-    = Path Number
+    = Path Number Location (List Location)
 
 
 initPath : Path
 initPath =
-    Path 500
-
-
-pathToLocations : Path -> List Location
-pathToLocations (Path l) =
     let
+        l =
+            500
+
         hl =
             l / 2
     in
-    [ Location -hl 0, Location hl 0 ]
+    Path l (Location -hl 0) [ Location hl 0 ]
+
+
+pathToLocations : Path -> List Location
+pathToLocations (Path _ s r) =
+    s :: r
 
 
 
@@ -97,15 +100,8 @@ initPathProgress path speed =
 
 
 pathProgressToLocation : PathProgress -> Location
-pathProgressToLocation (PathProgress n) =
-    let
-        (Path pathLength) =
-            n.path
-
-        x =
-            (n.progress - 0.5) * pathLength
-    in
-    Location x 0
+pathProgressToLocation (PathProgress _) =
+    Location 0 0
 
 
 stepPathProgress : PathProgress -> Maybe PathProgress
