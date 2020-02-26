@@ -195,6 +195,8 @@ type MonsterId
 type alias Tower =
     { -- CONFIG
       delay : Number -- RELOAD TIME
+    , radius : Number
+    , location : Location
 
     -- STATE
     , elapsed : Number -- RELOAD PROGRESS
@@ -204,6 +206,8 @@ type alias Tower =
 initTower : Int -> Tower
 initTower _ =
     { delay = bulletFireDelay
+    , radius = 100
+    , location = Location
     , elapsed = 0
     }
 
