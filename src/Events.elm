@@ -62,7 +62,24 @@ distanceFromToLocation (Location x1 y1) (Location x2 y2) =
 
 
 
--- MONSTER PATH PROGRESS
+-- TRAVEL PATH
+
+
+type Path
+    = Path Number
+
+
+pathToLocations : Path -> List Location
+pathToLocations (Path l) =
+    let
+        hl =
+            l / 2
+    in
+    [ Location -hl 0, Location hl 0 ]
+
+
+
+-- TRAVEL PATH PROGRESS
 
 
 type PathProgress
