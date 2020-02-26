@@ -253,10 +253,14 @@ type alias Tower =
 
 initTower : Int -> Tower
 initTower n =
+    let
+        w =
+            30
+    in
     { delay = bulletFireDelay
-    , range = 100
-    , location = Location (toFloat (n - 2) * 50) 50
-    , w = 30
+    , range = w * 5
+    , location = Location (toFloat (n - 1) * (w * 5)) (w * -5)
+    , w = w
     , elapsed = 0
     }
 
