@@ -244,6 +244,7 @@ type alias Tower =
       delay : Number -- RELOAD TIME
     , range : Number -- SHOOTING RANGE
     , location : Location
+    , w : Number
 
     -- STATE
     , elapsed : Number -- RELOAD PROGRESS
@@ -255,6 +256,7 @@ initTower n =
     { delay = bulletFireDelay
     , range = 100
     , location = Location (toFloat (n - 2) * 50) 50
+    , w = 30
     , elapsed = 0
     }
 
@@ -677,7 +679,7 @@ viewTower tower =
         (Location x y) =
             tower.location
     in
-    square blue 30
+    square blue tower.w
         |> move x y
 
 
