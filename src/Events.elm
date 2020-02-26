@@ -710,11 +710,12 @@ stepMonster monster =
 
 stepBullet : Bullet -> ( Bullet, List Event )
 stepBullet bullet =
-    if bullet.elapsed >= bullet.ticksToHit then
-        ( bullet, [ RemoveBullet bullet.id, BulletHitMonster bullet.monsterId ] )
+    case stepLocationTowards bullet.target bullet.speed bullet.location of
+        Nothing ->
+            ( bullet, [ RemoveBullet bullet.id, BulletHitMonster bullet.monsterId ] )
 
-    else
-        ( { bullet | elapsed = bullet.elapsed + 1 }, [] )
+        Just newLocation ->
+            ( { bullet | location = newLocation }, [] )
 
 
 
