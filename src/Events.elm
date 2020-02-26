@@ -193,14 +193,14 @@ type MonsterId
 
 
 type alias Tower =
-    { delay : Number
+    { gunReloadTicks : Number
     , elapsed : Number
     }
 
 
 initTower : Int -> Tower
 initTower _ =
-    { delay = bulletFireDelay
+    { gunReloadTicks = bulletFireDelay
     , elapsed = 0
     }
 
@@ -422,7 +422,7 @@ handleEvent _ event acc =
 
 stepTower : List Monster -> Tower -> ( Tower, List Event )
 stepTower monsters tower =
-    if tower.elapsed >= tower.delay then
+    if tower.elapsed >= tower.gunReloadTicks then
         case monsters of
             fst :: _ ->
                 ( { tower | elapsed = 0 }, [ SpawnBullet (idOfMonster fst) ] )
