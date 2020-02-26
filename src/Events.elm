@@ -229,7 +229,7 @@ initMonster idx path =
             15
 
         speed =
-            1 / (60 * 10)
+            1
     in
     { id = MonsterId idx
     , maxHealth = maxHealth
