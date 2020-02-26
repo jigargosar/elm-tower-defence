@@ -93,7 +93,11 @@ decrementMonsterHealth monster =
                             health - 1
                     in
                     (if newHealth <= 0 then
-                        Dying { travel = travel, remainingTicks = monster.dyingTicks, overKill = abs newHealth }
+                        Dying
+                            { travel = travel
+                            , remainingTicks = monster.dyingTicks
+                            , overKill = abs newHealth
+                            }
 
                      else
                         AliveAndKicking { health = newHealth, travel = travel }
