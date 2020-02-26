@@ -193,12 +193,19 @@ type MonsterId
 
 
 type alias Tower =
-    { delay : Number, elapsed : Number }
+    { delay : Number
+    , elapsed : Number
+    }
 
 
 initTower : Int -> Tower
 initTower _ =
     { delay = bulletFireDelay, elapsed = 0 }
+
+
+isPositionInRangeOfTower : Position -> Tower -> Bool
+isPositionInRangeOfTower position tower =
+    Debug.todo "impl"
 
 
 
