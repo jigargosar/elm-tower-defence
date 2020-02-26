@@ -23,7 +23,7 @@ monsterSpeed =
 
 
 monsterHealth =
-    10
+    5
 
 
 
