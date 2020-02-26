@@ -49,7 +49,7 @@ type BulletId
 
 
 type Location
-    = Location
+    = Location Number Number
 
 
 type Path
@@ -207,7 +207,7 @@ initTower : Int -> Tower
 initTower _ =
     { delay = bulletFireDelay
     , radius = 100
-    , location = Location
+    , location = Location 0 0
     , elapsed = 0
     }
 
