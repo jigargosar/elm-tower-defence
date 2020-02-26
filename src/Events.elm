@@ -23,16 +23,34 @@ bulletTicksToHitMonster =
 
 
 type alias Bullet =
-    { id : BulletId
+    { --CONFIG
+      id : BulletId
     , monsterId : MonsterId
+    , target : Location
+
+    -- STATE
+    , location : Location
     , elapsed : Number
     , ticksToHit : Number
     }
 
 
-initBullet : Int -> MonsterId -> Bullet
-initBullet idx monsterId =
-    Bullet (BulletId idx) monsterId 0 bulletTicksToHitMonster
+type alias BulletInit =
+    { monsterId : MonsterId
+    , target : Location
+    , location : Location
+    }
+
+
+initBullet : Int -> BulletInit -> Bullet
+initBullet idx { monsterId, target, location } =
+    { id = BulletId idx
+    , monsterId = monsterId
+    , target = target
+    , location = location
+    , elapsed = 0
+    , ticksToHit = bulletTicksToHitMonster
+    }
 
 
 idOfBullet : Bullet -> BulletId
@@ -486,7 +504,7 @@ init =
 type Event
     = NoEvent
     | SpawnMonster
-    | SpawnBullet MonsterId
+    | SpawnBullet BulletInit
     | BulletHitMonster MonsterId
     | RemoveBullet BulletId
     | RemoveMonster MonsterId
@@ -593,9 +611,9 @@ handleEvent world event acc =
                 , nextIdx = acc.nextIdx + 1
             }
 
-        SpawnBullet monsterId ->
+        SpawnBullet bulletInit ->
             { acc
-                | bullets = initBullet acc.nextIdx monsterId :: acc.bullets
+                | bullets = initBullet acc.nextIdx bulletInit :: acc.bullets
                 , nextIdx = acc.nextIdx + 1
             }
 
@@ -605,7 +623,14 @@ stepTower aakMonsters tower =
     if tower.elapsed >= tower.delay then
         case List.Extra.find (\aak -> isLocationInRangeOfTower aak.location tower) aakMonsters of
             Just aak ->
-                ( { tower | elapsed = 0 }, [ SpawnBullet aak.id ] )
+                ( { tower | elapsed = 0 }
+                , [ SpawnBullet
+                        { monsterId = aak.id
+                        , location = tower.location
+                        , target = aak.location
+                        }
+                  ]
+                )
 
             Nothing ->
                 ( tower, [] )
