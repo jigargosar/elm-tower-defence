@@ -48,8 +48,26 @@ type BulletId
 -- MONSTER PATH
 
 
+type Position
+    = Position
+
+
 type Path
     = Path
+
+
+type PathProgress
+    = PathProgress
+
+
+pathProgressToPosition : PathProgress -> Position
+pathProgressToPosition =
+    Debug.todo "impl"
+
+
+stepPathProgress : PathProgress -> Maybe PathProgress
+stepPathProgress =
+    Debug.todo "impl"
 
 
 
