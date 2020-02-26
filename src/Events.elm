@@ -14,10 +14,6 @@ bulletFireDelay =
     10
 
 
-bulletTicksToHitMonster =
-    20
-
-
 bulletSpeed =
     0.5
 
@@ -35,8 +31,6 @@ type alias Bullet =
 
     -- STATE
     , location : Location
-    , elapsed : Number
-    , ticksToHit : Number
     }
 
 
@@ -54,8 +48,6 @@ initBullet idx { monsterId, target, start } =
     , target = target
     , location = start
     , speed = bulletSpeed
-    , elapsed = 0
-    , ticksToHit = bulletTicksToHitMonster
     }
 
 
