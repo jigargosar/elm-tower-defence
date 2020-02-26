@@ -348,38 +348,8 @@ type alias Tower =
     }
 
 
-initTower : Int -> Tower
-initTower n =
-    let
-        w =
-            30
-
-        offset =
-            4
-
-        x =
-            (toFloat n * (w * offset)) - (w * offset)
-
-        y =
-            w
-                * (offset + 0.4)
-                * (if modBy 2 n == 0 then
-                    -1
-
-                   else
-                    1
-                  )
-    in
-    { delay = bulletFireDelay
-    , range = w * (offset + 4)
-    , location = Location x y
-    , w = w
-    , elapsed = 0
-    }
-
-
-initTower2 : Location -> Number -> Tower
-initTower2 location range =
+initTower : Location -> Number -> Tower
+initTower location range =
     { delay = bulletFireDelay
     , range = range
     , location = location
@@ -389,8 +359,8 @@ initTower2 location range =
 
 
 initialTowers =
-    [ initTower2 (Location -150 -100) 200
-    , initTower2 (Location 150 100) 150
+    [ initTower (Location -150 -100) 200
+    , initTower (Location 150 100) 150
     ]
 
 
