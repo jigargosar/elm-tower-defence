@@ -261,10 +261,16 @@ initTower n =
             4
 
         x =
-            (toFloat (n - 1) * (w * (offset + 1))) + (w * 2)
+            (toFloat n * (w * offset)) - (w * offset)
 
         y =
-            w * -offset
+            w * offset
+                * (if modBy 2 n == 0 then
+                    -1
+
+                   else
+                    1
+                  )
     in
     { delay = bulletFireDelay
     , range = w * (offset + 1)
@@ -363,7 +369,7 @@ init =
     Running
         { lair = initLair
         , path = initPath
-        , towers = List.range 0 1 |> List.map initTower
+        , towers = List.range 0 2 |> List.map initTower
         , bullets = []
         , monsters = []
         , house = initHouse
