@@ -686,7 +686,10 @@ viewTower tower =
         (Location x y) =
             tower.location
     in
-    square blue tower.w
+    [ circle green tower.range |> fade 0.2
+    , square blue tower.w
+    ]
+        |> group
         |> move x y
 
 
