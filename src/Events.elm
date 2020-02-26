@@ -592,7 +592,7 @@ viewWorld computer world =
             computePathLength computer.screen
     in
     [ viewPath pathLength
-    , List.map (viewMonster pathLength) world.monsters
+    , List.map viewMonster world.monsters
         |> group
     ]
         |> group
@@ -614,8 +614,8 @@ viewPath pathLength =
         |> group
 
 
-viewMonster : Number -> Monster -> Shape
-viewMonster pathLength monster =
+viewMonster : Monster -> Shape
+viewMonster monster =
     case monster.state of
         AliveAndKicking { travel, health } ->
             let
