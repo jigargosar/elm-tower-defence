@@ -69,6 +69,11 @@ type PathProgress
     = PathProgress { speed : Number, progress : Number }
 
 
+initPathProgress : Number -> PathProgress
+initPathProgress speed =
+    PathProgress { speed = speed, progress = 0 }
+
+
 pathProgressToLocation : PathProgress -> Location
 pathProgressToLocation (PathProgress n) =
     let
