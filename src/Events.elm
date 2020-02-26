@@ -196,7 +196,7 @@ stepPathProgress (PathProgress p) =
 
 pathProgressToPct : PathProgress -> Number
 pathProgressToPct (PathProgress p) =
-    p.progress
+    0
 
 
 
@@ -284,7 +284,10 @@ decrementMonsterHealth monster =
 
 
 type alias AAKMonster =
-    { id : MonsterId, location : Location, progress : Number }
+    { id : MonsterId
+    , location : Location
+    , progress : Number
+    }
 
 
 akkMonsterState : Monster -> Maybe AAKMonster
