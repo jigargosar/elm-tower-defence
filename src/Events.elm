@@ -52,6 +52,45 @@ type Location
     = Location Number Number
 
 
+stepLocationTowards : Location -> Number -> Location -> Maybe Location
+stepLocationTowards (Location tx ty) speed location =
+    let
+        (Location x y) =
+            location
+
+        angle =
+            atan2 (ty - y) (tx - x)
+
+        ( dx, dy ) =
+            ( speed, angle ) |> fromPolar
+
+        ( nx, ny ) =
+            ( x + dx, y + dy )
+
+        newLocation =
+            Location nx ny
+    in
+    if locationEqWithin speed location newLocation then
+        Nothing
+
+    else
+        Just newLocation
+
+
+locationEqWithin : Number -> Location -> Location -> Bool
+locationEqWithin tol l1 l2 =
+    distanceFromToLocation l1 l2 <= tol + 0.1
+
+
+
+--ptEqw : Number -> Number -> Location -> Location -> Bool
+--ptEqw dx dy p1 p2 =
+--    eqw (max 1 (abs dx)) p1.x p2.x && eqw (max 1 (abs dy)) p1.y p2.y
+--eqw : Float -> Float -> Float -> Bool
+--eqw tol a b =
+--    abs (b - a) <= tol
+
+
 distanceFromToLocation : Location -> Location -> Number
 distanceFromToLocation (Location x1 y1) (Location x2 y2) =
     let
@@ -139,11 +178,17 @@ locationOfPathProgress (PathProgress { location }) =
 
 stepPathProgress : PathProgress -> Maybe PathProgress
 stepPathProgress (PathProgress p) =
-    if p.progress >= 1 then
-        Nothing
+    case p.wayPoints of
+        [] ->
+            Nothing
 
-    else
-        Just (PathProgress { p | progress = min 1 (p.progress + p.speed) })
+        wp :: rest ->
+            case stepLocationTowards wp p.speed p.location of
+                Nothing ->
+                    Just (PathProgress { p | location = wp, wayPoints = rest })
+
+                Just newLocation ->
+                    Just (PathProgress { p | location = newLocation })
 
 
 pathProgressToPct : PathProgress -> Number
