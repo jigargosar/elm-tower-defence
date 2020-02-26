@@ -72,13 +72,19 @@ type Path
 initPath : Path
 initPath =
     let
-        l =
-            500
+        start =
+            Location -250 0
 
-        hl =
-            l / 2
+        rest =
+            [ Location 250 0 ]
+
+        l =
+            List.foldl (\to ( accDistance, from ) -> ( distanceFromToLocation from to + accDistance, to ))
+                ( 0, start )
+                rest
+                |> Tuple.first
     in
-    Path l (Location -hl 0) [ Location hl 0 ]
+    Path l start rest
 
 
 pathToLocations : Path -> List Location
