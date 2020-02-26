@@ -677,8 +677,13 @@ viewTower tower =
         (Location x y) =
             tower.location
     in
-    rectangle blue 50 50
+    square blue 30
         |> move x y
+
+
+square : Color -> Number -> Shape
+square c w =
+    rectangle c w w
 
 
 
