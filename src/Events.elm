@@ -256,10 +256,13 @@ initTower n =
     let
         w =
             30
+
+        offset =
+            5
     in
     { delay = bulletFireDelay
-    , range = w * 5
-    , location = Location (toFloat (n - 1) * (w * 5)) (w * -5)
+    , range = w * (offset + 2)
+    , location = Location (toFloat (n - 1) * (w * offset)) (w * -offset)
     , w = w
     , elapsed = 0
     }
