@@ -760,6 +760,7 @@ viewWorld _ world =
     [ List.map viewTower world.towers |> group
     , viewPath world.path
     , List.map viewMonster world.monsters |> group
+    , List.map viewBullet world.bullets |> group
     ]
         |> group
 
@@ -829,6 +830,16 @@ viewTower tower =
     , square blue tower.w
     ]
         |> group
+        |> move x y
+
+
+viewBullet : Bullet -> Shape
+viewBullet bullet =
+    let
+        (Location x y) =
+            bullet.location
+    in
+    circle green 5
         |> move x y
 
 
