@@ -84,10 +84,13 @@ stepPathProgress =
 
 
 type alias Monster =
-    { id : MonsterId
+    { -- CONFIG
+      id : MonsterId
     , maxHealth : Number
     , speed : Number
     , dyingTicks : Number
+
+    -- STATE
     , state : MonsterState
     }
 
@@ -105,13 +108,10 @@ initMonster idx =
         maxHealth =
             15
     in
-    { -- CONFIG
-      id = MonsterId idx
+    { id = MonsterId idx
     , maxHealth = maxHealth
     , speed = 1 / (60 * 10)
     , dyingTicks = 120
-
-    -- STATE
     , state = AliveAndKicking { health = maxHealth, travel = 0 }
     }
 
@@ -186,6 +186,11 @@ remainingTravelPctOfMonster monster =
 
         ReadyForRemoval ->
             0
+
+
+locationOfMonster : Monster -> Location
+locationOfMonster monster =
+    Debug.todo "impl"
 
 
 idOfMonster : Monster -> MonsterId
