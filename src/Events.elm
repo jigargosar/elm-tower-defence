@@ -11,11 +11,11 @@ import String exposing (fromInt)
 
 
 bulletFireDelay =
-    10
+    5
 
 
 bulletSpeed =
-    0.5
+    3
 
 
 
