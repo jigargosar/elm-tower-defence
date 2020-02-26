@@ -91,8 +91,8 @@ type PathProgress
     = PathProgress { speed : Number, progress : Number }
 
 
-initPathProgress : Number -> PathProgress
-initPathProgress speed =
+initPathProgress : Path -> Number -> PathProgress
+initPathProgress path speed =
     PathProgress { speed = speed, progress = 0 }
 
 
@@ -145,8 +145,8 @@ type MonsterState
     | ReadyForRemoval
 
 
-initMonster : Int -> Monster
-initMonster idx =
+initMonster : Int -> Path -> Monster
+initMonster idx path =
     let
         maxHealth =
             15
@@ -158,7 +158,11 @@ initMonster idx =
     , maxHealth = maxHealth
     , speed = speed
     , dyingTicks = 120
-    , state = AliveAndKicking { health = maxHealth, travel = initPathProgress speed }
+    , state =
+        AliveAndKicking
+            { health = maxHealth
+            , travel = initPathProgress path speed
+            }
     }
 
 
@@ -446,7 +450,7 @@ handleEvents world events acc =
 
 
 handleEvent : World -> Event -> World -> World
-handleEvent _ event acc =
+handleEvent world event acc =
     case event of
         NoEvent ->
             acc
@@ -468,7 +472,7 @@ handleEvent _ event acc =
 
         SpawnMonster ->
             { acc
-                | monsters = initMonster acc.nextIdx :: acc.monsters
+                | monsters = initMonster acc.nextIdx world.path :: acc.monsters
                 , nextIdx = acc.nextIdx + 1
             }
 
