@@ -354,6 +354,16 @@ initTower n =
     }
 
 
+initTower2 : Location -> Number -> Tower
+initTower2 location range =
+    { delay = bulletFireDelay
+    , range = range
+    , location = location
+    , w = 30
+    , elapsed = 0
+    }
+
+
 isLocationInRangeOfTower : Location -> Tower -> Bool
 isLocationInRangeOfTower location tower =
     distanceFromToLocation location tower.location <= tower.range
