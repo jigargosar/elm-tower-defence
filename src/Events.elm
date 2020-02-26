@@ -48,8 +48,8 @@ type BulletId
 -- MONSTER PATH
 
 
-type Position
-    = Position
+type Location
+    = Location
 
 
 type Path
@@ -60,8 +60,8 @@ type PathProgress
     = PathProgress
 
 
-pathProgressToPosition : PathProgress -> Position
-pathProgressToPosition =
+pathProgressToLocation : PathProgress -> Location
+pathProgressToLocation =
     Debug.todo "impl"
 
 
@@ -203,8 +203,8 @@ initTower _ =
     { delay = bulletFireDelay, elapsed = 0 }
 
 
-isPositionInRangeOfTower : Position -> Tower -> Bool
-isPositionInRangeOfTower position tower =
+isLocationInRangeOfTower : Location -> Tower -> Bool
+isLocationInRangeOfTower location tower =
     Debug.todo "impl"
 
 
