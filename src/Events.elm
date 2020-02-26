@@ -138,12 +138,12 @@ locationOfPathProgress (PathProgress { location }) =
 
 
 stepPathProgress : PathProgress -> Maybe PathProgress
-stepPathProgress (PathProgress n) =
-    if n.progress >= 1 then
+stepPathProgress (PathProgress p) =
+    if p.progress >= 1 then
         Nothing
 
     else
-        Just (PathProgress { n | progress = min 1 (n.progress + n.speed) })
+        Just (PathProgress { p | progress = min 1 (p.progress + p.speed) })
 
 
 pathProgressToPct : PathProgress -> Number
