@@ -45,15 +45,24 @@ type BulletId
 
 
 
--- MONSTER PATH
+-- LOCATION
 
 
 type Location
     = Location Number Number
 
 
-type Path
-    = Path
+distanceFromToLocation : Location -> Location -> Number
+distanceFromToLocation (Location x1 y1) (Location x2 y2) =
+    let
+        ( x, y ) =
+            ( x2 - x1, y2 - y1 )
+    in
+    sqrt (add (mul x x) (mul y y))
+
+
+
+-- MONSTER PATH PROGRESS
 
 
 type PathProgress
@@ -638,3 +647,11 @@ is =
 
 isNot =
     (/=)
+
+
+add =
+    (+)
+
+
+mul =
+    (*)
