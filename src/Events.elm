@@ -97,8 +97,14 @@ lengthOfPath (Path l _ _) =
     l
 
 
+startOfPath : Path -> Location
 startOfPath (Path _ s _) =
     s
+
+
+restOfPath : Path -> List Location
+restOfPath (Path _ _ rest) =
+    rest
 
 
 
@@ -111,6 +117,7 @@ type PathProgress
         , speed : Number
         , progress : Number
         , location : Location
+        , wayPoints : List Location
         }
 
 
@@ -121,6 +128,7 @@ initPathProgress path speed =
         , speed = speed
         , progress = 0
         , location = startOfPath path
+        , wayPoints = restOfPath path
         }
 
 
