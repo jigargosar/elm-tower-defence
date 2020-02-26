@@ -78,18 +78,23 @@ initPath =
         rest =
             [ Location 250 0 ]
 
-        l =
+        pathLen =
             List.foldl (\to ( accDistance, from ) -> ( distanceFromToLocation from to + accDistance, to ))
                 ( 0, start )
                 rest
                 |> Tuple.first
     in
-    Path l start rest
+    Path pathLen start rest
 
 
 pathToLocations : Path -> List Location
 pathToLocations (Path _ s r) =
     s :: r
+
+
+lengthOfPath : Path -> Number
+lengthOfPath (Path l _ _) =
+    l
 
 
 
