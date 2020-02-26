@@ -37,17 +37,17 @@ type alias Bullet =
 
 type alias BulletInit =
     { monsterId : MonsterId
+    , start : Location
     , target : Location
-    , location : Location
     }
 
 
 initBullet : Int -> BulletInit -> Bullet
-initBullet idx { monsterId, target, location } =
+initBullet idx { monsterId, target, start } =
     { id = BulletId idx
     , monsterId = monsterId
     , target = target
-    , location = location
+    , location = start
     , elapsed = 0
     , ticksToHit = bulletTicksToHitMonster
     }
@@ -626,7 +626,7 @@ stepTower aakMonsters tower =
                 ( { tower | elapsed = 0 }
                 , [ SpawnBullet
                         { monsterId = aak.id
-                        , location = tower.location
+                        , start = tower.location
                         , target = aak.location
                         }
                   ]
