@@ -204,7 +204,7 @@ type MonsterId
 type alias Tower =
     { -- CONFIG
       delay : Number -- RELOAD TIME
-    , radius : Number
+    , range : Number -- SHOOTING RANGE
     , location : Location
 
     -- STATE
@@ -215,7 +215,7 @@ type alias Tower =
 initTower : Int -> Tower
 initTower _ =
     { delay = bulletFireDelay
-    , radius = 100
+    , range = 100
     , location = Location 0 0
     , elapsed = 0
     }
@@ -223,7 +223,7 @@ initTower _ =
 
 isLocationInRangeOfTower : Location -> Tower -> Bool
 isLocationInRangeOfTower location tower =
-    distanceFromToLocation location tower.location <= tower.radius
+    distanceFromToLocation location tower.location <= tower.range
 
 
 
