@@ -18,6 +18,10 @@ bulletTicksToHitMonster =
     20
 
 
+bulletSpeed =
+    0.5
+
+
 
 -- Bullet
 
@@ -27,6 +31,7 @@ type alias Bullet =
       id : BulletId
     , monsterId : MonsterId
     , target : Location
+    , speed : Number
 
     -- STATE
     , location : Location
@@ -48,6 +53,7 @@ initBullet idx { monsterId, target, start } =
     , monsterId = monsterId
     , target = target
     , location = start
+    , speed = bulletSpeed
     , elapsed = 0
     , ticksToHit = bulletTicksToHitMonster
     }
