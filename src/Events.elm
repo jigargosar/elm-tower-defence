@@ -111,15 +111,9 @@ type Path
     = Path Number Location (List Location)
 
 
-initPath : Path
-initPath =
+initPath : Location -> List Location -> Path
+initPath start rest =
     let
-        start =
-            Location -250 0
-
-        rest =
-            [ Location 250 0 ]
-
         pathLen =
             List.foldl (\to ( accDistance, from ) -> ( distanceFromToLocation from to + accDistance, to ))
                 ( 0, start )
@@ -194,9 +188,10 @@ stepPathProgress (PathProgress p) =
                     Just (PathProgress { p | location = newLocation })
 
 
-pathProgressToPct : PathProgress -> Number
-pathProgressToPct (PathProgress p) =
-    0
+distanceToPathEnd : PathProgress -> Number
+distanceToPathEnd (PathProgress p) =
+    initPath p.location p.wayPoints
+        |> lengthOfPath
 
 
 
@@ -294,7 +289,7 @@ akkMonsterState : Monster -> Maybe AAKMonster
 akkMonsterState monster =
     case monster.state of
         AliveAndKicking { travel } ->
-            Just (AAKMonster monster.id (locationOfPathProgress travel) (pathProgressToPct travel))
+            Just (AAKMonster monster.id (locationOfPathProgress travel) (distanceToPathEnd travel))
 
         Dying { travel } ->
             Nothing
@@ -447,9 +442,21 @@ type Game
 
 init : Game
 init =
+    let
+        path : Path
+        path =
+            let
+                start =
+                    Location -250 0
+
+                rest =
+                    [ Location 250 0 ]
+            in
+            initPath start rest
+    in
     Running
         { lair = initLair
-        , path = initPath
+        , path = path
         , towers = List.range 0 2 |> List.map initTower
         , bullets = []
         , monsters = []
