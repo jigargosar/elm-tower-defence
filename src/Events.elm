@@ -534,6 +534,7 @@ computePathLength s =
     s.width * 0.9
 
 
+viewPath : Float -> Shape
 viewPath pathLength =
     let
         ep =
