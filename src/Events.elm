@@ -257,6 +257,10 @@ init =
         }
 
 
+
+-- UPDATE
+
+
 type Event
     = NoEvent
     | SpawnMonster
@@ -265,10 +269,6 @@ type Event
     | RemoveBullet BulletId
     | RemoveMonster MonsterId
     | MonsterReachedHouse
-
-
-
--- UPDATE
 
 
 update : Computer -> Game -> Game
