@@ -23,7 +23,7 @@ bombTowerRange =
 
 
 bombSpeed =
-    10
+    3
 
 
 bulletFireDelay =
@@ -90,6 +90,11 @@ distanceFromToLocation (Location x1 y1) (Location x2 y2) =
             ( x2 - x1, y2 - y1 )
     in
     sqrt (add (mul x x) (mul y y))
+
+
+isLocationInRangeOf : Location -> Number -> Location -> Bool
+isLocationInRangeOf center range location =
+    distanceFromToLocation center location <= range
 
 
 
@@ -261,6 +266,8 @@ type BombId
 
 type alias Bomb =
     { id : BombId
+    , aoe : Number
+    , damage : Number
     , location : Location
     , speed : Number
     , target : Location
@@ -274,6 +281,8 @@ type alias BombInit =
 initBomb : Int -> BombInit -> Bomb
 initBomb idx { from, to } =
     { id = BombId idx
+    , aoe = 30
+    , damage = 3
     , location = from
     , target = to
     , speed = bombSpeed
@@ -285,11 +294,19 @@ idOfBomb bomb =
     bomb.id
 
 
-stepBomb : { remove : BombId -> event, reachedTarget : Location -> event } -> Bomb -> ( Bomb, List event )
+stepBomb : { remove : BombId -> event, reachedTarget : { at : Location, aoe : Number, damage : Number } -> event } -> Bomb -> ( Bomb, List event )
 stepBomb config bomb =
     case stepLocationTowards bomb.target bomb.speed bomb.location of
         Nothing ->
-            ( bomb, [ config.remove bomb.id, config.reachedTarget bomb.target ] )
+            ( bomb
+            , [ config.remove bomb.id
+              , config.reachedTarget
+                    { at = bomb.target
+                    , aoe = bomb.aoe
+                    , damage = bomb.damage
+                    }
+              ]
+            )
 
         Just newLocation ->
             ( { bomb | location = newLocation }, [] )
@@ -506,14 +523,19 @@ initMonster idx path =
 
 
 decrementMonsterHealth : Monster -> Monster
-decrementMonsterHealth monster =
+decrementMonsterHealth =
+    decrementMonsterHealthBy 1
+
+
+decrementMonsterHealthBy : Number -> Monster -> Monster
+decrementMonsterHealthBy damage monster =
     let
         func state =
             case state of
                 AliveAndKicking { health, travel } ->
                     let
                         newHealth =
-                            health - 1
+                            health - damage
                     in
                     (if newHealth <= 0 then
                         Dying
@@ -716,7 +738,7 @@ type Event
     | RemoveBullet BulletId
     | RemoveMonster MonsterId
     | MonsterReachedHouse
-    | BombReachedTarget Location
+    | BombExploded { at : Location, aoe : Number, damage : Number }
     | RemoveBomb BombId
     | SpawnBomb BombInit
 
@@ -782,7 +804,7 @@ updateWorld world =
             List.map
                 (stepBomb
                     { remove = RemoveBomb
-                    , reachedTarget = BombReachedTarget
+                    , reachedTarget = BombExploded
                     }
                 )
                 world.bombs
@@ -858,8 +880,24 @@ handleEvent world event acc =
                 , nextIdx = acc.nextIdx + 1
             }
 
-        BombReachedTarget location ->
-            acc
+        BombExploded { at, aoe, damage } ->
+            let
+                isLocationInAOE =
+                    isLocationInRangeOf at aoe
+
+                monsterIdsInBombAOE =
+                    world.monsters
+                        |> List.filterMap aakMonsterState
+                        |> List.filter (.location >> isLocationInAOE)
+                        |> List.map .id
+
+                isMonsterInBombAOE monster =
+                    List.member (idOfMonster monster) monsterIdsInBombAOE
+            in
+            { acc
+                | monsters =
+                    List.Extra.updateIf isMonsterInBombAOE (decrementMonsterHealthBy damage) acc.monsters
+            }
 
         RemoveBomb bombId ->
             { acc | bombs = List.filter (idOfBomb >> isNot bombId) acc.bombs }
