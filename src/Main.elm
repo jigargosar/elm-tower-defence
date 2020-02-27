@@ -578,7 +578,7 @@ stepBullets =
     let
         func bullet world =
             stepBullet bullet
-                |> (\( b, events ) -> handleEvents2 events (setBullet b world))
+                |> (\( newBullet, events ) -> handleEvents2 events (setBullet newBullet world))
     in
     \world -> List.foldl func world world.bullets
 
