@@ -264,6 +264,11 @@ type BombId
     = BombId Int
 
 
+type BombState
+    = Launched
+    | Exploded
+
+
 type alias Bomb =
     { id : BombId
     , aoe : Number
@@ -271,6 +276,7 @@ type alias Bomb =
     , location : Location
     , speed : Number
     , target : Location
+    , state : BombState
     }
 
 
@@ -286,6 +292,7 @@ initBomb idx { from, to } =
     , location = from
     , target = to
     , speed = bombSpeed
+    , state = Launched
     }
 
 
@@ -294,22 +301,33 @@ idOfBomb bomb =
     bomb.id
 
 
-stepBomb : { remove : BombId -> event, reachedTarget : { at : Location, aoe : Number, damage : Number } -> event } -> Bomb -> ( Bomb, List event )
+stepBomb :
+    { remove : BombId -> event
+    , reachedTarget : { at : Location, aoe : Number, damage : Number } -> event
+    }
+    -> Bomb
+    -> ( Bomb, List event )
 stepBomb config bomb =
-    case stepLocationTowards bomb.target bomb.speed bomb.location of
-        Nothing ->
-            ( bomb
-            , [ config.remove bomb.id
-              , config.reachedTarget
-                    { at = bomb.target
-                    , aoe = bomb.aoe
-                    , damage = bomb.damage
-                    }
-              ]
-            )
+    case bomb.state of
+        Launched ->
+            case stepLocationTowards bomb.target bomb.speed bomb.location of
+                Nothing ->
+                    ( { bomb | state = Exploded }
+                    , [ config.reachedTarget
+                            { at = bomb.target
+                            , aoe = bomb.aoe
+                            , damage = bomb.damage
+                            }
+                      ]
+                    )
 
-        Just newLocation ->
-            ( { bomb | location = newLocation }, [] )
+                Just newLocation ->
+                    ( { bomb | location = newLocation }, [] )
+
+        Exploded ->
+            ( bomb
+            , [ config.remove bomb.id ]
+            )
 
 
 viewBomb : Bomb -> Shape
