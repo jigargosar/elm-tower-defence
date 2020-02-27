@@ -6,6 +6,7 @@ module Sequential exposing
     , int
     , map
     , map2
+    , step
     )
 
 
@@ -67,3 +68,8 @@ andThen callback (Generator genA) =
             in
             genB newSeed
         )
+
+
+step : Generator a -> Seed -> ( a, Seed )
+step (Generator generator) seed =
+    generator seed
