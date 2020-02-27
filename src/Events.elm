@@ -1109,8 +1109,7 @@ viewPath : Path -> Shape
 viewPath path =
     let
         ep (Location x y) =
-            circle black 8
-                |> fade 0.8
+            circle lightCharcoal 8
                 |> move x y
     in
     pathToLocations path
@@ -1126,6 +1125,9 @@ viewMonster monster =
 
         scaleAdjust =
             0.7
+
+        bgFade =
+            0.9
     in
     case monster.state of
         AliveAndKicking { travel, health } ->
@@ -1133,7 +1135,7 @@ viewMonster monster =
                 (Location x y) =
                     locationOfPathProgress travel
             in
-            [ [ circle red radius |> fade 0.7 ] |> group
+            [ [ circle red radius |> fade bgFade ] |> group
             , words white (fromInt (round health))
             ]
                 |> group
@@ -1148,7 +1150,7 @@ viewMonster monster =
                 remainingProgress =
                     remainingTicks / monster.dyingTicks
             in
-            [ [ circle red radius |> fade 0.7 ]
+            [ [ circle red radius |> fade bgFade ]
                 |> group
                 |> fade (remainingProgress / 2)
             , words white (fromInt (round overKill))
