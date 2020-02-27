@@ -553,16 +553,6 @@ initialGen =
 
         bombTowersGenerator : Generator (List BombTower)
         bombTowersGenerator =
-            let
-                bombTowerGenerator : Location -> Generator BombTower
-                bombTowerGenerator location =
-                    BombTower.generator
-                        { reloadDelay = bombTowerReloadDelay
-                        , range = bombTowerRange
-                        , viewWidth = allTowersViewWidth
-                        , location = location
-                        }
-            in
             [ bombTowerGenerator (L.at 0 0)
             , bombTowerGenerator (L.at 150 -100)
             ]
@@ -572,6 +562,16 @@ initialGen =
         lairGenerator
         bombTowersGenerator
         initialTowersGenerator
+
+
+bombTowerGenerator : Location -> Generator BombTower
+bombTowerGenerator location =
+    BombTower.generator
+        { reloadDelay = bombTowerReloadDelay
+        , range = bombTowerRange
+        , viewWidth = allTowersViewWidth
+        , location = location
+        }
 
 
 
