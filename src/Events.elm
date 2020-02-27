@@ -528,17 +528,6 @@ init =
                 |> addWayPoint
                 |> buildPath
 
-        path2 : Path
-        path2 =
-            let
-                start =
-                    Location -250 0
-
-                rest =
-                    [ Location 250 0 ]
-            in
-            initPath start rest
-
         towers =
             [ initTower (Location -150 -100) 200
             , initTower (Location 150 100) 150
