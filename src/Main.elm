@@ -517,21 +517,7 @@ init =
                 |> addWayPoint
                 |> buildPath
 
-        initialTowersGenerator : Generator (List Tower)
-        initialTowersGenerator =
-            [ towerGenerator (L.at -150 -100) 200
-            , towerGenerator (L.at 150 100) 150
-            ]
-                |> Random.Extra.combine
-
         ( ig, worldSeed ) =
-            let
-                initialGen =
-                    Random.map3 InitialWorldData
-                        lairGenerator
-                        bombTowersGenerator
-                        initialTowersGenerator
-            in
             Random.step initialGen (Random.initialSeed 0)
     in
     Running
@@ -556,21 +542,36 @@ type alias InitialWorldData =
     }
 
 
-bombTowersGenerator : Generator (List BombTower)
-bombTowersGenerator =
+initialGen =
     let
-        bombTowerGenerator : Location -> Generator BombTower
-        bombTowerGenerator location =
-            BombTower.generator
-                { reloadDelay = bombTowerReloadDelay
-                , range = bombTowerRange
-                , viewWidth = allTowersViewWidth
-                , location = location
-                }
+        initialTowersGenerator : Generator (List Tower)
+        initialTowersGenerator =
+            [ towerGenerator (L.at -150 -100) 200
+            , towerGenerator (L.at 150 100) 150
+            ]
+                |> Random.Extra.combine
+
+        bombTowersGenerator : Generator (List BombTower)
+        bombTowersGenerator =
+            let
+                bombTowerGenerator : Location -> Generator BombTower
+                bombTowerGenerator location =
+                    BombTower.generator
+                        { reloadDelay = bombTowerReloadDelay
+                        , range = bombTowerRange
+                        , viewWidth = allTowersViewWidth
+                        , location = location
+                        }
+            in
+            [ bombTowerGenerator (L.at 0 0)
+            , bombTowerGenerator (L.at 150 -100)
+            ]
+                |> Random.Extra.combine
     in
-    Random.map2 (\a b -> [ a, b ])
-        (bombTowerGenerator (L.at 0 0))
-        (bombTowerGenerator (L.at 150 -100))
+    Random.map3 InitialWorldData
+        lairGenerator
+        bombTowersGenerator
+        initialTowersGenerator
 
 
 
