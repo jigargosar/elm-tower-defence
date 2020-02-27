@@ -396,9 +396,9 @@ type alias Lair =
     }
 
 
-initLair : Lair
-initLair =
-    { seed = initialSeed 0
+initLair : Seed -> Lair
+initLair seed =
+    { seed = seed
     , delay = 60
     , elapsed = 0
     }
@@ -494,9 +494,12 @@ init =
             [ initTower (L.at -150 -100) 200
             , initTower (L.at 150 100) 150
             ]
+
+        ( seed1, seed0 ) =
+            Random.step Random.independentSeed (Random.initialSeed 0)
     in
     Running
-        ({ lair = initLair
+        ({ lair = initLair seed0
          , path = path
          , towers = towers
          , bullets = []
@@ -505,7 +508,7 @@ init =
          , monsters = []
          , house = initHouse
          , nextIdx = 0
-         , seed = Random.initialSeed 0
+         , seed = seed1
          }
             |> insertInitialBombTowers
         )
