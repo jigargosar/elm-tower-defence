@@ -571,6 +571,7 @@ updateWorld2 =
                     |> (\( house, events ) -> handleEvents2 events { world | house = house })
            )
         >> stepBullets
+        >> stepMonsters
 
 
 stepBullets : World -> World
@@ -586,6 +587,21 @@ stepBullets =
 setBullet : Bullet -> World -> World
 setBullet bullet world =
     { world | bullets = List.Extra.setIf (idOfBullet >> is (idOfBullet bullet)) bullet world.bullets }
+
+
+stepMonsters : World -> World
+stepMonsters =
+    let
+        func monster world =
+            stepMonster monster
+                |> (\( newMonster, events ) -> handleEvents2 events (setMonster newMonster world))
+    in
+    \world -> List.foldl func world world.monsters
+
+
+setMonster : Monster -> World -> World
+setMonster monster world =
+    { world | monsters = List.Extra.setIf (idOfMonster >> is (idOfMonster monster)) monster world.monsters }
 
 
 handleEvents2 : List Event -> World -> World
