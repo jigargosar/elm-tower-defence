@@ -548,7 +548,7 @@ update _ game =
         Running world ->
             let
                 newWorld =
-                    updateWorld world
+                    updateWorld2 world
             in
             if hasHouseBurnedDown newWorld then
                 GameOver newWorld
