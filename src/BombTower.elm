@@ -30,8 +30,7 @@ type alias Init =
 generator : Init -> Generator BombTower
 generator init =
     BombTowerId.generator
-        |> Random.map
-            (initBombTower init)
+        |> Random.map (initBombTower init)
 
 
 initBombTower : Init -> BombTowerId -> BombTower
