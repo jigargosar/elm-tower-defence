@@ -163,25 +163,44 @@ restOfPath (Path _ _ rest) =
 
 
 type alias PathBuilder =
-    { start : Location, current : Location, restReverse : List Location }
+    { start : Location
+    , offset : Number
+    , current : Location
+    , restReverse : List Location
+    }
 
 
-initPathBuilder : Location -> PathBuilder
-initPathBuilder start =
+initPathBuilder : Number -> Location -> PathBuilder
+initPathBuilder offset start =
     { start = start
+    , offset = offset
     , current = start
     , restReverse = []
     }
 
 
 goDown : PathBuilder -> PathBuilder
-goDown pathBuilder =
-    pathBuilder
+goDown p =
+    let
+        (Location x y) =
+            p.current
+
+        ny =
+            y - p.offset
+    in
+    { p | current = Location x ny }
 
 
 goRight : PathBuilder -> PathBuilder
-goRight pathBuilder =
-    pathBuilder
+goRight p =
+    let
+        (Location x y) =
+            p.current
+
+        nx =
+            x + p.offset
+    in
+    { p | current = Location nx y }
 
 
 goto : Location -> PathBuilder -> PathBuilder
@@ -191,9 +210,7 @@ goto to p =
 
 addWayPoint : PathBuilder -> PathBuilder
 addWayPoint p =
-    { p
-        | restReverse = p.current :: p.restReverse
-    }
+    { p | restReverse = p.current :: p.restReverse }
 
 
 buildPath : PathBuilder -> Path
