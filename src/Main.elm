@@ -2,7 +2,6 @@ module Main exposing (main)
 
 import Bomb exposing (Bomb)
 import BombId exposing (BombId)
-import BombTower exposing (BombTower)
 import List.Extra
 import Location as L exposing (Location)
 import Playground exposing (..)
