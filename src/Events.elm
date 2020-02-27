@@ -1150,6 +1150,9 @@ viewMonster monster =
                 |> moveLeft ((width - healthWidth) / 2)
             ]
                 |> group
+
+        viewHealthBar health =
+            healthBarShape (health / monster.maxHealth)
     in
     case monster.state of
         AliveAndKicking { travel, health } ->
@@ -1158,7 +1161,7 @@ viewMonster monster =
                     locationOfPathProgress travel
             in
             [ monsterShape
-            , healthBarShape 0.5 |> moveUp 40
+            , viewHealthBar health |> moveUp 40
             , words white (fromInt (round health))
             ]
                 |> group
