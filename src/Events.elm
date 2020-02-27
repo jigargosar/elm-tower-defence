@@ -1170,11 +1170,8 @@ viewMonster monster =
             in
             [ monsterShape
             , viewHealthBar health |> moveUp 40
-            , if isDebug then
-                words white (fromInt (round health))
-
-              else
-                noShape
+            , debugShape <|
+                \_ -> words white (fromInt (round health))
             ]
                 |> group
                 |> scale scaleAdjust
@@ -1188,10 +1185,9 @@ viewMonster monster =
                 remainingProgress =
                     remainingTicks / monster.dyingTicks
             in
-            [ monsterShape
-                |> fade (remainingProgress / 2)
-
-            --, words white (fromInt (round overKill))
+            [ monsterShape |> fade (remainingProgress / 2)
+            , debugShape <|
+                \_ -> words white (fromInt (round overKill))
             ]
                 |> group
                 |> scale scaleAdjust
@@ -1235,6 +1231,15 @@ square c w =
 noShape : Shape
 noShape =
     group []
+
+
+debugShape : (() -> Shape) -> Shape
+debugShape func =
+    if isDebug then
+        func ()
+
+    else
+        noShape
 
 
 
