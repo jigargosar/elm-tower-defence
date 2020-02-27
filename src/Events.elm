@@ -1133,6 +1133,23 @@ viewMonster monster =
             , rectangle purple 22.5 15 |> moveDown 10
             ]
                 |> group
+
+        healthBarShape pct =
+            let
+                width =
+                    40
+
+                healthWidth =
+                    width * pct
+
+                barHeight =
+                    10
+            in
+            [ rectangle red width barHeight
+            , rectangle green healthWidth barHeight
+                |> moveLeft ((width - healthWidth) / 2)
+            ]
+                |> group
     in
     case monster.state of
         AliveAndKicking { travel, health } ->
@@ -1141,6 +1158,7 @@ viewMonster monster =
                     locationOfPathProgress travel
             in
             [ monsterShape
+            , healthBarShape 0.5 |> moveUp 40
             , words white (fromInt (round health))
             ]
                 |> group
