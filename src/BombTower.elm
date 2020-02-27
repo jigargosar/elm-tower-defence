@@ -1,4 +1,4 @@
-module BombTower exposing (BombTower, Init, generator, id, stepBombTower, viewBombTower)
+module BombTower exposing (BombTower, Init, generator, id, location, range, stepBombTower, viewBombTower)
 
 import BombTowerId exposing (BombTowerId)
 import List.Extra
@@ -35,12 +35,16 @@ generator init =
 
 
 initBombTower : Init -> BombTowerId -> BombTower
-initBombTower { location, range, reloadDelay, viewWidth } tid =
+initBombTower init tid =
+    let
+        { reloadDelay, viewWidth } =
+            init
+    in
     { id = tid
     , delay = reloadDelay
-    , range = range
+    , range = init.range
     , viewWidth = viewWidth
-    , location = location
+    , location = init.location
     , elapsed = 0
     }
 
@@ -48,6 +52,16 @@ initBombTower { location, range, reloadDelay, viewWidth } tid =
 id : BombTower -> BombTowerId
 id =
     .id
+
+
+location : BombTower -> Location
+location =
+    .location
+
+
+range : BombTower -> Number
+range =
+    .range
 
 
 stepBombTower :

@@ -764,7 +764,17 @@ handleEvent event world =
                 |> uncurry insertNewBomb
 
         ReplaceBombTower bombTowerId ->
-            { world | bombTowers = List.filter (BombTower.id >> isNot bombTowerId) world.bombTowers }
+            let
+                _ =
+                    List.Extra.find (BombTower.id >> is bombTowerId) world.bombTowers
+                        |> Maybe.map
+                            (\bt ->
+                                initTower (BombTower.location bt) (BombTower.range bt)
+                            )
+            in
+            { world
+                | bombTowers = List.filter (BombTower.id >> isNot bombTowerId) world.bombTowers
+            }
 
 
 insertNewBomb : Bomb -> World -> World
