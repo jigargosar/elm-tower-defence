@@ -191,6 +191,18 @@ goDown p =
     { p | current = Location x ny }
 
 
+goUp : PathBuilder -> PathBuilder
+goUp p =
+    let
+        (Location x y) =
+            p.current
+
+        ny =
+            y + p.offset
+    in
+    { p | current = Location x ny }
+
+
 goRight : PathBuilder -> PathBuilder
 goRight p =
     let
@@ -503,10 +515,16 @@ init =
     let
         path : Path
         path =
-            initPathBuilder 100 (Location -250 0)
+            initPathBuilder 50 (Location -250 0)
                 |> applyNTimes 2 goRight
                 |> addWayPoint
-                |> applyNTimes 2 goDown
+                |> applyNTimes 3 goDown
+                |> addWayPoint
+                |> applyNTimes 3 goRight
+                |> addWayPoint
+                |> applyNTimes 3 goUp
+                |> addWayPoint
+                |> applyNTimes 2 goRight
                 |> addWayPoint
                 |> buildPath
 
