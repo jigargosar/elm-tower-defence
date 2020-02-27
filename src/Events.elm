@@ -209,13 +209,6 @@ viewBombTower tower =
 
 
 -- BOMB
-
-
-type alias BombInit =
-    { from : Location, to : Location }
-
-
-
 -- TRAVEL PATH
 
 
@@ -612,7 +605,7 @@ type Event
     | MonsterReachedHouse
     | BombExploded { at : Location, aoe : Number, damage : Number }
     | RemoveBomb BombId
-    | SpawnBomb BombInit
+    | SpawnBomb { from : Location, to : Location }
 
 
 update : Computer -> Game -> Game
