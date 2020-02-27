@@ -578,13 +578,13 @@ updateWorld2 =
 stepWorldLair : World -> World
 stepWorldLair world =
     stepLair world.lair
-        |> (\( lair, events ) -> handleEvents2 events { world | lair = lair })
+        |> (\( lair, events ) -> handleEvents events { world | lair = lair })
 
 
 stepWorldHouse : World -> World
 stepWorldHouse world =
     stepHouse world.house
-        |> (\( house, events ) -> handleEvents2 events { world | house = house })
+        |> (\( house, events ) -> handleEvents events { world | house = house })
 
 
 stepBullets : World -> World
@@ -592,7 +592,7 @@ stepBullets =
     let
         func bullet world =
             stepBullet bullet
-                |> (\( newBullet, events ) -> handleEvents2 events (setBullet newBullet world))
+                |> (\( newBullet, events ) -> handleEvents events (setBullet newBullet world))
     in
     \world -> List.foldl func world world.bullets
 
@@ -615,7 +615,7 @@ stepTowers world =
                 |> List.unzip
     in
     { world | towers = selfUpdatedTowers }
-        |> handleEvents2 (List.concat towerEventGroups)
+        |> handleEvents (List.concat towerEventGroups)
 
 
 stepBombTowers : World -> World
@@ -636,7 +636,7 @@ stepBombTowers world =
                 |> List.unzip
     in
     { world | bombTowers = selfUpdatedBombTowers }
-        |> handleEvents2 (List.concat bombTowerEventGroups)
+        |> handleEvents (List.concat bombTowerEventGroups)
 
 
 stepBombs : World -> World
@@ -648,7 +648,7 @@ stepBombs =
                 , exploded = BombExploded
                 }
                 bomb
-                |> (\( newBomb, events ) -> handleEvents2 events (setBomb newBomb world))
+                |> (\( newBomb, events ) -> handleEvents events (setBomb newBomb world))
     in
     \world -> List.foldl func world world.bombs
 
@@ -663,7 +663,7 @@ stepMonsters =
     let
         func monster world =
             stepMonster monster
-                |> (\( newMonster, events ) -> handleEvents2 events (setMonster newMonster world))
+                |> (\( newMonster, events ) -> handleEvents events (setMonster newMonster world))
     in
     \world -> List.foldl func world world.monsters
 
@@ -673,124 +673,42 @@ setMonster monster world =
     { world | monsters = List.Extra.setIf (idOfMonster >> is (idOfMonster monster)) monster world.monsters }
 
 
-handleEvents2 : List Event -> World -> World
-handleEvents2 events acc =
-    List.foldl (handleEvent acc) acc events
+handleEvents : List Event -> World -> World
+handleEvents events acc =
+    List.foldl handleEvent acc events
 
 
-
--- UPDATE WORLD
-
-
-updateWorld : World -> World
-updateWorld world =
-    let
-        ( selfUpdatedLair, lairEvents ) =
-            stepLair world.lair
-
-        ( selfUpdatedHouse, houseEvents ) =
-            stepHouse world.house
-
-        akaMonstersSortedByRemainingDistance =
-            world.monsters
-                |> List.filterMap aakMonsterState
-                |> List.sortBy .remainingDistance
-
-        ( selfUpdatedTowers, towerEventGroups ) =
-            List.map (stepTower akaMonstersSortedByRemainingDistance) world.towers
-                |> List.unzip
-
-        ( selfUpdatedBullets, bulletEventGroups ) =
-            List.map stepBullet world.bullets
-                |> List.unzip
-
-        ( selfUpdatedBombTowers, bombTowerEventGroups ) =
-            List.map
-                (BombTower.stepBombTower
-                    { spawnBomb = SpawnBomb }
-                    (akaMonstersSortedByRemainingDistance |> List.map .location)
-                )
-                world.bombTowers
-                |> List.unzip
-
-        ( selfUpdatedBombs, bombEventGroups ) =
-            List.map
-                (Bomb.stepBomb
-                    { remove = RemoveBomb
-                    , exploded = BombExploded
-                    }
-                )
-                world.bombs
-                |> List.unzip
-
-        ( selfUpdatedMonsters, monsterEventGroups ) =
-            List.map stepMonster world.monsters
-                |> List.unzip
-
-        acc : World
-        acc =
-            { lair = selfUpdatedLair
-            , path = world.path
-            , house = selfUpdatedHouse
-            , towers = selfUpdatedTowers
-            , bullets = selfUpdatedBullets
-            , bombTowers = selfUpdatedBombTowers
-            , bombs = selfUpdatedBombs
-            , monsters = selfUpdatedMonsters
-            , nextIdx = world.nextIdx
-            }
-    in
-    acc
-        |> handleEvents world lairEvents
-        |> handleEvents world houseEvents
-        |> handleEventGroups world towerEventGroups
-        |> handleEventGroups world bulletEventGroups
-        |> handleEventGroups world bombTowerEventGroups
-        |> handleEventGroups world bombEventGroups
-        |> handleEventGroups world monsterEventGroups
-
-
-handleEventGroups : World -> List (List Event) -> World -> World
-handleEventGroups world lists acc =
-    List.foldl (handleEvents world) acc lists
-
-
-handleEvents : World -> List Event -> World -> World
-handleEvents world events acc =
-    List.foldl (handleEvent world) acc events
-
-
-handleEvent : World -> Event -> World -> World
-handleEvent world event acc =
+handleEvent : Event -> World -> World
+handleEvent event world =
     case event of
         NoEvent ->
-            acc
+            world
 
         BulletHitMonster monsterId ->
-            { acc
+            { world
                 | monsters =
-                    List.Extra.updateIf (idOfMonster >> is monsterId) decrementMonsterHealth acc.monsters
+                    List.Extra.updateIf (idOfMonster >> is monsterId) decrementMonsterHealth world.monsters
             }
 
         RemoveBullet bulletId ->
-            { acc | bullets = List.filter (idOfBullet >> isNot bulletId) acc.bullets }
+            { world | bullets = List.filter (idOfBullet >> isNot bulletId) world.bullets }
 
         RemoveMonster monsterId ->
-            { acc | monsters = List.filter (idOfMonster >> isNot monsterId) acc.monsters }
+            { world | monsters = List.filter (idOfMonster >> isNot monsterId) world.monsters }
 
         MonsterReachedHouse ->
-            { acc | house = decrementHouseHealth acc.house }
+            { world | house = decrementHouseHealth world.house }
 
         SpawnMonster ->
-            { acc
-                | monsters = initMonster acc.nextIdx world.path :: acc.monsters
-                , nextIdx = acc.nextIdx + 1
+            { world
+                | monsters = initMonster world.nextIdx world.path :: world.monsters
+                , nextIdx = world.nextIdx + 1
             }
 
         SpawnBullet bulletInit ->
-            { acc
-                | bullets = initBullet acc.nextIdx bulletInit :: acc.bullets
-                , nextIdx = acc.nextIdx + 1
+            { world
+                | bullets = initBullet world.nextIdx bulletInit :: world.bullets
+                , nextIdx = world.nextIdx + 1
             }
 
         BombExploded { at, aoe, damage } ->
@@ -807,25 +725,25 @@ handleEvent world event acc =
                 isMonsterInBombAOE monster =
                     List.member (idOfMonster monster) monsterIdsInBombAOE
             in
-            { acc
+            { world
                 | monsters =
-                    List.Extra.updateIf isMonsterInBombAOE (decrementMonsterHealthBy damage) acc.monsters
+                    List.Extra.updateIf isMonsterInBombAOE (decrementMonsterHealthBy damage) world.monsters
             }
 
         RemoveBomb bombId ->
-            { acc | bombs = List.filter (Bomb.idOfBomb >> isNot bombId) acc.bombs }
+            { world | bombs = List.filter (Bomb.idOfBomb >> isNot bombId) world.bombs }
 
         SpawnBomb { from, to } ->
-            { acc
+            { world
                 | bombs =
-                    Bomb.initBomb acc.nextIdx
+                    Bomb.initBomb world.nextIdx
                         { location = from
                         , target = to
                         , aoe = bombAOE
                         , speed = bombSpeed
                         }
-                        :: acc.bombs
-                , nextIdx = acc.nextIdx + 1
+                        :: world.bombs
+                , nextIdx = world.nextIdx + 1
             }
 
 
