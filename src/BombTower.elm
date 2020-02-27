@@ -50,8 +50,8 @@ stepBombTower config targetLocations tower =
     if tower.elapsed >= tower.delay then
         case
             List.Extra.find
-                (\target ->
-                    L.distanceFromTo tower.location target <= tower.range
+                (\targetLocation ->
+                    L.distanceFromTo tower.location targetLocation <= tower.range
                 )
                 targetLocations
         of
