@@ -81,7 +81,7 @@ initTower location range =
 
 isLocationInRangeOfTower : Location -> Tower -> Bool
 isLocationInRangeOfTower location tower =
-    L.distanceFromToLocation location tower.location <= tower.range
+    L.distanceFromTo location tower.location <= tower.range
 
 
 
@@ -181,7 +181,7 @@ stepBombTower config ctx tower =
         case
             List.Extra.find
                 (\aak ->
-                    L.distanceFromToLocation tower.location aak.location <= tower.range
+                    L.distanceFromTo tower.location aak.location <= tower.range
                 )
                 ctx.targets
         of
@@ -219,7 +219,7 @@ initPath : Location -> List Location -> Path
 initPath start rest =
     let
         pathLen =
-            List.foldl (\to ( accDistance, from ) -> ( L.distanceFromToLocation from to + accDistance, to ))
+            List.foldl (\to ( accDistance, from ) -> ( L.distanceFromTo from to + accDistance, to ))
                 ( 0, start )
                 rest
                 |> Tuple.first

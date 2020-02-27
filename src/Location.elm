@@ -1,7 +1,7 @@
 module Location exposing
     ( Location
     , at
-    , distanceFromToLocation
+    , distanceFromTo
     , isLocationInRangeOf
     , moveShape
     , shiftX
@@ -51,11 +51,11 @@ stepLocationTowards target speed location =
 
 locationEqWithin : Number -> Location -> Location -> Bool
 locationEqWithin tol l1 l2 =
-    distanceFromToLocation l1 l2 <= tol + 0.1
+    distanceFromTo l1 l2 <= tol + 0.1
 
 
-distanceFromToLocation : Location -> Location -> Number
-distanceFromToLocation (Location x1 y1) (Location x2 y2) =
+distanceFromTo : Location -> Location -> Number
+distanceFromTo (Location x1 y1) (Location x2 y2) =
     let
         ( x, y ) =
             ( x2 - x1, y2 - y1 )
@@ -65,7 +65,7 @@ distanceFromToLocation (Location x1 y1) (Location x2 y2) =
 
 isLocationInRangeOf : Location -> Number -> Location -> Bool
 isLocationInRangeOf center range location =
-    distanceFromToLocation center location <= range
+    distanceFromTo center location <= range
 
 
 moveShape : Location -> Shape -> Shape
