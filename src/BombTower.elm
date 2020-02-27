@@ -1,11 +1,10 @@
-module BombTower exposing (..)
+module BombTower exposing (BombTower, Init, generator, stepBombTower, viewBombTower)
 
-import BombTowerId
+import BombTowerId exposing (BombTowerId)
 import List.Extra
 import Location as L exposing (Location)
 import Playground exposing (..)
 import Random exposing (Generator)
-import Sequential
 
 
 type alias BombTower =
@@ -32,13 +31,11 @@ generator : Init -> Generator BombTower
 generator init =
     BombTowerId.generator
         |> Random.map
-            (\tid ->
-                initBombTower init
-            )
+            (initBombTower init)
 
 
-initBombTower : Init -> BombTower
-initBombTower { location, range, reloadDelay, viewWidth } =
+initBombTower : Init -> BombTowerId -> BombTower
+initBombTower { location, range, reloadDelay, viewWidth } tid =
     { delay = reloadDelay
     , range = range
     , viewWidth = viewWidth
