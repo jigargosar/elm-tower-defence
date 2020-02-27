@@ -561,9 +561,15 @@ update _ game =
 
 
 updateWorld2 : World -> World
-updateWorld2 world =
-    stepLair world.lair
-        |> (\( lair, events ) -> { world | lair = lair } |> handleEvents2 events)
+updateWorld2 =
+    (\world ->
+        stepLair world.lair
+            |> (\( lair, events ) -> handleEvents2 events { world | lair = lair })
+    )
+        >> (\world ->
+                stepHouse world.house
+                    |> (\( house, events ) -> handleEvents2 events { world | house = house })
+           )
 
 
 handleEvents2 : List Event -> World -> World
