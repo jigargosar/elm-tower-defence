@@ -181,9 +181,14 @@ goRight pathBuilder =
     pathBuilder
 
 
-addToPath : PathBuilder -> PathBuilder
-addToPath pathBuilder =
-    pathBuilder
+goto : Location -> PathBuilder -> PathBuilder
+goto to (PathBuilder s c r) =
+    PathBuilder s to r
+
+
+addWayPoint : PathBuilder -> PathBuilder
+addWayPoint (PathBuilder s c r) =
+    PathBuilder s c (c :: r)
 
 
 buildPath : PathBuilder -> Path
