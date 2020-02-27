@@ -3,7 +3,6 @@ module Bomb exposing
     , BombId
     , gen
     , idOfBomb
-    , initBomb
     , stepBomb
     , viewBomb
     )
@@ -67,19 +66,6 @@ gen bombInit =
                 , state = BombInFlight
                 }
             )
-
-
-initBomb : Int -> BombInit -> Bomb
-initBomb idx { location, target, aoe, speed } =
-    { id = BombId idx
-    , aoe = aoe
-    , damage = 3
-    , location = location
-    , target = target
-    , speed = speed
-    , explosionTicks = 60
-    , state = BombInFlight
-    }
 
 
 idOfBomb : Bomb -> BombId
