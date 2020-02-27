@@ -4,6 +4,7 @@ import BombTowerId
 import List.Extra
 import Location as L exposing (Location)
 import Playground exposing (..)
+import Random exposing (Generator)
 import Sequential
 
 
@@ -27,10 +28,10 @@ type alias Init =
     }
 
 
-generator : Init -> Sequential.Generator BombTower
+generator : Init -> Generator BombTower
 generator init =
     BombTowerId.generator
-        |> Sequential.map
+        |> Random.map
             (\tid ->
                 initBombTower init
             )
