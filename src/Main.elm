@@ -509,24 +509,54 @@ init =
             [ initTower (L.at -150 -100) 200
             , initTower (L.at 150 100) 150
             ]
-
-        bombTowers =
-            [ initBombTower (L.at 0 0)
-            , initBombTower (L.at 150 -100)
-            ]
     in
     Running
-        { lair = initLair
-        , path = path
-        , towers = towers
-        , bullets = []
-        , bombTowers = bombTowers
-        , bombs = []
-        , monsters = []
-        , house = initHouse
-        , nextIdx = 0
-        , seed = Sequential.initialSeed 1
-        }
+        ({ lair = initLair
+         , path = path
+         , towers = towers
+         , bullets = []
+         , bombTowers = []
+         , bombs = []
+         , monsters = []
+         , house = initHouse
+         , nextIdx = 0
+         , seed = Sequential.initialSeed 1
+         }
+            |> insertInitialBombTowers
+        )
+
+
+insertInitialBombTowers : World -> World
+insertInitialBombTowers world =
+    stepWorldSeed initialBombTowersGenerator world
+        |> uncurry insertNewBombTowers
+
+
+insertNewBombTowers : List BombTower -> World -> World
+insertNewBombTowers bombTowers world =
+    List.foldl insertNewBombTower world bombTowers
+
+
+insertNewBombTower : BombTower -> World -> World
+insertNewBombTower bombTower world =
+    { world | bombTowers = bombTower :: world.bombTowers }
+
+
+initialBombTowersGenerator : Sequential.Generator (List BombTower)
+initialBombTowersGenerator =
+    let
+        bombTowerGenerator : Location -> Sequential.Generator BombTower
+        bombTowerGenerator location =
+            BombTower.generator
+                { reloadDelay = bombTowerReloadDelay
+                , range = bombTowerRange
+                , viewWidth = allTowersViewWidth
+                , location = location
+                }
+    in
+    Sequential.map2 (\a b -> [ a, b ])
+        (bombTowerGenerator (L.at 0 0))
+        (bombTowerGenerator (L.at 150 -100))
 
 
 

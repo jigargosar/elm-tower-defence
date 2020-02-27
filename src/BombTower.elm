@@ -1,8 +1,10 @@
 module BombTower exposing (..)
 
+import BombTowerId
 import List.Extra
 import Location as L exposing (Location)
 import Playground exposing (..)
+import Sequential
 
 
 type alias BombTower =
@@ -23,6 +25,15 @@ type alias Init =
     , reloadDelay : Number
     , viewWidth : Number
     }
+
+
+generator : Init -> Sequential.Generator BombTower
+generator init =
+    BombTowerId.generator
+        |> Sequential.map
+            (\tid ->
+                initBombTower init
+            )
 
 
 initBombTower : Init -> BombTower
