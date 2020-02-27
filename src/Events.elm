@@ -1141,12 +1141,12 @@ viewMonster monster =
                 (Location x y) =
                     locationOfPathProgress travel
 
-                dyingProgress =
-                    1 - (remainingTicks / monster.dyingTicks)
+                remainingProgress =
+                    remainingTicks / monster.dyingTicks
             in
             [ [ circle red radius |> fade 0.7 ]
                 |> group
-                |> fade (1 - dyingProgress)
+                |> fade remainingProgress
             , words white (fromInt (round overKill))
             ]
                 |> group
