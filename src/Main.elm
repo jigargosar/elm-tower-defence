@@ -658,7 +658,7 @@ stepWorldBombs =
 
 setBomb : Bomb -> World -> World
 setBomb bomb world =
-    { world | bombs = List.Extra.setIf (Bomb.idOfBomb >> is (Bomb.idOfBomb bomb)) bomb world.bombs }
+    { world | bombs = List.Extra.setIf (Bomb.id >> is (Bomb.id bomb)) bomb world.bombs }
 
 
 stepWorldMonsters : World -> World
@@ -734,7 +734,7 @@ handleEvent event world =
             }
 
         RemoveBomb bombId ->
-            { world | bombs = List.filter (Bomb.idOfBomb >> isNot bombId) world.bombs }
+            { world | bombs = List.filter (Bomb.id >> isNot bombId) world.bombs }
 
         SpawnBomb { from, to } ->
             stepWorldSeed

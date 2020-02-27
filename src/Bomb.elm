@@ -2,7 +2,7 @@ module Bomb exposing
     ( Bomb
     , BombId
     , gen
-    , idOfBomb
+    , id
     , stepBomb
     , viewBomb
     )
@@ -51,12 +51,12 @@ gen : BombInit -> Sequential.Generator Bomb
 gen bombInit =
     idGen
         |> Sequential.map
-            (\id ->
+            (\bid ->
                 let
                     { location, target, aoe, speed } =
                         bombInit
                 in
-                { id = id
+                { id = bid
                 , aoe = aoe
                 , damage = 3
                 , location = location
@@ -68,9 +68,9 @@ gen bombInit =
             )
 
 
-idOfBomb : Bomb -> BombId
-idOfBomb bomb =
-    bomb.id
+id : Bomb -> BombId
+id =
+    .id
 
 
 stepBomb :
