@@ -298,8 +298,8 @@ type alias AAKMonster =
     }
 
 
-akkMonsterState : Monster -> Maybe AAKMonster
-akkMonsterState monster =
+aakMonsterState : Monster -> Maybe AAKMonster
+aakMonsterState monster =
     case monster.state of
         AliveAndKicking { travel } ->
             Just (AAKMonster monster.id (locationOfPathProgress travel) (distanceToPathEnd travel))
@@ -507,7 +507,7 @@ updateWorld world =
 
         akaMonstersSortedByRemainingDistance =
             world.monsters
-                |> List.filterMap akkMonsterState
+                |> List.filterMap aakMonsterState
                 |> List.sortBy .remainingDistance
 
         ( selfUpdatedTowers, towerEventGroups ) =
