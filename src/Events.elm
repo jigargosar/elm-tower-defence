@@ -252,14 +252,6 @@ viewBombTower tower =
 
 
 
---viewBullet : Bullet -> Shape
---viewBullet bullet =
---    let
---        (Location x y) =
---            bullet.location
---    in
---    circle green 5
---        |> move x y
 -- BOMB
 
 
@@ -296,6 +288,16 @@ stepBomb config bomb =
 
         Just newLocation ->
             ( { bomb | location = newLocation }, [] )
+
+
+viewBomb : Bomb -> Shape
+viewBomb bomb =
+    let
+        (Location x y) =
+            bomb.location
+    in
+    circle brown 5
+        |> move x y
 
 
 
