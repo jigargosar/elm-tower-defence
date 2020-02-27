@@ -1122,7 +1122,7 @@ viewMonster : Monster -> Shape
 viewMonster monster =
     let
         radius =
-            20
+            10
     in
     case monster.state of
         AliveAndKicking { travel, health } ->
@@ -1146,7 +1146,7 @@ viewMonster monster =
             in
             [ [ circle red radius |> fade 0.7 ]
                 |> group
-                |> fade remainingProgress
+                |> fade (remainingProgress / 2)
             , words white (fromInt (round overKill))
             ]
                 |> group
