@@ -897,7 +897,10 @@ stepTower computer isSelected aakMonsters =
                                         }
 
                                 AOEShooter ->
-                                    SpawnBomb { from = tower.location, to = aak.location }
+                                    SpawnBomb
+                                        { from = tower.location
+                                        , to = aak.location
+                                        }
                           ]
                         )
 
