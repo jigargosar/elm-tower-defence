@@ -162,13 +162,16 @@ restOfPath (Path _ _ rest) =
 -- PATH BUILDER
 
 
-type PathBuilder
-    = PathBuilder Location Location (List Location)
+type alias PathBuilder =
+    { start : Location, current : Location, restReverse : List Location }
 
 
 initPathBuilder : Location -> PathBuilder
 initPathBuilder start =
-    PathBuilder start start []
+    { start = start
+    , current = start
+    , restReverse = []
+    }
 
 
 goDown : PathBuilder -> PathBuilder
@@ -182,18 +185,20 @@ goRight pathBuilder =
 
 
 goto : Location -> PathBuilder -> PathBuilder
-goto to (PathBuilder s c r) =
-    PathBuilder s to r
+goto to p =
+    { p | current = to }
 
 
 addWayPoint : PathBuilder -> PathBuilder
-addWayPoint (PathBuilder s c r) =
-    PathBuilder s c (c :: r)
+addWayPoint p =
+    { p
+        | restReverse = p.current :: p.restReverse
+    }
 
 
 buildPath : PathBuilder -> Path
-buildPath (PathBuilder start _ rest) =
-    initPath start rest
+buildPath p =
+    initPath p.start (List.reverse p.restReverse)
 
 
 
