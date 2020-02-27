@@ -542,6 +542,7 @@ type alias InitialWorldData =
     }
 
 
+initialGen : Generator InitialWorldData
 initialGen =
     let
         initialTowersGenerator : Generator (List Tower)
