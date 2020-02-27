@@ -6,7 +6,7 @@ import BombTower exposing (BombTower)
 import List.Extra
 import Location as L exposing (Location)
 import Playground exposing (..)
-import Random exposing (Generator, Seed, initialSeed)
+import Random exposing (Generator, Seed)
 import String exposing (fromInt)
 
 
