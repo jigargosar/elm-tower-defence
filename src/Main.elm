@@ -74,6 +74,11 @@ towerIdGenerator =
     mapRandomIdInt TowerId
 
 
+type TowerType
+    = ArrowShooter
+    | AOEShooter
+
+
 type alias Tower =
     { -- META
       id : TowerId
@@ -81,6 +86,7 @@ type alias Tower =
     , range : Number -- SHOOTING RANGE
     , location : Location
     , viewWidth : Number
+    , towerType : TowerType
 
     -- STATE
     , elapsed : Number -- RELOAD PROGRESS
@@ -95,6 +101,23 @@ towerGenerator location =
                 { id = tid
                 , delay = towerReloadDelay
                 , range = towerRange
+                , towerType = ArrowShooter
+                , location = location
+                , viewWidth = allTowersViewWidth
+                , elapsed = 0
+                }
+            )
+
+
+tower2Generator : Location -> Generator Tower
+tower2Generator location =
+    towerIdGenerator
+        |> Random.map
+            (\tid ->
+                { id = tid
+                , delay = bombTowerReloadDelay
+                , range = bombTowerRange
+                , towerType = AOEShooter
                 , location = location
                 , viewWidth = allTowersViewWidth
                 , elapsed = 0
@@ -1110,8 +1133,16 @@ viewMonster monster =
 
 viewTower : Bool -> Tower -> Shape
 viewTower isSelected tower =
-    [ [ circle lightBlue tower.range
-            |> fade 0.3
+    let
+        ( lightC, darkC ) =
+            case tower.towerType of
+                ArrowShooter ->
+                    ( lightBlue, blue )
+
+                AOEShooter ->
+                    ( lightBrown, brown )
+    in
+    [ [ circle lightC tower.range |> fade 0.3
       ]
         |> group
         |> fade
@@ -1121,7 +1152,7 @@ viewTower isSelected tower =
              else
                 0
             )
-    , square blue tower.viewWidth
+    , square darkC tower.viewWidth
     ]
         |> group
         |> L.moveShape tower.location
