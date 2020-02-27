@@ -737,22 +737,16 @@ handleEvent event world =
             { world | bombs = List.filter (Bomb.idOfBomb >> isNot bombId) world.bombs }
 
         SpawnBomb { from, to } ->
-            let
-                ( bomb, seed ) =
-                    Sequential.step
-                        (Bomb.gen
-                            { location = from
-                            , target = to
-                            , aoe = bombAOE
-                            , speed = bombSpeed
-                            }
-                        )
-                        world.seed
-            in
-            { world
-                | bombs = bomb :: world.bombs
-                , seed = seed
-            }
+            stepWorldSeed
+                (Bomb.gen
+                    { location = from
+                    , target = to
+                    , aoe = bombAOE
+                    , speed = bombSpeed
+                    }
+                )
+                world
+                |> (\( b, w ) -> { w | bombs = b :: w.bombs })
 
 
 stepWorldSeed : Sequential.Generator a -> World -> ( a, World )
