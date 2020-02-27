@@ -1079,10 +1079,13 @@ viewMonster monster =
 
 viewTower : Bool -> Tower -> Shape
 viewTower isSelected tower =
-    [ circle lightBlue tower.range
+    [ [ circle lightBlue tower.range
+            |> fade 0.3
+      ]
+        |> group
         |> fade
             (if isSelected then
-                0.3
+                1
 
              else
                 0
