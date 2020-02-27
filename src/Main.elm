@@ -36,7 +36,7 @@ bombAOE =
     40
 
 
-towerReloadDealy =
+towerReloadDelay =
     40
 
 
@@ -89,7 +89,7 @@ towerGenerator location range =
         |> Random.map
             (\tid ->
                 { id = tid
-                , delay = towerReloadDealy
+                , delay = towerReloadDelay
                 , range = range
                 , location = location
                 , viewWidth = allTowersViewWidth
