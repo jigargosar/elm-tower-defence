@@ -463,7 +463,7 @@ type alias World =
     , bombs : List Bomb
     , monsters : List Monster
     , house : House
-    , seed : Sequential.Seed
+    , sequentialSeed : Sequential.Seed
     , nextIdx : Int
     }
 
@@ -520,7 +520,7 @@ init =
          , monsters = []
          , house = initHouse
          , nextIdx = 0
-         , seed = Sequential.initialSeed 1
+         , sequentialSeed = Sequential.initialSeed 1
          }
             |> insertInitialBombTowers
         )
@@ -787,8 +787,8 @@ insertNewBomb bomb world =
 
 stepWorldSeed : Sequential.Generator a -> World -> ( a, World )
 stepWorldSeed func world =
-    Sequential.step func world.seed
-        |> Tuple.mapSecond (\seed -> { world | seed = seed })
+    Sequential.step func world.sequentialSeed
+        |> Tuple.mapSecond (\seed -> { world | sequentialSeed = seed })
 
 
 
