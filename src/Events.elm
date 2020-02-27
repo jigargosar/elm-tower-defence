@@ -349,12 +349,6 @@ initTower location range =
     }
 
 
-initialTowers =
-    [ initTower (Location -150 -100) 200
-    , initTower (Location 150 100) 150
-    ]
-
-
 isLocationInRangeOfTower : Location -> Tower -> Bool
 isLocationInRangeOfTower location tower =
     distanceFromToLocation location tower.location <= tower.range
@@ -452,11 +446,16 @@ init =
                     [ Location 250 0 ]
             in
             initPath start rest
+
+        towers =
+            [ initTower (Location -150 -100) 200
+            , initTower (Location 150 100) 150
+            ]
     in
     Running
         { lair = initLair
         , path = path
-        , towers = initialTowers
+        , towers = towers
         , bullets = []
         , monsters = []
         , house = initHouse
