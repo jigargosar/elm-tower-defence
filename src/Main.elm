@@ -572,6 +572,7 @@ updateWorld2 =
            )
         >> stepBullets
         >> stepMonsters
+        >> stepBombs
 
 
 stepBullets : World -> World
