@@ -570,6 +570,22 @@ updateWorld2 =
                 stepHouse world.house
                     |> (\( house, events ) -> handleEvents2 events { world | house = house })
            )
+        >> stepBullets
+
+
+stepBullets : World -> World
+stepBullets =
+    let
+        func bullet world =
+            stepBullet bullet
+                |> (\( b, events ) -> handleEvents2 events (setBullet b world))
+    in
+    \world -> List.foldl func world world.bullets
+
+
+setBullet : Bullet -> World -> World
+setBullet bullet world =
+    { world | bullets = List.Extra.setIf (idOfBullet >> is (idOfBullet bullet)) bullet world.bullets }
 
 
 handleEvents2 : List Event -> World -> World
