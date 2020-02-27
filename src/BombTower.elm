@@ -55,10 +55,9 @@ stepBombTower config targetLocations tower =
                 )
                 targetLocations
         of
-            Just aak ->
+            Just to ->
                 ( { tower | elapsed = 0 }
-                , [ config.spawnBomb { from = tower.location, to = aak.location }
-                  ]
+                , [ config.spawnBomb { from = tower.location, to = to } ]
                 )
 
             Nothing ->

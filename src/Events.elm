@@ -5,6 +5,7 @@ module Events exposing (Game, init, update, view)
 -- Not sure, so not changing it for now.
 
 import Bomb exposing (Bomb, BombId)
+import BombTower exposing (BombTower)
 import List.Extra
 import Location as L exposing (Location)
 import Playground exposing (..)
@@ -131,80 +132,14 @@ type BulletId
 -- BOMB TOWER
 
 
-type alias BombTower =
-    { -- Meta
-      delay : Number
-    , location : Location
-    , range : Number
-    , viewWidth : Number
-
-    -- State
-    , elapsed : Number
-    }
-
-
 initBombTower : Location -> BombTower
 initBombTower location =
-    { delay = bombTowerReloadDelay
-    , range = bombTowerRange
-    , viewWidth = 30
-    , location = location
-    , elapsed = 0
-    }
-
-
-
--- NOTE: Trying to build isolated stepBombTower function,
--- i.e. minimizing its dependency on other entities in game.
--- Caution: Be ready to revert if its no longer fun.
-
-
-type alias BombTowerConfig event =
-    { spawnBomb : { from : Location, to : Location } -> event
-    }
-
-
-type alias BombTowerContext =
-    { targets : List BombTowerTarget
-    }
-
-
-type alias BombTowerTarget =
-    { location : Location
-    , distanceToHouse : Number
-    }
-
-
-stepBombTower : BombTowerConfig event -> BombTowerContext -> BombTower -> ( BombTower, List event )
-stepBombTower config ctx tower =
-    if tower.elapsed >= tower.delay then
-        case
-            List.Extra.find
-                (\aak ->
-                    L.distanceFromTo tower.location aak.location <= tower.range
-                )
-                ctx.targets
-        of
-            Just aak ->
-                ( { tower | elapsed = 0 }
-                , [ config.spawnBomb { from = tower.location, to = aak.location }
-                  ]
-                )
-
-            Nothing ->
-                ( tower, [] )
-
-    else
-        ( { tower | elapsed = tower.elapsed + 1 }, [] )
-
-
-viewBombTower : BombTower -> Shape
-viewBombTower tower =
-    [ circle lightBrown tower.range |> fade 0.4
-    , square brown tower.viewWidth
-    ]
-        |> group
-        |> L.moveShape tower.location
+    BombTower.initBombTower
+        { reloadDelay = bombTowerReloadDelay
+        , range = bombTowerRange
+        , viewWidth = 30
+        , location = location
+        }
 
 
 
@@ -649,17 +584,11 @@ updateWorld world =
 
         ( selfUpdatedBombTowers, bombTowerEventGroups ) =
             List.map
-                (stepBombTower
+                (BombTower.stepBombTower
                     { spawnBomb = SpawnBomb }
-                    { targets =
-                        akaMonstersSortedByRemainingDistance
-                            |> List.map
-                                (\aak ->
-                                    { location = aak.location
-                                    , distanceToHouse = aak.remainingDistance
-                                    }
-                                )
-                    }
+                    (akaMonstersSortedByRemainingDistance
+                        |> List.map .location
+                    )
                 )
                 world.bombTowers
                 |> List.unzip
@@ -922,7 +851,7 @@ viewWorldStats computer world =
 viewWorld : Computer -> World -> Shape
 viewWorld _ world =
     [ List.map viewTower world.towers |> group
-    , List.map viewBombTower world.bombTowers |> group
+    , List.map BombTower.viewBombTower world.bombTowers |> group
     , viewPath world.path
     , List.map viewMonster world.monsters |> group
     , List.map Bomb.viewBomb world.bombs |> group
