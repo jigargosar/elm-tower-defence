@@ -1122,7 +1122,10 @@ viewMonster : Monster -> Shape
 viewMonster monster =
     let
         radius =
-            10
+            20
+
+        scaleAdjust =
+            0.7
     in
     case monster.state of
         AliveAndKicking { travel, health } ->
@@ -1134,6 +1137,7 @@ viewMonster monster =
             , words white (fromInt (round health))
             ]
                 |> group
+                |> scale scaleAdjust
                 |> move x y
 
         Dying { travel, remainingTicks, overKill } ->
@@ -1150,6 +1154,7 @@ viewMonster monster =
             , words white (fromInt (round overKill))
             ]
                 |> group
+                |> scale scaleAdjust
                 |> move x y
 
         ReachedHouse _ ->
