@@ -866,6 +866,7 @@ stepTower computer isSelected aakMonsters =
                                 , start = tower.location
                                 , target = aak.location
                                 }
+                          , SpawnBomb { from = tower.location, to = aak.location }
                           ]
                         )
 
