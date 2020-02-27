@@ -1,24 +1,15 @@
 module Bomb exposing
     ( Bomb
-    , BombId
-    , gen
+    , generator
     , id
     , stepBomb
     , viewBomb
     )
 
+import BombId exposing (BombId)
 import Location as L exposing (Location)
 import Playground exposing (..)
 import Sequential
-
-
-type BombId
-    = BombId Int
-
-
-idGen : Sequential.Generator BombId
-idGen =
-    Sequential.int |> Sequential.map BombId
 
 
 type BombState
@@ -47,9 +38,9 @@ type alias BombInit =
     }
 
 
-gen : BombInit -> Sequential.Generator Bomb
-gen bombInit =
-    idGen
+generator : BombInit -> Sequential.Generator Bomb
+generator bombInit =
+    BombId.generator
         |> Sequential.map
             (\bid ->
                 let

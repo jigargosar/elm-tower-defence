@@ -1,6 +1,7 @@
 module Main exposing (main)
 
-import Bomb exposing (Bomb, BombId)
+import Bomb exposing (Bomb)
+import BombId exposing (BombId)
 import BombTower exposing (BombTower)
 import List.Extra
 import Location as L exposing (Location)
@@ -738,7 +739,7 @@ handleEvent event world =
 
         SpawnBomb { from, to } ->
             stepWorldSeed
-                (Bomb.gen
+                (Bomb.generator
                     { location = from
                     , target = to
                     , aoe = bombAOE
