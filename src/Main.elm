@@ -40,6 +40,10 @@ towerReloadDelay =
     40
 
 
+towerRange =
+    200
+
+
 bulletSpeed =
     10
 
@@ -83,14 +87,14 @@ type alias Tower =
     }
 
 
-towerGenerator : Location -> Number -> Generator Tower
-towerGenerator location range =
+towerGenerator : Location -> Generator Tower
+towerGenerator location =
     towerIdGenerator
         |> Random.map
             (\tid ->
                 { id = tid
                 , delay = towerReloadDelay
-                , range = range
+                , range = towerRange
                 , location = location
                 , viewWidth = allTowersViewWidth
                 , elapsed = 0
@@ -547,8 +551,8 @@ initialGen =
     let
         initialTowersGenerator : Generator (List Tower)
         initialTowersGenerator =
-            [ towerGenerator (L.at -150 -100) 200
-            , towerGenerator (L.at 150 100) 150
+            [ towerGenerator (L.at -150 -100)
+            , towerGenerator (L.at 150 100)
             ]
                 |> Random.Extra.combine
 
@@ -812,7 +816,7 @@ handleEvent event world =
                     (\bt ->
                         let
                             tg =
-                                towerGenerator (BombTower.location bt) (BombTower.range bt)
+                                towerGenerator (BombTower.location bt)
                         in
                         stepWorldSeed tg world
                             |> (\( tower, w ) ->

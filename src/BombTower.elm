@@ -1,4 +1,4 @@
-module BombTower exposing (BombTower, Init, generator, id, location, range, stepBombTower, viewBombTower)
+module BombTower exposing (BombTower, Init, generator, id, location, stepBombTower, viewBombTower)
 
 import BombTowerId exposing (BombTowerId)
 import List.Extra
@@ -57,11 +57,6 @@ id =
 location : BombTower -> Location
 location =
     .location
-
-
-range : BombTower -> Number
-range =
-    .range
 
 
 stepBombTower :
