@@ -495,11 +495,11 @@ init =
             , initTower (L.at 150 100) 150
             ]
 
-        ( seed1, seed0 ) =
+        ( worldSeed, lairSeed ) =
             Random.step Random.independentSeed (Random.initialSeed 0)
     in
     Running
-        ({ lair = initLair seed0
+        ({ lair = initLair lairSeed
          , path = path
          , towers = towers
          , bullets = []
@@ -508,7 +508,7 @@ init =
          , monsters = []
          , house = initHouse
          , nextIdx = 0
-         , seed = seed1
+         , seed = worldSeed
          }
             |> insertInitialBombTowers
         )
