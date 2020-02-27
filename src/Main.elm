@@ -746,7 +746,12 @@ handleEvent event world =
                     }
                 )
                 world
-                |> (\( b, w ) -> { w | bombs = b :: w.bombs })
+                |> uncurry insertNewBomb
+
+
+insertNewBomb : Bomb -> World -> World
+insertNewBomb bomb world =
+    { world | bombs = bomb :: world.bombs }
 
 
 stepWorldSeed : Sequential.Generator a -> World -> ( a, World )
@@ -1028,6 +1033,11 @@ is =
 
 isNot =
     (/=)
+
+
+uncurry : (a -> b -> c) -> ( a, b ) -> c
+uncurry func ( a, b ) =
+    func a b
 
 
 
