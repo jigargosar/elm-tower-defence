@@ -346,8 +346,25 @@ viewBomb bomb =
         (Location x y) =
             bomb.location
     in
-    circle brown 5
-        |> move x y
+    case bomb.state of
+        BombInFlight ->
+            circle brown 5
+                |> move x y
+
+        Exploding elapsed ->
+            let
+                progress =
+                    elapsed / bomb.explosionTicks
+
+                remainingProgress =
+                    1 - progress
+            in
+            circle brown bomb.aoe
+                |> move x y
+                |> fade (remainingProgress / 2)
+
+        BombWaitingToBeRemoved ->
+            group []
 
 
 
@@ -1130,7 +1147,6 @@ viewMonster monster =
             [ [ circle red radius |> fade 0.7 ]
                 |> group
                 |> fade (1 - dyingProgress)
-                |> scale (1 + dyingProgress)
             , words white (fromInt (round overKill))
             ]
                 |> group
