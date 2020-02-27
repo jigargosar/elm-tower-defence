@@ -755,6 +755,12 @@ handleEvent event world =
             }
 
 
+stepWorldSeed : Sequential.Generator a -> World -> ( a, World )
+stepWorldSeed func world =
+    Sequential.step func world.seed
+        |> Tuple.mapSecond (\seed -> { world | seed = seed })
+
+
 
 -- WORLD ENTITY STEP FUNCTIONS
 
