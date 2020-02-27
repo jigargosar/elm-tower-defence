@@ -494,6 +494,7 @@ init =
                 |> addWayPoint
                 |> buildPath
 
+        towers : List Tower
         towers =
             [ initTower (L.at -150 -100) 200
             , initTower (L.at 150 100) 150
