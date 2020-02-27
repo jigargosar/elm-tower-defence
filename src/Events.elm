@@ -26,6 +26,10 @@ bombSpeed =
     3
 
 
+bombAOE =
+    40
+
+
 bulletFireDelay =
     40
 
@@ -289,7 +293,7 @@ type alias BombInit =
 initBomb : Int -> BombInit -> Bomb
 initBomb idx { from, to } =
     { id = BombId idx
-    , aoe = 30
+    , aoe = bombAOE
     , damage = 3
     , location = from
     , target = to
