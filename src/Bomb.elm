@@ -1,6 +1,7 @@
 module Bomb exposing
     ( Bomb
     , BombId
+    , gen
     , idOfBomb
     , initBomb
     , stepBomb
