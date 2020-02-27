@@ -240,19 +240,35 @@ stepBombTower config ctx tower =
 -- BOMB
 
 
+type BombId
+    = BombId Int
+
+
 type alias Bomb =
-    { location : Location
+    { id : BombId
+    , location : Location
     , speed : Number
     , target : Location
     }
 
 
-initBomb : { from : Location, to : Location } -> Bomb
-initBomb { from, to } =
-    { location = from
+initBomb : Int -> { from : Location, to : Location } -> Bomb
+initBomb idx { from, to } =
+    { id = BombId idx
+    , location = from
     , target = to
     , speed = bombSpeed
     }
+
+
+stepBomb : { remove : BombId -> event, reachedTarget : event } -> Bomb -> ( Bomb, List event )
+stepBomb config bomb =
+    case stepLocationTowards bomb.target bomb.speed bomb.location of
+        Nothing ->
+            ( bomb, [ config.remove bomb.id, config.reachedTarget ] )
+
+        Just newLocation ->
+            ( { bomb | location = newLocation }, [] )
 
 
 
