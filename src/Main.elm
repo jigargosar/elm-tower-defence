@@ -88,6 +88,11 @@ initTower idx location range =
     }
 
 
+idOfTower : Tower -> TowerId
+idOfTower =
+    .id
+
+
 isLocationInRangeOfTower : Location -> Tower -> Bool
 isLocationInRangeOfTower location tower =
     L.distanceFromTo location tower.location <= tower.range
@@ -563,6 +568,7 @@ type Event
     | RemoveBomb BombId
     | SpawnBomb { from : Location, to : Location }
     | ReplaceBombTower BombTowerId
+    | SelectTower TowerId
 
 
 update : Computer -> Game -> Game
@@ -594,7 +600,7 @@ updateWorld2 computer =
         >> stepWorldBullets
         >> stepWorldMonsters
         >> stepWorldBombs
-        >> stepWorldTowers
+        >> stepWorldTowers computer
         >> stepWorldBombTowers computer
 
 
@@ -625,16 +631,22 @@ setBullet bullet world =
     { world | bullets = List.Extra.setIf (idOfBullet >> is (idOfBullet bullet)) bullet world.bullets }
 
 
-stepWorldTowers : World -> World
-stepWorldTowers world =
+stepWorldTowers : Computer -> World -> World
+stepWorldTowers computer world =
     let
         akaMonstersSortedByRemainingDistance =
             world.monsters
                 |> List.filterMap aakMonsterState
                 |> List.sortBy .remainingDistance
 
+        stepTowerHelp tower =
+            stepTower computer
+                (Just (idOfTower tower) == world.selectedTowerId)
+                akaMonstersSortedByRemainingDistance
+                tower
+
         ( selfUpdatedTowers, towerEventGroups ) =
-            List.map (stepTower akaMonstersSortedByRemainingDistance) world.towers
+            List.map stepTowerHelp world.towers
                 |> List.unzip
     in
     { world | towers = selfUpdatedTowers }
@@ -787,6 +799,9 @@ handleEvent event world =
                     )
                 |> Maybe.withDefault world
 
+        SelectTower towerId ->
+            { world | selectedTowerId = Just towerId }
+
 
 insertNewBomb : Bomb -> World -> World
 insertNewBomb bomb world =
@@ -803,9 +818,12 @@ stepWorldSeed func world =
 -- WORLD ENTITY STEP FUNCTIONS
 
 
-stepTower : List AAKMonster -> Tower -> ( Tower, List Event )
-stepTower aakMonsters =
+stepTower : Computer -> Bool -> List AAKMonster -> Tower -> ( Tower, List Event )
+stepTower computer isSelected aakMonsters =
     let
+        { mouse } =
+            computer
+
         func tower =
             if tower.elapsed >= tower.delay then
                 case
@@ -832,7 +850,16 @@ stepTower aakMonsters =
                 ( { tower | elapsed = tower.elapsed + 1 }, [] )
 
         func2 tower =
-            ( tower, [] )
+            let
+                didClick =
+                    L.isLocationInSquareAt tower.location tower.viewWidth (L.at mouse.x mouse.y)
+                        && mouse.click
+            in
+            if didClick && not isSelected then
+                ( tower, [ SelectTower tower.id ] )
+
+            else
+                ( tower, [] )
     in
     func >> (\( tower, events ) -> func2 tower |> Tuple.mapSecond ((++) events))
 
