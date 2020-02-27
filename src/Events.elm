@@ -114,6 +114,7 @@ isLocationInRangeOfTower location tower =
 
 
 -- Bullet
+-- TODO: Should we rename it to Arrow?
 
 
 type alias Bullet =
