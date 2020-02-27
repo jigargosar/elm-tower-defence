@@ -60,9 +60,14 @@ allTowersViewWidth =
 -- TODO: Rename to ArrowTower?
 
 
+type TowerId
+    = TowerId Int
+
+
 type alias Tower =
     { -- META
-      delay : Number -- RELOAD TIME
+      id : TowerId
+    , delay : Number -- RELOAD TIME
     , range : Number -- SHOOTING RANGE
     , location : Location
     , viewWidth : Number
@@ -72,9 +77,10 @@ type alias Tower =
     }
 
 
-initTower : Location -> Number -> Tower
-initTower location range =
-    { delay = bulletFireDelay
+initTower : Int -> Location -> Number -> Tower
+initTower idx location range =
+    { id = TowerId idx
+    , delay = bulletFireDelay
     , range = range
     , location = location
     , viewWidth = allTowersViewWidth
@@ -453,6 +459,7 @@ type alias World =
     , bombs : List Bomb
     , monsters : List Monster
     , house : House
+    , selectedTowerId : Maybe TowerId
     , nextIdx : Int
     , seed : Seed
     }
@@ -497,8 +504,8 @@ init =
 
         towers : List Tower
         towers =
-            [ initTower (L.at -150 -100) 200
-            , initTower (L.at 150 100) 150
+            [ initTower 0 (L.at -150 -100) 200
+            , initTower 1 (L.at 150 100) 150
             ]
 
         ( ( lair, bombTowers ), worldSeed ) =
@@ -512,6 +519,7 @@ init =
         { lair = lair
         , path = path
         , towers = towers
+        , selectedTowerId = Nothing
         , bullets = []
         , bombTowers = bombTowers
         , bombs = []
@@ -764,23 +772,20 @@ handleEvent event world =
                 |> uncurry insertNewBomb
 
         ReplaceBombTower bombTowerId ->
-            let
-                maybeTower =
-                    List.Extra.find (BombTower.id >> is bombTowerId) world.bombTowers
-                        |> Maybe.map
-                            (\bt ->
-                                initTower (BombTower.location bt) (BombTower.range bt)
-                            )
-            in
-            case maybeTower of
-                Just tower ->
-                    { world
-                        | bombTowers = List.filter (BombTower.id >> isNot bombTowerId) world.bombTowers
-                        , towers = tower :: world.towers
-                    }
-
-                Nothing ->
-                    world
+            List.Extra.find (BombTower.id >> is bombTowerId) world.bombTowers
+                |> Maybe.map
+                    (\bt ->
+                        let
+                            tower =
+                                initTower world.nextIdx (BombTower.location bt) (BombTower.range bt)
+                        in
+                        { world
+                            | bombTowers = List.filter (BombTower.id >> isNot bombTowerId) world.bombTowers
+                            , towers = tower :: world.towers
+                            , nextIdx = world.nextIdx + 1
+                        }
+                    )
+                |> Maybe.withDefault world
 
 
 insertNewBomb : Bomb -> World -> World
