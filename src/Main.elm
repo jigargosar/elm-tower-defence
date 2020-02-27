@@ -560,6 +560,17 @@ update _ game =
             GameOver world
 
 
+updateWorld2 : World -> World
+updateWorld2 world =
+    stepLair world.lair
+        |> (\( lair, events ) -> { world | lair = lair } |> handleEvents2 events)
+
+
+handleEvents2 : List Event -> World -> World
+handleEvents2 events acc =
+    List.foldl (handleEvent acc) acc events
+
+
 updateWorld : World -> World
 updateWorld world =
     let
