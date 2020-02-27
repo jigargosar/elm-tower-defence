@@ -600,7 +600,7 @@ update computer game =
         Running world ->
             let
                 newWorld =
-                    updateWorld2 computer world
+                    updateWorld computer world
             in
             if hasHouseBurnedDown newWorld then
                 GameOver newWorld
@@ -616,8 +616,8 @@ update computer game =
 -- UPDATE WORLD 2
 
 
-updateWorld2 : Computer -> World -> World
-updateWorld2 computer =
+updateWorld : Computer -> World -> World
+updateWorld computer =
     stepWorldLair
         >> stepWorldHouse
         >> stepWorldBullets
