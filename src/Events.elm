@@ -1,5 +1,9 @@
 module Events exposing (Game, init, update, view)
 
+-- TODO: This file needs to be renamed to reflect its current state.
+-- Perhaps: Game or TDGame Or Main or TDMain or Main2
+-- Not sure, so not changing it for now.
+
 import List.Extra
 import Playground exposing (..)
 import Random exposing (Seed, initialSeed)
