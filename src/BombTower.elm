@@ -44,12 +44,6 @@ initBombTower { location, range, reloadDelay, viewWidth } tid =
     }
 
 
-
--- NOTE: Trying to build isolated stepBombTower function,
--- i.e. minimizing its dependency on other entities in game.
--- Caution: Be ready to revert if its no longer fun.
-
-
 stepBombTower :
     { spawnBomb : { from : Location, to : Location } -> event }
     -> List Location
