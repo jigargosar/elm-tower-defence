@@ -14,6 +14,10 @@ import String exposing (fromInt)
 -- Config
 
 
+isDebug =
+    True
+
+
 bombTowerReloadDelay =
     50
 
@@ -1166,7 +1170,11 @@ viewMonster monster =
             in
             [ monsterShape
             , viewHealthBar health |> moveUp 40
-            , words white (fromInt (round health))
+            , if isDebug then
+                words white (fromInt (round health))
+
+              else
+                noShape
             ]
                 |> group
                 |> scale scaleAdjust
@@ -1182,7 +1190,8 @@ viewMonster monster =
             in
             [ monsterShape
                 |> fade (remainingProgress / 2)
-            , words white (fromInt (round overKill))
+
+            --, words white (fromInt (round overKill))
             ]
                 |> group
                 |> scale scaleAdjust
@@ -1221,6 +1230,11 @@ viewBullet bullet =
 square : Color -> Number -> Shape
 square c w =
     rectangle c w w
+
+
+noShape : Shape
+noShape =
+    group []
 
 
 
