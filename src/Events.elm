@@ -1128,9 +1128,6 @@ viewPath path =
 viewMonster : Monster -> Shape
 viewMonster monster =
     let
-        scaleAdjust =
-            0.7
-
         monsterShape =
             --[ circle red 20 |> fade 0.9 ] |> group
             [ rectangle purple 20 30
@@ -1161,27 +1158,26 @@ viewMonster monster =
 
         viewHealthBar health =
             healthBarShape (health / monster.maxHealth)
-    in
-    case monster.state of
-        AliveAndKicking { travel, health } ->
+
+        placeShape travel =
             let
                 (Location x y) =
                     locationOfPathProgress travel
             in
+            scale 0.7 >> move x y
+    in
+    case monster.state of
+        AliveAndKicking { travel, health } ->
             [ monsterShape
             , viewHealthBar health |> moveUp 40
             , debugShape <|
                 \_ -> words white (fromInt (round health))
             ]
                 |> group
-                |> scale scaleAdjust
-                |> move x y
+                |> placeShape travel
 
         Dying { travel, remainingTicks, overKill } ->
             let
-                (Location x y) =
-                    locationOfPathProgress travel
-
                 remainingProgress =
                     remainingTicks / monster.dyingTicks
             in
@@ -1190,8 +1186,7 @@ viewMonster monster =
                 \_ -> words white (fromInt (round overKill))
             ]
                 |> group
-                |> scale scaleAdjust
-                |> move x y
+                |> placeShape travel
 
         ReachedHouse _ ->
             group []
