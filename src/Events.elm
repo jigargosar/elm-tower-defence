@@ -676,7 +676,7 @@ updateWorld world =
             List.map
                 (Bomb.stepBomb
                     { remove = RemoveBomb
-                    , reachedTarget = BombExploded
+                    , exploded = BombExploded
                     }
                 )
                 world.bombs

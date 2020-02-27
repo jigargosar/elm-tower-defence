@@ -61,7 +61,7 @@ idOfBomb bomb =
 
 stepBomb :
     { remove : BombId -> event
-    , reachedTarget : { at : Location, aoe : Number, damage : Number } -> event
+    , exploded : { at : Location, aoe : Number, damage : Number } -> event
     }
     -> Bomb
     -> ( Bomb, List event )
@@ -71,7 +71,7 @@ stepBomb config bomb =
             case L.stepLocationTowards bomb.target bomb.speed bomb.location of
                 Nothing ->
                     ( { bomb | state = Exploding 0 }
-                    , [ config.reachedTarget
+                    , [ config.exploded
                             { at = bomb.target
                             , aoe = bomb.aoe
                             , damage = bomb.damage
