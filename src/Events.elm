@@ -176,6 +176,7 @@ type alias BombTower =
       delay : Number
     , location : Location
     , range : Number
+    , viewWidth : Number
 
     -- State
     , elapsed : Number
@@ -186,6 +187,7 @@ initBombTower : Location -> BombTower
 initBombTower location =
     { delay = bombTowerReloadDelay
     , range = bombTowerRange
+    , viewWidth = 30
     , location = location
     , elapsed = 0
     }
@@ -236,7 +238,28 @@ stepBombTower config ctx tower =
         ( { tower | elapsed = tower.elapsed + 1 }, [] )
 
 
+viewBombTower : BombTower -> Shape
+viewBombTower tower =
+    let
+        (Location x y) =
+            tower.location
+    in
+    [ circle lightBrown tower.range |> fade 0.4
+    , square brown tower.viewWidth
+    ]
+        |> group
+        |> move x y
 
+
+
+--viewBullet : Bullet -> Shape
+--viewBullet bullet =
+--    let
+--        (Location x y) =
+--            bullet.location
+--    in
+--    circle green 5
+--        |> move x y
 -- BOMB
 
 
@@ -985,6 +1008,7 @@ viewWorldStats computer world =
 viewWorld : Computer -> World -> Shape
 viewWorld _ world =
     [ List.map viewTower world.towers |> group
+    , List.map viewBombTower world.bombTowers |> group
     , viewPath world.path
     , List.map viewMonster world.monsters |> group
     , List.map viewBullet world.bullets |> group
@@ -1053,7 +1077,7 @@ viewTower tower =
         (Location x y) =
             tower.location
     in
-    [ circle green tower.range |> fade 0.2
+    [ circle lightBlue tower.range |> fade 0.3
     , square blue tower.viewWidth
     ]
         |> group
@@ -1066,7 +1090,7 @@ viewBullet bullet =
         (Location x y) =
             bullet.location
     in
-    circle green 5
+    circle blue 5
         |> move x y
 
 
