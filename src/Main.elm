@@ -576,6 +576,8 @@ initialGen =
         initialTowersGenerator =
             [ towerGenerator (L.at -150 -100)
             , towerGenerator (L.at 150 100)
+            , tower2Generator (L.at 0 0)
+            , tower2Generator (L.at 150 -100)
             ]
                 |> Random.Extra.combine
 
@@ -584,6 +586,7 @@ initialGen =
             [ bombTowerGenerator (L.at 0 0)
             , bombTowerGenerator (L.at 150 -100)
             ]
+                |> always []
                 |> Random.Extra.combine
     in
     Random.map3 InitialWorldData
