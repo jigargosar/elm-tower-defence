@@ -5,6 +5,7 @@ module Events exposing (Game, init, update, view)
 -- Not sure, so not changing it for now.
 
 import List.Extra
+import Location as L exposing (Location)
 import Playground exposing (..)
 import Random exposing (Seed, initialSeed)
 import String exposing (fromInt)
@@ -52,70 +53,6 @@ monsterHealth =
 
 
 -- LOCATION
-
-
-type Location
-    = Location Number Number
-
-
-stepLocationTowards : Location -> Number -> Location -> Maybe Location
-stepLocationTowards target speed location =
-    let
-        (Location tx ty) =
-            target
-
-        (Location x y) =
-            location
-
-        angle =
-            atan2 (ty - y) (tx - x)
-
-        ( dx, dy ) =
-            ( speed, angle ) |> fromPolar
-
-        ( nx, ny ) =
-            ( x + dx, y + dy )
-
-        newLocation =
-            Location nx ny
-    in
-    if locationEqWithin speed newLocation target then
-        Nothing
-
-    else
-        Just newLocation
-
-
-locationEqWithin : Number -> Location -> Location -> Bool
-locationEqWithin tol l1 l2 =
-    distanceFromToLocation l1 l2 <= tol + 0.1
-
-
-distanceFromToLocation : Location -> Location -> Number
-distanceFromToLocation (Location x1 y1) (Location x2 y2) =
-    let
-        ( x, y ) =
-            ( x2 - x1, y2 - y1 )
-    in
-    sqrt (add (mul x x) (mul y y))
-
-
-isLocationInRangeOf : Location -> Number -> Location -> Bool
-isLocationInRangeOf center range location =
-    distanceFromToLocation center location <= range
-
-
-moveShapeToLocation : Location -> Shape -> Shape
-moveShapeToLocation =
-    applyLocationTo move
-
-
-applyLocationTo : (Number -> Number -> a) -> Location -> a
-applyLocationTo func (Location x y) =
-    func x y
-
-
-
 -- Tower
 -- TODO: Rename to ArrowTower?
 
@@ -144,7 +81,7 @@ initTower location range =
 
 isLocationInRangeOfTower : Location -> Tower -> Bool
 isLocationInRangeOfTower location tower =
-    distanceFromToLocation location tower.location <= tower.range
+    L.distanceFromToLocation location tower.location <= tower.range
 
 
 
@@ -244,7 +181,7 @@ stepBombTower config ctx tower =
         case
             List.Extra.find
                 (\aak ->
-                    distanceFromToLocation tower.location aak.location <= tower.range
+                    L.distanceFromToLocation tower.location aak.location <= tower.range
                 )
                 ctx.targets
         of
@@ -263,15 +200,11 @@ stepBombTower config ctx tower =
 
 viewBombTower : BombTower -> Shape
 viewBombTower tower =
-    let
-        (Location x y) =
-            tower.location
-    in
     [ circle lightBrown tower.range |> fade 0.4
     , square brown tower.viewWidth
     ]
         |> group
-        |> move x y
+        |> L.moveShape tower.location
 
 
 
@@ -331,7 +264,7 @@ stepBomb :
 stepBomb config bomb =
     case bomb.state of
         BombInFlight ->
-            case stepLocationTowards bomb.target bomb.speed bomb.location of
+            case L.stepLocationTowards bomb.target bomb.speed bomb.location of
                 Nothing ->
                     ( { bomb | state = Exploding 0 }
                     , [ config.reachedTarget
@@ -361,13 +294,13 @@ stepBomb config bomb =
 viewBomb : Bomb -> Shape
 viewBomb bomb =
     let
-        (Location x y) =
+        location =
             bomb.location
     in
     case bomb.state of
         BombInFlight ->
             circle brown 5
-                |> move x y
+                |> L.moveShape location
 
         Exploding elapsed ->
             let
@@ -378,8 +311,8 @@ viewBomb bomb =
                     1 - progress
             in
             circle brown bomb.aoe
-                |> move x y
                 |> fade (remainingProgress / 2)
+                |> L.moveShape location
 
         BombWaitingToBeRemoved ->
             group []
@@ -397,7 +330,7 @@ initPath : Location -> List Location -> Path
 initPath start rest =
     let
         pathLen =
-            List.foldl (\to ( accDistance, from ) -> ( distanceFromToLocation from to + accDistance, to ))
+            List.foldl (\to ( accDistance, from ) -> ( L.distanceFromToLocation from to + accDistance, to ))
                 ( 0, start )
                 rest
                 |> Tuple.first
@@ -448,38 +381,17 @@ initPathBuilder offset start =
 
 goDown : PathBuilder -> PathBuilder
 goDown p =
-    let
-        (Location x y) =
-            p.current
-
-        ny =
-            y - p.offset
-    in
-    { p | current = Location x ny }
+    { p | current = L.shiftY -p.offset p.current }
 
 
 goUp : PathBuilder -> PathBuilder
 goUp p =
-    let
-        (Location x y) =
-            p.current
-
-        ny =
-            y + p.offset
-    in
-    { p | current = Location x ny }
+    { p | current = L.shiftY p.offset p.current }
 
 
 goRight : PathBuilder -> PathBuilder
 goRight p =
-    let
-        (Location x y) =
-            p.current
-
-        nx =
-            x + p.offset
-    in
-    { p | current = Location nx y }
+    { p | current = L.shiftX p.offset p.current }
 
 
 addWayPoint : PathBuilder -> PathBuilder
@@ -527,7 +439,7 @@ stepPathProgress (PathProgress p) =
             Nothing
 
         wp :: rest ->
-            case stepLocationTowards wp p.speed p.location of
+            case L.stepLocationTowards wp p.speed p.location of
                 Nothing ->
                     Just (PathProgress { p | location = wp, wayPoints = rest })
 
@@ -753,7 +665,7 @@ init =
     let
         path : Path
         path =
-            initPathBuilder 50 (Location -250 0)
+            initPathBuilder 50 (L.at -250 0)
                 |> applyNTimes 2 goRight
                 |> addWayPoint
                 |> applyNTimes 3 goDown
@@ -767,13 +679,13 @@ init =
                 |> buildPath
 
         towers =
-            [ initTower (Location -150 -100) 200
-            , initTower (Location 150 100) 150
+            [ initTower (L.at -150 -100) 200
+            , initTower (L.at 150 100) 150
             ]
 
         bombTowers =
-            [ initBombTower (Location 0 0)
-            , initBombTower (Location 150 -100)
+            [ initBombTower (L.at 0 0)
+            , initBombTower (L.at 150 -100)
             ]
     in
     Running
@@ -946,7 +858,7 @@ handleEvent world event acc =
         BombExploded { at, aoe, damage } ->
             let
                 isLocationInAOE =
-                    isLocationInRangeOf at aoe
+                    L.isLocationInRangeOf at aoe
 
                 monsterIdsInBombAOE =
                     world.monsters
@@ -1058,7 +970,7 @@ stepMonster monster =
 
 stepBullet : Bullet -> ( Bullet, List Event )
 stepBullet bullet =
-    case stepLocationTowards bullet.target bullet.speed bullet.location of
+    case L.stepLocationTowards bullet.target bullet.speed bullet.location of
         Nothing ->
             ( bullet, [ RemoveBullet bullet.id, BulletHitMonster bullet.monsterId ] )
 
@@ -1126,9 +1038,9 @@ viewWorld _ world =
 viewPath : Path -> Shape
 viewPath path =
     let
-        ep (Location x y) =
+        ep location =
             circle lightCharcoal 8
-                |> move x y
+                |> L.moveShape location
     in
     pathToLocations path
         |> List.map ep
@@ -1171,7 +1083,7 @@ viewMonster monster =
 
         placeShape : PathProgress -> Shape -> Shape
         placeShape travel =
-            scale 0.7 >> moveShapeToLocation (locationOfPathProgress travel)
+            scale 0.7 >> L.moveShape (locationOfPathProgress travel)
     in
     case monster.state of
         AliveAndKicking { travel, health } ->
@@ -1208,13 +1120,13 @@ viewTower tower =
     , square blue tower.viewWidth
     ]
         |> group
-        |> moveShapeToLocation tower.location
+        |> L.moveShape tower.location
 
 
 viewBullet : Bullet -> Shape
 viewBullet bullet =
     circle blue 5
-        |> moveShapeToLocation bullet.location
+        |> L.moveShape bullet.location
 
 
 square : Color -> Number -> Shape
@@ -1246,11 +1158,3 @@ is =
 
 isNot =
     (/=)
-
-
-add =
-    (+)
-
-
-mul =
-    (*)
