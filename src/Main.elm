@@ -568,11 +568,11 @@ updateWorld2 : World -> World
 updateWorld2 =
     stepWorldLair
         >> stepWorldHouse
-        >> stepBullets
-        >> stepMonsters
-        >> stepBombs
-        >> stepTowers
-        >> stepBombTowers
+        >> stepWorldBullets
+        >> stepWorldMonsters
+        >> stepWorldBombs
+        >> stepWorldTowers
+        >> stepWorldBombTowers
 
 
 stepWorldLair : World -> World
@@ -587,8 +587,8 @@ stepWorldHouse world =
         |> (\( house, events ) -> handleEvents events { world | house = house })
 
 
-stepBullets : World -> World
-stepBullets =
+stepWorldBullets : World -> World
+stepWorldBullets =
     let
         func bullet world =
             stepBullet bullet
@@ -602,8 +602,8 @@ setBullet bullet world =
     { world | bullets = List.Extra.setIf (idOfBullet >> is (idOfBullet bullet)) bullet world.bullets }
 
 
-stepTowers : World -> World
-stepTowers world =
+stepWorldTowers : World -> World
+stepWorldTowers world =
     let
         akaMonstersSortedByRemainingDistance =
             world.monsters
@@ -618,8 +618,8 @@ stepTowers world =
         |> handleEvents (List.concat towerEventGroups)
 
 
-stepBombTowers : World -> World
-stepBombTowers world =
+stepWorldBombTowers : World -> World
+stepWorldBombTowers world =
     let
         akaMonstersSortedByRemainingDistance =
             world.monsters
@@ -639,8 +639,8 @@ stepBombTowers world =
         |> handleEvents (List.concat bombTowerEventGroups)
 
 
-stepBombs : World -> World
-stepBombs =
+stepWorldBombs : World -> World
+stepWorldBombs =
     let
         func bomb world =
             Bomb.stepBomb
@@ -658,8 +658,8 @@ setBomb bomb world =
     { world | bombs = List.Extra.setIf (Bomb.idOfBomb >> is (Bomb.idOfBomb bomb)) bomb world.bombs }
 
 
-stepMonsters : World -> World
-stepMonsters =
+stepWorldMonsters : World -> World
+stepWorldMonsters =
     let
         func monster world =
             stepMonster monster
