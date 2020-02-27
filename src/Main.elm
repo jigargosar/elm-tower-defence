@@ -589,6 +589,25 @@ setBullet bullet world =
     { world | bullets = List.Extra.setIf (idOfBullet >> is (idOfBullet bullet)) bullet world.bullets }
 
 
+stepBombs : World -> World
+stepBombs =
+    let
+        func bomb world =
+            Bomb.stepBomb
+                { remove = RemoveBomb
+                , exploded = BombExploded
+                }
+                bomb
+                |> (\( newBomb, events ) -> handleEvents2 events (setBomb newBomb world))
+    in
+    \world -> List.foldl func world world.bombs
+
+
+setBomb : Bomb -> World -> World
+setBomb bomb world =
+    { world | bombs = List.Extra.setIf (Bomb.idOfBomb >> is (Bomb.idOfBomb bomb)) bomb world.bombs }
+
+
 stepMonsters : World -> World
 stepMonsters =
     let
