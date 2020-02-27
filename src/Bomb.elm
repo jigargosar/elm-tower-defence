@@ -9,7 +9,7 @@ module Bomb exposing
 import BombId exposing (BombId)
 import Location as L exposing (Location)
 import Playground exposing (..)
-import Sequential
+import Random exposing (Generator)
 
 
 type BombState
@@ -38,10 +38,10 @@ type alias BombInit =
     }
 
 
-generator : BombInit -> Sequential.Generator Bomb
+generator : BombInit -> Generator Bomb
 generator bombInit =
     BombId.generator
-        |> Sequential.map
+        |> Random.map
             (\bid ->
                 let
                     { location, target, aoe, speed } =

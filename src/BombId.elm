@@ -1,12 +1,12 @@
 module BombId exposing (BombId, generator)
 
-import Sequential
+import Random
 
 
 type BombId
     = BombId Int
 
 
-generator : Sequential.Generator BombId
+generator : Random.Generator BombId
 generator =
-    Sequential.int |> Sequential.map BombId
+    Random.int 0 Random.maxInt |> Random.map BombId

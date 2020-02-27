@@ -6,8 +6,7 @@ import BombTower exposing (BombTower)
 import List.Extra
 import Location as L exposing (Location)
 import Playground exposing (..)
-import Random exposing (Seed, initialSeed)
-import Sequential
+import Random exposing (Generator, Seed, initialSeed)
 import String exposing (fromInt)
 
 
@@ -128,20 +127,6 @@ idOfBullet bullet =
 
 type BulletId
     = BulletId Int
-
-
-
--- BOMB TOWER
-
-
-initBombTower : Location -> BombTower
-initBombTower location =
-    BombTower.initBombTower
-        { reloadDelay = bombTowerReloadDelay
-        , range = bombTowerRange
-        , viewWidth = allTowersViewWidth
-        , location = location
-        }
 
 
 
@@ -463,8 +448,8 @@ type alias World =
     , bombs : List Bomb
     , monsters : List Monster
     , house : House
-    , sequentialSeed : Sequential.Seed
     , nextIdx : Int
+    , seed : Seed
     }
 
 
@@ -520,7 +505,7 @@ init =
          , monsters = []
          , house = initHouse
          , nextIdx = 0
-         , sequentialSeed = Sequential.initialSeed 1
+         , seed = Random.initialSeed 0
          }
             |> insertInitialBombTowers
         )
@@ -542,10 +527,10 @@ insertNewBombTower bombTower world =
     { world | bombTowers = bombTower :: world.bombTowers }
 
 
-initialBombTowersGenerator : Sequential.Generator (List BombTower)
+initialBombTowersGenerator : Generator (List BombTower)
 initialBombTowersGenerator =
     let
-        bombTowerGenerator : Location -> Sequential.Generator BombTower
+        bombTowerGenerator : Location -> Generator BombTower
         bombTowerGenerator location =
             BombTower.generator
                 { reloadDelay = bombTowerReloadDelay
@@ -554,7 +539,7 @@ initialBombTowersGenerator =
                 , location = location
                 }
     in
-    Sequential.map2 (\a b -> [ a, b ])
+    Random.map2 (\a b -> [ a, b ])
         (bombTowerGenerator (L.at 0 0))
         (bombTowerGenerator (L.at 150 -100))
 
@@ -785,10 +770,10 @@ insertNewBomb bomb world =
     { world | bombs = bomb :: world.bombs }
 
 
-stepWorldSeed : Sequential.Generator a -> World -> ( a, World )
+stepWorldSeed : Generator a -> World -> ( a, World )
 stepWorldSeed func world =
-    Sequential.step func world.sequentialSeed
-        |> Tuple.mapSecond (\seed -> { world | sequentialSeed = seed })
+    Random.step func world.seed
+        |> Tuple.mapSecond (\seed -> { world | seed = seed })
 
 
 
