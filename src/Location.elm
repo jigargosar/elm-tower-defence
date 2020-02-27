@@ -3,6 +3,7 @@ module Location exposing
     , at
     , distanceFromTo
     , isLocationInRangeOf
+    , isLocationInSquareAt
     , moveShape
     , shiftX
     , shiftY
@@ -66,6 +67,30 @@ distanceFromTo (Location x1 y1) (Location x2 y2) =
 isLocationInRangeOf : Location -> Number -> Location -> Bool
 isLocationInRangeOf center range location =
     distanceFromTo center location <= range
+
+
+isLocationInSquareAt : Location -> Number -> Location -> Bool
+isLocationInSquareAt center squareSide location =
+    isLocationInRectangle center squareSide squareSide location
+
+
+isLocationInRectangle : Location -> Number -> Number -> Location -> Bool
+isLocationInRectangle (Location cx cy) w h (Location x y) =
+    let
+        minX =
+            cx - w / 2
+
+        minY =
+            cy - h / 2
+
+        maxX =
+            cx + w / 2
+
+        maxY =
+            cy + h / 2
+    in
+    (x < minX || x > maxX || y < minY || y > maxY)
+        |> not
 
 
 moveShape : Location -> Shape -> Shape

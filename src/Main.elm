@@ -3,6 +3,7 @@ module Main exposing (main)
 import Bomb exposing (Bomb)
 import BombId exposing (BombId)
 import BombTower exposing (BombTower)
+import BombTowerId exposing (BombTowerId)
 import List.Extra
 import Location as L exposing (Location)
 import Playground exposing (..)
@@ -553,6 +554,7 @@ type Event
     | BombExploded { at : Location, aoe : Number, damage : Number }
     | RemoveBomb BombId
     | SpawnBomb { from : Location, to : Location }
+    | ReplaceBombTower BombTowerId
 
 
 update : Computer -> Game -> Game
@@ -642,7 +644,9 @@ stepWorldBombTowers computer world =
         ( selfUpdatedBombTowers, bombTowerEventGroups ) =
             List.map
                 (BombTower.stepBombTower
-                    { spawnBomb = SpawnBomb }
+                    { spawnBomb = SpawnBomb
+                    , replaceTower = ReplaceBombTower
+                    }
                     computer.mouse
                     (akaMonstersSortedByRemainingDistance |> List.map .location)
                 )
@@ -758,6 +762,9 @@ handleEvent event world =
                 )
                 world
                 |> uncurry insertNewBomb
+
+        ReplaceBombTower bombTowerId ->
+            { world | bombTowers = List.filter (BombTower.id >> isNot bombTowerId) world.bombTowers }
 
 
 insertNewBomb : Bomb -> World -> World

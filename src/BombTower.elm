@@ -1,4 +1,4 @@
-module BombTower exposing (BombTower, Init, generator, stepBombTower, viewBombTower)
+module BombTower exposing (BombTower, Init, generator, id, stepBombTower, viewBombTower)
 
 import BombTowerId exposing (BombTowerId)
 import List.Extra
@@ -9,7 +9,8 @@ import Random exposing (Generator)
 
 type alias BombTower =
     { -- Meta
-      delay : Number
+      id : BombTowerId
+    , delay : Number
     , location : Location
     , range : Number
     , viewWidth : Number
@@ -35,7 +36,8 @@ generator init =
 
 initBombTower : Init -> BombTowerId -> BombTower
 initBombTower { location, range, reloadDelay, viewWidth } tid =
-    { delay = reloadDelay
+    { id = tid
+    , delay = reloadDelay
     , range = range
     , viewWidth = viewWidth
     , location = location
@@ -43,14 +45,29 @@ initBombTower { location, range, reloadDelay, viewWidth } tid =
     }
 
 
+id : BombTower -> BombTowerId
+id =
+    .id
+
+
 stepBombTower :
-    { spawnBomb : { from : Location, to : Location } -> event }
+    { spawnBomb : { from : Location, to : Location } -> event
+    , replaceTower : BombTowerId -> event
+    }
     -> Mouse
     -> List Location
     -> BombTower
     -> ( BombTower, List event )
 stepBombTower config mouse targetLocations tower =
-    if tower.elapsed >= tower.delay then
+    let
+        isClickedOnTower =
+            L.isLocationInSquareAt tower.location tower.viewWidth (L.at mouse.x mouse.y)
+                && mouse.click
+    in
+    if isClickedOnTower then
+        ( tower, [ config.replaceTower tower.id ] )
+
+    else if tower.elapsed >= tower.delay then
         case
             List.Extra.find
                 (\targetLocation ->
