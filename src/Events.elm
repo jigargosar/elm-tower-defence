@@ -105,6 +105,16 @@ isLocationInRangeOf center range location =
     distanceFromToLocation center location <= range
 
 
+moveShapeToLocation : Location -> Shape -> Shape
+moveShapeToLocation =
+    applyLocationTo move
+
+
+applyLocationTo : (Number -> Number -> a) -> Location -> a
+applyLocationTo func (Location x y) =
+    func x y
+
+
 
 -- Tower
 -- TODO: Rename to ArrowTower?
@@ -1159,12 +1169,9 @@ viewMonster monster =
         viewHealthBar health =
             healthBarShape (health / monster.maxHealth)
 
+        placeShape : PathProgress -> Shape -> Shape
         placeShape travel =
-            let
-                (Location x y) =
-                    locationOfPathProgress travel
-            in
-            scale 0.7 >> move x y
+            scale 0.7 >> moveShapeToLocation (locationOfPathProgress travel)
     in
     case monster.state of
         AliveAndKicking { travel, health } ->
