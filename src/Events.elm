@@ -504,7 +504,9 @@ init =
         path : Path
         path =
             initPathBuilder 100 (Location -250 0)
-                |> applyNTimes 4 goRight
+                |> applyNTimes 2 goRight
+                |> addWayPoint
+                |> applyNTimes 2 goDown
                 |> addWayPoint
                 |> buildPath
 
