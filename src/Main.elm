@@ -765,16 +765,22 @@ handleEvent event world =
 
         ReplaceBombTower bombTowerId ->
             let
-                _ =
+                maybeTower =
                     List.Extra.find (BombTower.id >> is bombTowerId) world.bombTowers
                         |> Maybe.map
                             (\bt ->
                                 initTower (BombTower.location bt) (BombTower.range bt)
                             )
             in
-            { world
-                | bombTowers = List.filter (BombTower.id >> isNot bombTowerId) world.bombTowers
-            }
+            case maybeTower of
+                Just tower ->
+                    { world
+                        | bombTowers = List.filter (BombTower.id >> isNot bombTowerId) world.bombTowers
+                        , towers = tower :: world.towers
+                    }
+
+                Nothing ->
+                    world
 
 
 insertNewBomb : Bomb -> World -> World
