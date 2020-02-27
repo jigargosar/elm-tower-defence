@@ -747,6 +747,10 @@ handleEvent event world =
             }
 
 
+
+-- WORLD ENTITY STEP FUNCTIONS
+
+
 stepTower : List AAKMonster -> Tower -> ( Tower, List Event )
 stepTower aakMonsters tower =
     if tower.elapsed >= tower.delay then
