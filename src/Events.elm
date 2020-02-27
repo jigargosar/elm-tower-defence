@@ -265,8 +265,8 @@ type BombId
 
 
 type BombState
-    = Launched
-    | Exploded
+    = BombInFlight
+    | Exploding
 
 
 type alias Bomb =
@@ -292,7 +292,7 @@ initBomb idx { from, to } =
     , location = from
     , target = to
     , speed = bombSpeed
-    , state = Launched
+    , state = BombInFlight
     }
 
 
@@ -309,10 +309,10 @@ stepBomb :
     -> ( Bomb, List event )
 stepBomb config bomb =
     case bomb.state of
-        Launched ->
+        BombInFlight ->
             case stepLocationTowards bomb.target bomb.speed bomb.location of
                 Nothing ->
-                    ( { bomb | state = Exploded }
+                    ( { bomb | state = Exploding }
                     , [ config.reachedTarget
                             { at = bomb.target
                             , aoe = bomb.aoe
@@ -324,7 +324,7 @@ stepBomb config bomb =
                 Just newLocation ->
                     ( { bomb | location = newLocation }, [] )
 
-        Exploded ->
+        Exploding ->
             ( bomb
             , [ config.remove bomb.id ]
             )
