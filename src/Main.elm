@@ -578,6 +578,7 @@ updateWorld2 =
         >> stepMonsters
         >> stepBombs
         >> stepTowers
+        >> stepBombTowers
 
 
 stepBullets : World -> World
@@ -609,6 +610,27 @@ stepTowers world =
     in
     { world | towers = selfUpdatedTowers }
         |> handleEvents2 (List.concat towerEventGroups)
+
+
+stepBombTowers : World -> World
+stepBombTowers world =
+    let
+        akaMonstersSortedByRemainingDistance =
+            world.monsters
+                |> List.filterMap aakMonsterState
+                |> List.sortBy .remainingDistance
+
+        ( selfUpdatedBombTowers, bombTowerEventGroups ) =
+            List.map
+                (BombTower.stepBombTower
+                    { spawnBomb = SpawnBomb }
+                    (akaMonstersSortedByRemainingDistance |> List.map .location)
+                )
+                world.bombTowers
+                |> List.unzip
+    in
+    { world | bombTowers = selfUpdatedBombTowers }
+        |> handleEvents2 (List.concat bombTowerEventGroups)
 
 
 stepBombs : World -> World
