@@ -159,6 +159,39 @@ restOfPath (Path _ _ rest) =
 
 
 
+-- PATH BUILDER
+
+
+type PathBuilder
+    = PathBuilder Location Location (List Location)
+
+
+initPathBuilder : Location -> PathBuilder
+initPathBuilder start =
+    PathBuilder start start []
+
+
+goDown : PathBuilder -> PathBuilder
+goDown pathBuilder =
+    pathBuilder
+
+
+goRight : PathBuilder -> PathBuilder
+goRight pathBuilder =
+    pathBuilder
+
+
+addToPath : PathBuilder -> PathBuilder
+addToPath pathBuilder =
+    pathBuilder
+
+
+buildPath : PathBuilder -> Path
+buildPath (PathBuilder start _ rest) =
+    initPath start rest
+
+
+
 -- TRAVEL PATH PROGRESS
 
 
