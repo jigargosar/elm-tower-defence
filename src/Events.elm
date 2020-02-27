@@ -31,48 +31,6 @@ monsterHealth =
 
 
 
--- Bullet
-
-
-type alias Bullet =
-    { --CONFIG
-      id : BulletId
-    , monsterId : MonsterId
-    , target : Location
-    , speed : Number
-
-    -- STATE
-    , location : Location
-    }
-
-
-type alias BulletInit =
-    { monsterId : MonsterId
-    , start : Location
-    , target : Location
-    }
-
-
-initBullet : Int -> BulletInit -> Bullet
-initBullet idx { monsterId, target, start } =
-    { id = BulletId idx
-    , monsterId = monsterId
-    , target = target
-    , location = start
-    , speed = bulletSpeed
-    }
-
-
-idOfBullet : Bullet -> BulletId
-idOfBullet bullet =
-    bullet.id
-
-
-type BulletId
-    = BulletId Int
-
-
-
 -- LOCATION
 
 
@@ -120,6 +78,80 @@ distanceFromToLocation (Location x1 y1) (Location x2 y2) =
             ( x2 - x1, y2 - y1 )
     in
     sqrt (add (mul x x) (mul y y))
+
+
+
+-- Tower
+-- TODO: Rename to ArrowTower?
+
+
+type alias Tower =
+    { -- META
+      delay : Number -- RELOAD TIME
+    , range : Number -- SHOOTING RANGE
+    , location : Location
+    , viewWidth : Number
+
+    -- STATE
+    , elapsed : Number -- RELOAD PROGRESS
+    }
+
+
+initTower : Location -> Number -> Tower
+initTower location range =
+    { delay = bulletFireDelay
+    , range = range
+    , location = location
+    , viewWidth = 30
+    , elapsed = 0
+    }
+
+
+isLocationInRangeOfTower : Location -> Tower -> Bool
+isLocationInRangeOfTower location tower =
+    distanceFromToLocation location tower.location <= tower.range
+
+
+
+-- Bullet
+
+
+type alias Bullet =
+    { --CONFIG
+      id : BulletId
+    , monsterId : MonsterId
+    , target : Location
+    , speed : Number
+
+    -- STATE
+    , location : Location
+    }
+
+
+type alias BulletInit =
+    { monsterId : MonsterId
+    , start : Location
+    , target : Location
+    }
+
+
+initBullet : Int -> BulletInit -> Bullet
+initBullet idx { monsterId, target, start } =
+    { id = BulletId idx
+    , monsterId = monsterId
+    , target = target
+    , location = start
+    , speed = bulletSpeed
+    }
+
+
+idOfBullet : Bullet -> BulletId
+idOfBullet bullet =
+    bullet.id
+
+
+type BulletId
+    = BulletId Int
 
 
 
@@ -397,37 +429,6 @@ idOfMonster =
 
 type MonsterId
     = MonsterId Int
-
-
-
--- Tower
-
-
-type alias Tower =
-    { -- META
-      delay : Number -- RELOAD TIME
-    , range : Number -- SHOOTING RANGE
-    , location : Location
-    , viewWidth : Number
-
-    -- STATE
-    , elapsed : Number -- RELOAD PROGRESS
-    }
-
-
-initTower : Location -> Number -> Tower
-initTower location range =
-    { delay = bulletFireDelay
-    , range = range
-    , location = location
-    , viewWidth = 30
-    , elapsed = 0
-    }
-
-
-isLocationInRangeOfTower : Location -> Tower -> Bool
-isLocationInRangeOfTower location tower =
-    distanceFromToLocation location tower.location <= tower.range
 
 
 
