@@ -660,13 +660,18 @@ init =
             [ initTower (Location -150 -100) 200
             , initTower (Location 150 100) 150
             ]
+
+        bombTowers =
+            [ initBombTower (Location 0 0)
+            , initBombTower (Location 150 -100)
+            ]
     in
     Running
         { lair = initLair
         , path = path
         , towers = towers
         , bullets = []
-        , bombTowers = []
+        , bombTowers = bombTowers
         , bombs = []
         , monsters = []
         , house = initHouse
@@ -749,7 +754,13 @@ updateWorld world =
                 |> List.unzip
 
         ( selfUpdatedBombs, bombEventGroups ) =
-            List.map (stepBomb { remove = RemoveBomb, reachedTarget = BombReachedTarget }) world.bombs
+            List.map
+                (stepBomb
+                    { remove = RemoveBomb
+                    , reachedTarget = BombReachedTarget
+                    }
+                )
+                world.bombs
                 |> List.unzip
 
         ( selfUpdatedMonsters, monsterEventGroups ) =
@@ -774,6 +785,8 @@ updateWorld world =
         |> handleEvents world houseEvents
         |> handleEventGroups world towerEventGroups
         |> handleEventGroups world bulletEventGroups
+        |> handleEventGroups world bombTowerEventGroups
+        |> handleEventGroups world bombEventGroups
         |> handleEventGroups world monsterEventGroups
 
 
