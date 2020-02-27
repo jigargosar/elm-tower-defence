@@ -45,10 +45,11 @@ initBombTower { location, range, reloadDelay, viewWidth } tid =
 
 stepBombTower :
     { spawnBomb : { from : Location, to : Location } -> event }
+    -> Mouse
     -> List Location
     -> BombTower
     -> ( BombTower, List event )
-stepBombTower config targetLocations tower =
+stepBombTower config mouse targetLocations tower =
     if tower.elapsed >= tower.delay then
         case
             List.Extra.find

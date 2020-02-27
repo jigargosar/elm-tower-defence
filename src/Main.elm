@@ -556,12 +556,12 @@ type Event
 
 
 update : Computer -> Game -> Game
-update _ game =
+update computer game =
     case game of
         Running world ->
             let
                 newWorld =
-                    updateWorld2 world
+                    updateWorld2 computer world
             in
             if hasHouseBurnedDown newWorld then
                 GameOver newWorld
@@ -577,15 +577,15 @@ update _ game =
 -- UPDATE WORLD 2
 
 
-updateWorld2 : World -> World
-updateWorld2 =
+updateWorld2 : Computer -> World -> World
+updateWorld2 computer =
     stepWorldLair
         >> stepWorldHouse
         >> stepWorldBullets
         >> stepWorldMonsters
         >> stepWorldBombs
         >> stepWorldTowers
-        >> stepWorldBombTowers
+        >> stepWorldBombTowers computer
 
 
 stepWorldLair : World -> World
@@ -631,8 +631,8 @@ stepWorldTowers world =
         |> handleEvents (List.concat towerEventGroups)
 
 
-stepWorldBombTowers : World -> World
-stepWorldBombTowers world =
+stepWorldBombTowers : Computer -> World -> World
+stepWorldBombTowers computer world =
     let
         akaMonstersSortedByRemainingDistance =
             world.monsters
@@ -643,6 +643,7 @@ stepWorldBombTowers world =
             List.map
                 (BombTower.stepBombTower
                     { spawnBomb = SpawnBomb }
+                    computer.mouse
                     (akaMonstersSortedByRemainingDistance |> List.map .location)
                 )
                 world.bombTowers
