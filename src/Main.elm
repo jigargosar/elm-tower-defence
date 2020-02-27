@@ -8,6 +8,7 @@ import List.Extra
 import Location as L exposing (Location)
 import Playground exposing (..)
 import Random exposing (Generator, Seed)
+import Random.Extra
 import String exposing (fromInt)
 
 
@@ -64,6 +65,11 @@ type TowerId
     = TowerId Int
 
 
+towerIdGenerator : Generator TowerId
+towerIdGenerator =
+    mapRandomIdInt TowerId
+
+
 type alias Tower =
     { -- META
       id : TowerId
@@ -77,15 +83,19 @@ type alias Tower =
     }
 
 
-initTower : Int -> Location -> Number -> Tower
-initTower idx location range =
-    { id = TowerId idx
-    , delay = bulletFireDelay
-    , range = range
-    , location = location
-    , viewWidth = allTowersViewWidth
-    , elapsed = 0
-    }
+towerGenerator : Location -> Number -> Generator Tower
+towerGenerator location range =
+    towerIdGenerator
+        |> Random.map
+            (\tid ->
+                { id = tid
+                , delay = bulletFireDelay
+                , range = range
+                , location = location
+                , viewWidth = allTowersViewWidth
+                , elapsed = 0
+                }
+            )
 
 
 idOfTower : Tower -> TowerId
@@ -507,32 +517,43 @@ init =
                 |> addWayPoint
                 |> buildPath
 
-        towers : List Tower
-        towers =
-            [ initTower 0 (L.at -150 -100) 200
-            , initTower 1 (L.at 150 100) 150
+        initialTowersGenerator : Generator (List Tower)
+        initialTowersGenerator =
+            [ towerGenerator (L.at -150 -100) 200
+            , towerGenerator (L.at 150 100) 150
             ]
+                |> Random.Extra.combine
 
-        ( ( lair, bombTowers ), worldSeed ) =
+        ( ig, worldSeed ) =
             let
                 initialGen =
-                    Random.pair lairGenerator bombTowersGenerator
+                    Random.map3 InitialWorldData
+                        lairGenerator
+                        bombTowersGenerator
+                        initialTowersGenerator
             in
             Random.step initialGen (Random.initialSeed 0)
     in
     Running
-        { lair = lair
+        { lair = ig.lair
         , path = path
-        , towers = towers
+        , towers = ig.towers
         , selectedTowerId = Nothing
         , bullets = []
-        , bombTowers = bombTowers
+        , bombTowers = ig.bombTowers
         , bombs = []
         , monsters = []
         , house = initHouse
         , nextIdx = 0
         , seed = worldSeed
         }
+
+
+type alias InitialWorldData =
+    { lair : Lair
+    , bombTowers : List BombTower
+    , towers : List Tower
+    }
 
 
 bombTowersGenerator : Generator (List BombTower)
@@ -788,14 +809,17 @@ handleEvent event world =
                 |> Maybe.map
                     (\bt ->
                         let
-                            tower =
-                                initTower world.nextIdx (BombTower.location bt) (BombTower.range bt)
+                            tg =
+                                towerGenerator (BombTower.location bt) (BombTower.range bt)
                         in
-                        { world
-                            | bombTowers = List.filter (BombTower.id >> isNot bombTowerId) world.bombTowers
-                            , towers = tower :: world.towers
-                            , nextIdx = world.nextIdx + 1
-                        }
+                        stepWorldSeed tg world
+                            |> (\( tower, w ) ->
+                                    { w
+                                        | bombTowers = List.filter (BombTower.id >> isNot bombTowerId) w.bombTowers
+                                        , towers = tower :: w.towers
+                                        , nextIdx = w.nextIdx + 1
+                                    }
+                               )
                     )
                 |> Maybe.withDefault world
 
@@ -1131,6 +1155,12 @@ isNot =
 uncurry : (a -> b -> c) -> ( a, b ) -> c
 uncurry func ( a, b ) =
     func a b
+
+
+mapRandomIdInt : (Int -> b) -> Generator b
+mapRandomIdInt func =
+    Random.int 0 Random.maxInt
+        |> Random.map func
 
 
 
