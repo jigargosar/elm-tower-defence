@@ -577,6 +577,7 @@ updateWorld2 =
         >> stepBullets
         >> stepMonsters
         >> stepBombs
+        >> stepTowers
 
 
 stepBullets : World -> World
@@ -592,6 +593,22 @@ stepBullets =
 setBullet : Bullet -> World -> World
 setBullet bullet world =
     { world | bullets = List.Extra.setIf (idOfBullet >> is (idOfBullet bullet)) bullet world.bullets }
+
+
+stepTowers : World -> World
+stepTowers world =
+    let
+        akaMonstersSortedByRemainingDistance =
+            world.monsters
+                |> List.filterMap aakMonsterState
+                |> List.sortBy .remainingDistance
+
+        ( selfUpdatedTowers, towerEventGroups ) =
+            List.map (stepTower akaMonstersSortedByRemainingDistance) world.towers
+                |> List.unzip
+    in
+    { world | towers = selfUpdatedTowers }
+        |> handleEvents2 (List.concat towerEventGroups)
 
 
 stepBombs : World -> World
