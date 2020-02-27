@@ -586,9 +586,7 @@ updateWorld world =
             List.map
                 (BombTower.stepBombTower
                     { spawnBomb = SpawnBomb }
-                    (akaMonstersSortedByRemainingDistance
-                        |> List.map .location
-                    )
+                    (akaMonstersSortedByRemainingDistance |> List.map .location)
                 )
                 world.bombTowers
                 |> List.unzip
