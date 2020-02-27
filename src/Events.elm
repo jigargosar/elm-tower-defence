@@ -1204,25 +1204,17 @@ viewMonster monster =
 
 viewTower : Tower -> Shape
 viewTower tower =
-    let
-        (Location x y) =
-            tower.location
-    in
     [ circle lightBlue tower.range |> fade 0.3
     , square blue tower.viewWidth
     ]
         |> group
-        |> move x y
+        |> moveShapeToLocation tower.location
 
 
 viewBullet : Bullet -> Shape
 viewBullet bullet =
-    let
-        (Location x y) =
-            bullet.location
-    in
     circle blue 5
-        |> move x y
+        |> moveShapeToLocation bullet.location
 
 
 square : Color -> Number -> Shape
