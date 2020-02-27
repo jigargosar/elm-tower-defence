@@ -53,6 +53,10 @@ monsterHealth =
     5
 
 
+allTowersViewWidth =
+    30
+
+
 
 -- Tower
 -- TODO: Rename to ArrowTower?
@@ -75,7 +79,7 @@ initTower location range =
     { delay = bulletFireDelay
     , range = range
     , location = location
-    , viewWidth = 30
+    , viewWidth = allTowersViewWidth
     , elapsed = 0
     }
 
@@ -137,7 +141,7 @@ initBombTower location =
     BombTower.initBombTower
         { reloadDelay = bombTowerReloadDelay
         , range = bombTowerRange
-        , viewWidth = 30
+        , viewWidth = allTowersViewWidth
         , location = location
         }
 
