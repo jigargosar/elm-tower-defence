@@ -18,6 +18,14 @@ bulletFireDelay =
     40
 
 
+bombTowerReloadDelay =
+    50
+
+
+bombTowerRange =
+    150
+
+
 bulletSpeed =
     10
 
@@ -159,13 +167,69 @@ type BulletId
 -- BOMB TOWER
 
 
-type BombTower
-    = BombTower
+type alias BombTower =
+    { -- Meta
+      delay : Number
+    , location : Location
+    , range : Number
+
+    -- State
+    , elapsed : Number
+    }
 
 
-initBombTower : BombTower
-initBombTower =
-    BombTower
+initBombTower : Location -> BombTower
+initBombTower location =
+    { delay = bombTowerReloadDelay
+    , range = bombTowerRange
+    , location = location
+    , elapsed = 0
+    }
+
+
+
+-- NOTE: Trying to build isolated stepBombTower function,
+-- i.e. minimizing its dependency on other entities in game.
+-- Caution: Be ready to revert if its no longer fun.
+
+
+type alias BombTowerConfig event =
+    { spawnBomb : { from : Location, to : Location } -> event
+    }
+
+
+type alias BombTowerContext =
+    { targets : List BombTowerTarget
+    }
+
+
+type alias BombTowerTarget =
+    { location : Location
+    , distanceToHouse : Number
+    }
+
+
+stepBombTower : BombTowerConfig event -> BombTowerContext -> BombTower -> ( BombTower, List event )
+stepBombTower config ctx tower =
+    if tower.elapsed >= tower.delay then
+        case
+            List.Extra.find
+                (\aak ->
+                    distanceFromToLocation tower.location aak.location <= tower.range
+                )
+                ctx.targets
+        of
+            Just aak ->
+                ( { tower | elapsed = 0 }
+                , [ config.spawnBomb { from = tower.location, to = aak.location }
+                  ]
+                )
+
+            Nothing ->
+                ( tower, [] )
+
+    else
+        ( { tower | elapsed = tower.elapsed + 1 }, [] )
 
 
 
