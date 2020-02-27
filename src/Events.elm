@@ -14,16 +14,20 @@ import String exposing (fromInt)
 -- Config
 
 
-bulletFireDelay =
-    40
-
-
 bombTowerReloadDelay =
     50
 
 
 bombTowerRange =
     150
+
+
+bombSpeed =
+    10
+
+
+bulletFireDelay =
+    40
 
 
 bulletSpeed =
@@ -230,6 +234,25 @@ stepBombTower config ctx tower =
 
     else
         ( { tower | elapsed = tower.elapsed + 1 }, [] )
+
+
+
+-- BOMB
+
+
+type alias Bomb =
+    { location : Location
+    , speed : Number
+    , target : Location
+    }
+
+
+initBomb : { from : Location, to : Location } -> Bomb
+initBomb { from, to } =
+    { location = from
+    , target = to
+    , speed = bombSpeed
+    }
 
 
 
