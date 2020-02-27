@@ -156,6 +156,19 @@ type BulletId
 
 
 
+-- BOMB TOWER
+
+
+type BombTower
+    = BombTower
+
+
+initBombTower : BombTower
+initBombTower =
+    BombTower
+
+
+
 -- TRAVEL PATH
 
 
