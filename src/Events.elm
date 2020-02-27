@@ -733,10 +733,16 @@ updateWorld world =
 
         ( selfUpdatedBombTowers, bombTowerEventGroups ) =
             List.map
-                (stepBombTower { spawnBomb = SpawnBomb }
+                (stepBombTower
+                    { spawnBomb = SpawnBomb }
                     { targets =
                         akaMonstersSortedByRemainingDistance
-                            |> List.map (\aak -> { location = aak.location, distanceToHouse = aak.remainingDistance })
+                            |> List.map
+                                (\aak ->
+                                    { location = aak.location
+                                    , distanceToHouse = aak.remainingDistance
+                                    }
+                                )
                     }
                 )
                 world.bombTowers
