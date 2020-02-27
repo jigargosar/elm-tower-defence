@@ -566,19 +566,25 @@ update _ game =
 
 updateWorld2 : World -> World
 updateWorld2 =
-    (\world ->
-        stepLair world.lair
-            |> (\( lair, events ) -> handleEvents2 events { world | lair = lair })
-    )
-        >> (\world ->
-                stepHouse world.house
-                    |> (\( house, events ) -> handleEvents2 events { world | house = house })
-           )
+    stepWorldLair
+        >> stepWorldHouse
         >> stepBullets
         >> stepMonsters
         >> stepBombs
         >> stepTowers
         >> stepBombTowers
+
+
+stepWorldLair : World -> World
+stepWorldLair world =
+    stepLair world.lair
+        |> (\( lair, events ) -> handleEvents2 events { world | lair = lair })
+
+
+stepWorldHouse : World -> World
+stepWorldHouse world =
+    stepHouse world.house
+        |> (\( house, events ) -> handleEvents2 events { world | house = house })
 
 
 stepBullets : World -> World
