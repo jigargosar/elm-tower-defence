@@ -266,7 +266,8 @@ type BombId
 
 type BombState
     = BombInFlight
-    | Exploding
+    | Exploding Number
+    | BombWaitingToBeRemoved
 
 
 type alias Bomb =
@@ -276,6 +277,7 @@ type alias Bomb =
     , location : Location
     , speed : Number
     , target : Location
+    , explosionTicks : Number
     , state : BombState
     }
 
@@ -292,6 +294,7 @@ initBomb idx { from, to } =
     , location = from
     , target = to
     , speed = bombSpeed
+    , explosionTicks = 60
     , state = BombInFlight
     }
 
@@ -312,7 +315,7 @@ stepBomb config bomb =
         BombInFlight ->
             case stepLocationTowards bomb.target bomb.speed bomb.location of
                 Nothing ->
-                    ( { bomb | state = Exploding }
+                    ( { bomb | state = Exploding 0 }
                     , [ config.reachedTarget
                             { at = bomb.target
                             , aoe = bomb.aoe
@@ -324,10 +327,17 @@ stepBomb config bomb =
                 Just newLocation ->
                     ( { bomb | location = newLocation }, [] )
 
-        Exploding ->
-            ( bomb
-            , [ config.remove bomb.id ]
-            )
+        Exploding elapsed ->
+            if elapsed >= bomb.explosionTicks then
+                ( { bomb | state = BombWaitingToBeRemoved }
+                , [ config.remove bomb.id ]
+                )
+
+            else
+                ( { bomb | state = Exploding (elapsed + 1) }, [] )
+
+        BombWaitingToBeRemoved ->
+            ( bomb, [] )
 
 
 viewBomb : Bomb -> Shape
