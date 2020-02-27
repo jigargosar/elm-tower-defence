@@ -1128,6 +1128,9 @@ viewMonster monster =
 
         bgFade =
             0.9
+
+        monsterShape =
+            [ circle red radius |> fade bgFade ] |> group
     in
     case monster.state of
         AliveAndKicking { travel, health } ->
@@ -1135,7 +1138,7 @@ viewMonster monster =
                 (Location x y) =
                     locationOfPathProgress travel
             in
-            [ [ circle red radius |> fade bgFade ] |> group
+            [ monsterShape
             , words white (fromInt (round health))
             ]
                 |> group
@@ -1150,8 +1153,7 @@ viewMonster monster =
                 remainingProgress =
                     remainingTicks / monster.dyingTicks
             in
-            [ [ circle red radius |> fade bgFade ]
-                |> group
+            [ monsterShape
                 |> fade (remainingProgress / 2)
             , words white (fromInt (round overKill))
             ]
