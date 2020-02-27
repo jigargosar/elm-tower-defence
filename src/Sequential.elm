@@ -2,6 +2,7 @@ module Sequential exposing
     ( Generator
     , Seed
     , andThen
+    , initialSeed
     , int
     , map
     , map2
@@ -10,6 +11,11 @@ module Sequential exposing
 
 type Seed
     = Seed Int
+
+
+initialSeed : Int -> Seed
+initialSeed =
+    Seed
 
 
 type Generator a

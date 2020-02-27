@@ -6,6 +6,7 @@ import List.Extra
 import Location as L exposing (Location)
 import Playground exposing (..)
 import Random exposing (Seed, initialSeed)
+import Sequential
 import String exposing (fromInt)
 
 
@@ -461,6 +462,7 @@ type alias World =
     , bombs : List Bomb
     , monsters : List Monster
     , house : House
+    , seed : Sequential.Seed
     , nextIdx : Int
     }
 
@@ -522,6 +524,7 @@ init =
         , monsters = []
         , house = initHouse
         , nextIdx = 0
+        , seed = Sequential.initialSeed 1
         }
 
 
