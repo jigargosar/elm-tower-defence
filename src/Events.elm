@@ -4,6 +4,7 @@ module Events exposing (Game, init, update, view)
 -- Perhaps: Game or TDGame Or Main or TDMain or Main2
 -- Not sure, so not changing it for now.
 
+import Bomb exposing (Bomb, BombId)
 import List.Extra
 import Location as L exposing (Location)
 import Playground exposing (..)
@@ -210,111 +211,8 @@ viewBombTower tower =
 -- BOMB
 
 
-type BombId
-    = BombId Int
-
-
-type BombState
-    = BombInFlight
-    | Exploding Number
-    | BombWaitingToBeRemoved
-
-
-type alias Bomb =
-    { id : BombId
-    , aoe : Number
-    , damage : Number
-    , location : Location
-    , speed : Number
-    , target : Location
-    , explosionTicks : Number
-    , state : BombState
-    }
-
-
 type alias BombInit =
     { from : Location, to : Location }
-
-
-initBomb : Int -> BombInit -> Bomb
-initBomb idx { from, to } =
-    { id = BombId idx
-    , aoe = bombAOE
-    , damage = 3
-    , location = from
-    , target = to
-    , speed = bombSpeed
-    , explosionTicks = 60
-    , state = BombInFlight
-    }
-
-
-idOfBomb : Bomb -> BombId
-idOfBomb bomb =
-    bomb.id
-
-
-stepBomb :
-    { remove : BombId -> event
-    , reachedTarget : { at : Location, aoe : Number, damage : Number } -> event
-    }
-    -> Bomb
-    -> ( Bomb, List event )
-stepBomb config bomb =
-    case bomb.state of
-        BombInFlight ->
-            case L.stepLocationTowards bomb.target bomb.speed bomb.location of
-                Nothing ->
-                    ( { bomb | state = Exploding 0 }
-                    , [ config.reachedTarget
-                            { at = bomb.target
-                            , aoe = bomb.aoe
-                            , damage = bomb.damage
-                            }
-                      ]
-                    )
-
-                Just newLocation ->
-                    ( { bomb | location = newLocation }, [] )
-
-        Exploding elapsed ->
-            if elapsed >= bomb.explosionTicks then
-                ( { bomb | state = BombWaitingToBeRemoved }
-                , [ config.remove bomb.id ]
-                )
-
-            else
-                ( { bomb | state = Exploding (elapsed + 1) }, [] )
-
-        BombWaitingToBeRemoved ->
-            ( bomb, [] )
-
-
-viewBomb : Bomb -> Shape
-viewBomb bomb =
-    let
-        location =
-            bomb.location
-    in
-    case bomb.state of
-        BombInFlight ->
-            circle brown 5
-                |> L.moveShape location
-
-        Exploding elapsed ->
-            let
-                progress =
-                    elapsed / bomb.explosionTicks
-
-                remainingProgress =
-                    1 - progress
-            in
-            circle brown bomb.aoe
-                |> fade (remainingProgress / 2)
-                |> L.moveShape location
-
-        BombWaitingToBeRemoved ->
-            group []
 
 
 
@@ -776,7 +674,7 @@ updateWorld world =
 
         ( selfUpdatedBombs, bombEventGroups ) =
             List.map
-                (stepBomb
+                (Bomb.stepBomb
                     { remove = RemoveBomb
                     , reachedTarget = BombExploded
                     }
@@ -874,11 +772,18 @@ handleEvent world event acc =
             }
 
         RemoveBomb bombId ->
-            { acc | bombs = List.filter (idOfBomb >> isNot bombId) acc.bombs }
+            { acc | bombs = List.filter (Bomb.idOfBomb >> isNot bombId) acc.bombs }
 
-        SpawnBomb bombInit ->
+        SpawnBomb { from, to } ->
             { acc
-                | bombs = initBomb acc.nextIdx bombInit :: acc.bombs
+                | bombs =
+                    Bomb.initBomb acc.nextIdx
+                        { location = from
+                        , target = to
+                        , aoe = bombAOE
+                        , speed = bombSpeed
+                        }
+                        :: acc.bombs
                 , nextIdx = acc.nextIdx + 1
             }
 
@@ -1028,7 +933,7 @@ viewWorld _ world =
     , List.map viewBombTower world.bombTowers |> group
     , viewPath world.path
     , List.map viewMonster world.monsters |> group
-    , List.map viewBomb world.bombs |> group
+    , List.map Bomb.viewBomb world.bombs |> group
     , List.map viewBullet world.bullets |> group
     ]
         |> group
