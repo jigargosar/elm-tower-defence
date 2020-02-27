@@ -52,7 +52,6 @@ monsterHealth =
 
 
 
--- LOCATION
 -- Tower
 -- TODO: Rename to ArrowTower?
 
