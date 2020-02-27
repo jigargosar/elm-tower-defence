@@ -400,7 +400,7 @@ type MonsterId
 
 
 type alias Tower =
-    { -- CONFIG
+    { -- META
       delay : Number -- RELOAD TIME
     , range : Number -- SHOOTING RANGE
     , location : Location
