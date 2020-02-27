@@ -1,659 +1,986 @@
 module Main exposing (main)
 
-import Events
+import Bomb exposing (Bomb, BombId)
+import BombTower exposing (BombTower)
 import List.Extra
+import Location as L exposing (Location)
 import Playground exposing (..)
-import Random exposing (Generator, Seed)
-import String exposing (fromFloat)
+import Random exposing (Seed, initialSeed)
+import String exposing (fromInt)
 
 
 
--- Move Point On Path
+-- Config
 
 
-type PtMovPath
-    = PtMovPath PtMov (List Pt) Number
+isDebug =
+    True
 
 
-initPtMovPath : Pt -> List Pt -> Number -> PtMovPath
-initPtMovPath st path speed =
-    case path of
-        [] ->
-            PtMovPath (initPtMov st st speed) [] speed
-
-        nxt :: rest ->
-            let
-                ptMov =
-                    initPtMov st nxt speed
-            in
-            PtMovPath ptMov rest speed
+bombTowerReloadDelay =
+    50
 
 
-stepPtMovPath : PtMovPath -> ( Bool, PtMovPath )
-stepPtMovPath (PtMovPath mov path speed) =
-    let
-        ( done, nextMov ) =
-            stepPtMov mov
-    in
-    if done then
-        case path of
-            [] ->
-                ( True, PtMovPath nextMov [] speed )
-
-            nxt :: rest ->
-                let
-                    ptMov =
-                        initPtMov (ptMovToCurr mov) nxt speed
-                in
-                ( False, PtMovPath ptMov rest speed )
-
-    else
-        ( False, PtMovPath nextMov path speed )
+bombTowerRange =
+    150
 
 
-ptMovPathToCurr : PtMovPath -> Pt
-ptMovPathToCurr (PtMovPath mov _ _) =
-    ptMovToCurr mov
+bombSpeed =
+    3
+
+
+bombAOE =
+    40
+
+
+bulletFireDelay =
+    40
+
+
+bulletSpeed =
+    10
+
+
+monsterSpeed =
+    1
+
+
+monsterHealth =
+    5
+
+
+allTowersViewWidth =
+    30
 
 
 
--- Move Point To
+-- Tower
+-- TODO: Rename to ArrowTower?
 
 
-type PtMov
-    = PtMov
-        -- End
-        Pt
-        -- dx
-        Number
-        -- dy
-        Number
-        -- Current
-        Pt
+type alias Tower =
+    { -- META
+      delay : Number -- RELOAD TIME
+    , range : Number -- SHOOTING RANGE
+    , location : Location
+    , viewWidth : Number
 
-
-initPtMov : Pt -> Pt -> Number -> PtMov
-initPtMov st end speed =
-    let
-        ( dx, dy ) =
-            ( speed, angleFromToPt st end )
-                |> fromPolar
-    in
-    PtMov end dx dy st
-
-
-stepPtMov : PtMov -> ( Bool, PtMov )
-stepPtMov ((PtMov e dx dy c) as m) =
-    if c == e then
-        ( True, m )
-
-    else
-        let
-            nc =
-                Pt (c.x + dx) (c.y + dy)
-        in
-        if ptEqw dx dy nc e then
-            ( False, PtMov e dx dy e )
-
-        else
-            ( False, PtMov e dx dy nc )
-
-
-ptMovToCurr : PtMov -> Pt
-ptMovToCurr (PtMov _ _ _ c) =
-    c
-
-
-
--- Point
-
-
-type alias Pt =
-    { x : Number, y : Number }
-
-
-angleFromToPt : Pt -> Pt -> Number
-angleFromToPt p1 p2 =
-    atan2 (p2.y - p1.y) (p2.x - p1.x)
-
-
-
---noinspection ElmUnusedSymbol
-
-
-lenFromToPt : Pt -> Pt -> Number
-lenFromToPt p1 p2 =
-    ((p2.y - p1.y) ^ 2)
-        + ((p2.x - p1.x) ^ 2)
-        |> sqrt
-
-
-ptEqw : Number -> Number -> Pt -> Pt -> Bool
-ptEqw dx dy p1 p2 =
-    eqw (max 1 (abs dx)) p1.x p2.x && eqw (max 1 (abs dy)) p1.y p2.y
-
-
-eqw : Float -> Float -> Float -> Bool
-eqw tol a b =
-    abs (b - a) <= tol
-
-
-
--- MONSTER
-
-
-type MonsterId
-    = MonsterId Int
-
-
-type Monster
-    = FollowingPath MonsterRec
-    | Dead MonsterRec
-    | ReachedPathEnd MonsterRec
-
-
-type alias MonsterRec =
-    { id : MonsterId
-    , movPath : PtMovPath
-    , health : Number
-    , maxHealth : Number
+    -- STATE
+    , elapsed : Number -- RELOAD PROGRESS
     }
 
 
-decrementMonsterHealth : Monster -> Monster
-decrementMonsterHealth m =
-    case m of
-        FollowingPath mr ->
-            let
-                newHealth =
-                    mr.health - 1
-            in
-            if newHealth <= 0 then
-                Dead { mr | health = 0 }
-
-            else
-                FollowingPath { mr | health = newHealth }
-
-        Dead mr ->
-            Dead mr
-
-        ReachedPathEnd mr ->
-            ReachedPathEnd mr
-
-
-moveMonsterOnPath : Monster -> Monster
-moveMonsterOnPath monster =
-    case monster of
-        FollowingPath mr ->
-            case stepPtMovPath mr.movPath of
-                ( True, nmp ) ->
-                    ReachedPathEnd { mr | movPath = nmp }
-
-                ( False, nmp ) ->
-                    FollowingPath { mr | movPath = nmp }
-
-        Dead _ ->
-            monster
-
-        ReachedPathEnd _ ->
-            monster
-
-
-posOfMonster : Monster -> Pt
-posOfMonster m =
-    case m of
-        FollowingPath mr ->
-            ptMovPathToCurr mr.movPath
-
-        Dead mr ->
-            ptMovPathToCurr mr.movPath
-
-        ReachedPathEnd mr ->
-            ptMovPathToCurr mr.movPath
-
-
-idOfMonster : Monster -> MonsterId
-idOfMonster m =
-    case m of
-        FollowingPath mr ->
-            mr.id
-
-        Dead mr ->
-            mr.id
-
-        ReachedPathEnd mr ->
-            mr.id
-
-
-randomMonsterId =
-    Random.int 0 Random.maxInt |> Random.map MonsterId
-
-
-newMonster : Mem -> Generator Monster
-newMonster mem =
-    randomMonsterId
-        |> Random.map
-            (\id ->
-                let
-                    maxHealth =
-                        10
-                in
-                FollowingPath
-                    { id = id
-                    , movPath = initPtMovPath mem.pathStart mem.path mem.speed
-                    , health = maxHealth
-                    , maxHealth = maxHealth
-                    }
-            )
-
-
-randomMonsterSpawn : Mem -> Generator (List Monster)
-randomMonsterSpawn mem =
-    Random.int 0 500
-        |> Random.andThen
-            (\n ->
-                if n < 10 then
-                    newMonster mem |> Random.map List.singleton
-
-                else
-                    Random.constant []
-            )
-
-
-viewMonster : Monster -> Shape
-viewMonster m =
-    circle red 10
-        |> (let
-                pt =
-                    posOfMonster m
-            in
-            move pt.x pt.y
-           )
-        |> fade 0.4
-
-
-
--- TOWER
-
-
-type Tower
-    = Tower TowerRecord
-
-
-type alias TowerRecord =
-    { pos : Pt
-    , delay : Number
-    , elapsed : Number
+initTower : Location -> Number -> Tower
+initTower location range =
+    { delay = bulletFireDelay
+    , range = range
+    , location = location
+    , viewWidth = allTowersViewWidth
+    , elapsed = 0
     }
 
 
-type Bullet
-    = InFlight BulletRec
-    | ReachedMonster BulletRec
+isLocationInRangeOfTower : Location -> Tower -> Bool
+isLocationInRangeOfTower location tower =
+    L.distanceFromTo location tower.location <= tower.range
 
 
-idOfBullet b =
-    case b of
-        InFlight br ->
-            br.id
 
-        ReachedMonster br ->
-            br.id
+-- Bullet
+-- TODO: Should we rename it to Arrow?
 
 
-setBulletMov : PtMov -> Bullet -> Bullet
-setBulletMov ptMov bullet =
-    case bullet of
-        InFlight r ->
-            InFlight { r | mov = ptMov }
-
-        ReachedMonster r ->
-            ReachedMonster { r | mov = ptMov }
-
-
-setBulletReachedMonster : Bullet -> Bullet
-setBulletReachedMonster bullet =
-    case bullet of
-        InFlight r ->
-            ReachedMonster r
-
-        ReachedMonster _ ->
-            bullet
-
-
-type alias BulletRec =
-    { id : BulletId
-    , mov : PtMov
+type alias Bullet =
+    { --CONFIG
+      id : BulletId
     , monsterId : MonsterId
+    , target : Location
+    , speed : Number
+
+    -- STATE
+    , location : Location
     }
+
+
+type alias BulletInit =
+    { monsterId : MonsterId
+    , start : Location
+    , target : Location
+    }
+
+
+initBullet : Int -> BulletInit -> Bullet
+initBullet idx { monsterId, target, start } =
+    { id = BulletId idx
+    , monsterId = monsterId
+    , target = target
+    , location = start
+    , speed = bulletSpeed
+    }
+
+
+idOfBullet : Bullet -> BulletId
+idOfBullet bullet =
+    bullet.id
 
 
 type BulletId
     = BulletId Int
 
 
-randomBulletId : Generator BulletId
-randomBulletId =
-    Random.int 0 Random.maxInt |> Random.map BulletId
+
+-- BOMB TOWER
 
 
-newBullet : Pt -> Pt -> MonsterId -> Generator Bullet
-newBullet pos target monsterId =
-    randomBulletId
-        |> Random.map
-            (\id ->
-                InFlight
-                    { id = id
-                    , mov = initPtMov pos target 20
-                    , monsterId = monsterId
-                    }
-            )
-
-
-initTower : Pt -> Tower
-initTower pt =
-    Tower
-        { pos = pt
-        , delay = 30
-        , elapsed = 0
+initBombTower : Location -> BombTower
+initBombTower location =
+    BombTower.initBombTower
+        { reloadDelay = bombTowerReloadDelay
+        , range = bombTowerRange
+        , viewWidth = allTowersViewWidth
+        , location = location
         }
 
 
-stepTower : List Monster -> Tower -> ( Maybe (Generator (List Bullet)), Tower )
-stepTower monsters (Tower t) =
+
+-- TRAVEL PATH
+
+
+type Path
+    = Path Number Location (List Location)
+
+
+initPath : Location -> List Location -> Path
+initPath start rest =
     let
-        ( fire, elapsed ) =
-            if t.elapsed >= t.delay then
-                ( True, 0 )
-
-            else
-                ( False, t.elapsed + 1 )
-
-        newBullets =
-            if fire then
-                case
-                    monsters
-                        |> List.reverse
-                        |> List.head
-                of
-                    Just monster ->
-                        newBullet t.pos (posOfMonster monster) (idOfMonster monster)
-                            |> Random.list 1
-                            |> Just
-
-                    Nothing ->
-                        Nothing
-
-            else
-                Nothing
+        pathLen =
+            List.foldl (\to ( accDistance, from ) -> ( L.distanceFromTo from to + accDistance, to ))
+                ( 0, start )
+                rest
+                |> Tuple.first
     in
-    ( newBullets
-    , Tower { t | elapsed = elapsed }
-    )
+    Path pathLen start rest
 
 
-viewTower : Tower -> Shape
-viewTower (Tower { pos }) =
-    rectangle blue 30 30
-        |> move pos.x pos.y
-        |> fade 0.8
+pathToLocations : Path -> List Location
+pathToLocations (Path _ s r) =
+    s :: r
 
 
-viewBullets : List Bullet -> Shape
-viewBullets bullets =
-    let
-        viewBullet b =
-            case b of
-                InFlight br ->
-                    let
-                        { x, y } =
-                            ptMovToCurr br.mov
-                    in
-                    circle green 5
-                        |> move x y
+lengthOfPath : Path -> Number
+lengthOfPath (Path l _ _) =
+    l
 
-                ReachedMonster br ->
-                    let
-                        { x, y } =
-                            ptMovToCurr br.mov
-                    in
-                    circle green 5
-                        |> move x y
-    in
-    List.map viewBullet bullets
-        |> group
+
+startOfPath : Path -> Location
+startOfPath (Path _ s _) =
+    s
+
+
+restOfPath : Path -> List Location
+restOfPath (Path _ _ rest) =
+    rest
 
 
 
--- MEM
+-- PATH BUILDER
 
 
-type alias Mem =
-    { speed : Number
-    , monsters : List Monster
-    , bullets : List Bullet
-    , pathStart : Pt
-    , houseHealth : Number
-    , path : List Pt
-    , seed : Seed
-    , tower : Tower
+type alias PathBuilder =
+    { start : Location
+    , offset : Number
+    , current : Location
+    , restReverse : List Location
     }
 
 
-init : Mem
+initPathBuilder : Number -> Location -> PathBuilder
+initPathBuilder offset start =
+    { start = start
+    , offset = offset
+    , current = start
+    , restReverse = []
+    }
+
+
+goDown : PathBuilder -> PathBuilder
+goDown p =
+    { p | current = L.shiftY -p.offset p.current }
+
+
+goUp : PathBuilder -> PathBuilder
+goUp p =
+    { p | current = L.shiftY p.offset p.current }
+
+
+goRight : PathBuilder -> PathBuilder
+goRight p =
+    { p | current = L.shiftX p.offset p.current }
+
+
+addWayPoint : PathBuilder -> PathBuilder
+addWayPoint p =
+    { p | restReverse = p.current :: p.restReverse }
+
+
+buildPath : PathBuilder -> Path
+buildPath p =
+    initPath p.start (List.reverse p.restReverse)
+
+
+
+-- TRAVEL PATH PROGRESS
+
+
+type PathProgress
+    = PathProgress
+        { path : Path
+        , speed : Number
+        , location : Location
+        , wayPoints : List Location
+        }
+
+
+initPathProgress : Path -> Number -> PathProgress
+initPathProgress path speed =
+    PathProgress
+        { path = path
+        , speed = speed
+        , location = startOfPath path
+        , wayPoints = restOfPath path
+        }
+
+
+locationOfPathProgress : PathProgress -> Location
+locationOfPathProgress (PathProgress { location }) =
+    location
+
+
+stepPathProgress : PathProgress -> Maybe PathProgress
+stepPathProgress (PathProgress p) =
+    case p.wayPoints of
+        [] ->
+            Nothing
+
+        wp :: rest ->
+            case L.stepLocationTowards wp p.speed p.location of
+                Nothing ->
+                    Just (PathProgress { p | location = wp, wayPoints = rest })
+
+                Just newLocation ->
+                    Just (PathProgress { p | location = newLocation })
+
+
+distanceToPathEnd : PathProgress -> Number
+distanceToPathEnd (PathProgress p) =
+    initPath p.location p.wayPoints
+        |> lengthOfPath
+
+
+
+-- Monster
+
+
+type alias Monster =
+    { -- CONFIG
+      id : MonsterId
+    , maxHealth : Number
+    , speed : Number
+    , dyingTicks : Number
+
+    -- STATE
+    , state : MonsterState
+    }
+
+
+type MonsterState
+    = AliveAndKicking { health : Number, travel : PathProgress }
+    | Dying { travel : PathProgress, remainingTicks : Number, overKill : Number }
+    | ReachedHouse { health : Number }
+    | ReadyForRemoval
+
+
+initMonster : Int -> Path -> Monster
+initMonster idx path =
+    let
+        maxHealth =
+            monsterHealth
+
+        speed =
+            monsterSpeed
+    in
+    { id = MonsterId idx
+    , maxHealth = maxHealth
+    , speed = speed
+    , dyingTicks = 120
+    , state =
+        AliveAndKicking
+            { health = maxHealth
+            , travel = initPathProgress path speed
+            }
+    }
+
+
+decrementMonsterHealth : Monster -> Monster
+decrementMonsterHealth =
+    decrementMonsterHealthBy 1
+
+
+decrementMonsterHealthBy : Number -> Monster -> Monster
+decrementMonsterHealthBy damage monster =
+    let
+        func state =
+            case state of
+                AliveAndKicking { health, travel } ->
+                    let
+                        newHealth =
+                            health - damage
+                    in
+                    (if newHealth <= 0 then
+                        Dying
+                            { travel = travel
+                            , remainingTicks = monster.dyingTicks
+                            , overKill = abs newHealth
+                            }
+
+                     else
+                        AliveAndKicking { health = newHealth, travel = travel }
+                    )
+                        |> Just
+
+                Dying r ->
+                    Dying { r | overKill = r.overKill + 1 }
+                        |> Just
+
+                ReachedHouse _ ->
+                    Nothing
+
+                ReadyForRemoval ->
+                    Nothing
+    in
+    case func monster.state of
+        Nothing ->
+            monster
+
+        Just state ->
+            { monster | state = state }
+
+
+type alias AAKMonster =
+    { id : MonsterId
+    , location : Location
+    , remainingDistance : Number
+    }
+
+
+aakMonsterState : Monster -> Maybe AAKMonster
+aakMonsterState monster =
+    case monster.state of
+        AliveAndKicking { travel } ->
+            Just (AAKMonster monster.id (locationOfPathProgress travel) (distanceToPathEnd travel))
+
+        Dying { travel } ->
+            Nothing
+
+        ReachedHouse _ ->
+            Nothing
+
+        ReadyForRemoval ->
+            Nothing
+
+
+idOfMonster : Monster -> MonsterId
+idOfMonster =
+    .id
+
+
+type MonsterId
+    = MonsterId Int
+
+
+
+-- LAIR
+
+
+type alias Lair =
+    { seed : Seed
+    , delay : Number
+    , elapsed : Number
+    }
+
+
+initLair : Lair
+initLair =
+    { seed = initialSeed 0
+    , delay = 60
+    , elapsed = 0
+    }
+
+
+
+-- HOUSE
+
+
+type alias House =
+    { maxHealth : Number
+    , health : Number
+    }
+
+
+initHouse : House
+initHouse =
+    let
+        maxHealth =
+            10
+    in
+    { maxHealth = maxHealth
+    , health = maxHealth
+    }
+
+
+healthOfHouse : House -> Number
+healthOfHouse =
+    .health
+
+
+decrementHouseHealth : House -> House
+decrementHouseHealth house =
+    { house | health = max 0 (house.health - 1) }
+
+
+
+-- WORLD
+
+
+type alias World =
+    { lair : Lair
+    , path : Path
+    , towers : List Tower
+    , bullets : List Bullet
+    , bombTowers : List BombTower
+    , bombs : List Bomb
+    , monsters : List Monster
+    , house : House
+    , nextIdx : Int
+    }
+
+
+hasHouseBurnedDown : World -> Bool
+hasHouseBurnedDown world =
+    healthOfHouse world.house == 0
+
+
+
+-- GAME
+
+
+type Game
+    = Running World
+    | GameOver World
+
+
+applyNTimes : Int -> (c -> c) -> c -> c
+applyNTimes n func val =
+    List.foldl (always func) val (List.range 0 n)
+
+
+init : Game
 init =
     let
-        speed =
-            0.5
-
-        pathStart =
-            Pt -300 300
-
+        path : Path
         path =
-            [ Pt -300 200, Pt -200 100, Pt 0 100, Pt 0 0, Pt -100 -200, Pt 300 -200 ]
+            initPathBuilder 50 (L.at -250 0)
+                |> applyNTimes 2 goRight
+                |> addWayPoint
+                |> applyNTimes 3 goDown
+                |> addWayPoint
+                |> applyNTimes 3 goRight
+                |> addWayPoint
+                |> applyNTimes 3 goUp
+                |> addWayPoint
+                |> applyNTimes 2 goRight
+                |> addWayPoint
+                |> buildPath
+
+        towers =
+            [ initTower (L.at -150 -100) 200
+            , initTower (L.at 150 100) 150
+            ]
+
+        bombTowers =
+            [ initBombTower (L.at 0 0)
+            , initBombTower (L.at 150 -100)
+            ]
     in
-    { speed = speed
-    , houseHealth = 10
-    , monsters = []
-    , bullets = []
-    , pathStart = pathStart
-    , path = path
-    , seed = Random.initialSeed 0
-    , tower = initTower (Pt 50 50)
-    }
+    Running
+        { lair = initLair
+        , path = path
+        , towers = towers
+        , bullets = []
+        , bombTowers = bombTowers
+        , bombs = []
+        , monsters = []
+        , house = initHouse
+        , nextIdx = 0
+        }
 
 
 
--- UPDATE MEM
+-- UPDATE
 
 
-update : Computer -> Mem -> Mem
-update computer mem =
-    computeActionsAndUpdateMem mem
-        |> update2 computer
-
-
-
---noinspection ElmUnusedSymbol
-
-
-update2 : Computer -> Mem -> Mem
-update2 computer mem =
-    let
-        ( generatedMonsters, newSeed0 ) =
-            Random.step (randomMonsterSpawn mem) mem.seed
-
-        ( maybeBulletGen, updatedTower ) =
-            stepTower mem.monsters mem.tower
-
-        ( generatedBullets, newSeed1 ) =
-            maybeBulletGen
-                |> Maybe.map (\gen -> Random.step gen newSeed0)
-                |> Maybe.withDefault ( [], newSeed0 )
-    in
-    { mem
-        | monsters = generatedMonsters ++ stepMonsters mem
-        , seed = newSeed0
-        , bullets = generatedBullets ++ mem.bullets
-        , tower = updatedTower
-    }
-
-
-type Action
-    = DecrementMonsterHealth MonsterId
+type Event
+    = NoEvent
+    | SpawnMonster
+    | SpawnBullet BulletInit
+    | BulletHitMonster MonsterId
     | RemoveBullet BulletId
     | RemoveMonster MonsterId
-    | UpdateBulletMov BulletId PtMov
-    | SetBulletReachedMonster BulletId
-    | DecrementHouseHealth
-    | NoAction
-    | MoveMonsterOnPath MonsterId
+    | MonsterReachedHouse
+    | BombExploded { at : Location, aoe : Number, damage : Number }
+    | RemoveBomb BombId
+    | SpawnBomb { from : Location, to : Location }
 
 
-computeActionsAndUpdateMem : Mem -> Mem
-computeActionsAndUpdateMem mem =
+update : Computer -> Game -> Game
+update _ game =
+    case game of
+        Running world ->
+            let
+                newWorld =
+                    updateWorld world
+            in
+            if hasHouseBurnedDown newWorld then
+                GameOver newWorld
+
+            else
+                Running newWorld
+
+        GameOver world ->
+            GameOver world
+
+
+updateWorld : World -> World
+updateWorld world =
     let
-        events =
-            computeActions mem
+        ( selfUpdatedLair, lairEvents ) =
+            stepLair world.lair
+
+        ( selfUpdatedHouse, houseEvents ) =
+            stepHouse world.house
+
+        akaMonstersSortedByRemainingDistance =
+            world.monsters
+                |> List.filterMap aakMonsterState
+                |> List.sortBy .remainingDistance
+
+        ( selfUpdatedTowers, towerEventGroups ) =
+            List.map (stepTower akaMonstersSortedByRemainingDistance) world.towers
+                |> List.unzip
+
+        ( selfUpdatedBullets, bulletEventGroups ) =
+            List.map stepBullet world.bullets
+                |> List.unzip
+
+        ( selfUpdatedBombTowers, bombTowerEventGroups ) =
+            List.map
+                (BombTower.stepBombTower
+                    { spawnBomb = SpawnBomb }
+                    (akaMonstersSortedByRemainingDistance |> List.map .location)
+                )
+                world.bombTowers
+                |> List.unzip
+
+        ( selfUpdatedBombs, bombEventGroups ) =
+            List.map
+                (Bomb.stepBomb
+                    { remove = RemoveBomb
+                    , exploded = BombExploded
+                    }
+                )
+                world.bombs
+                |> List.unzip
+
+        ( selfUpdatedMonsters, monsterEventGroups ) =
+            List.map stepMonster world.monsters
+                |> List.unzip
+
+        acc : World
+        acc =
+            { lair = selfUpdatedLair
+            , path = world.path
+            , house = selfUpdatedHouse
+            , towers = selfUpdatedTowers
+            , bullets = selfUpdatedBullets
+            , bombTowers = selfUpdatedBombTowers
+            , bombs = selfUpdatedBombs
+            , monsters = selfUpdatedMonsters
+            , nextIdx = world.nextIdx
+            }
     in
-    List.foldl updateMemWithAction mem events
+    acc
+        |> handleEvents world lairEvents
+        |> handleEvents world houseEvents
+        |> handleEventGroups world towerEventGroups
+        |> handleEventGroups world bulletEventGroups
+        |> handleEventGroups world bombTowerEventGroups
+        |> handleEventGroups world bombEventGroups
+        |> handleEventGroups world monsterEventGroups
 
 
-updateMemWithAction : Action -> Mem -> Mem
-updateMemWithAction event mem =
+handleEventGroups : World -> List (List Event) -> World -> World
+handleEventGroups world lists acc =
+    List.foldl (handleEvents world) acc lists
+
+
+handleEvents : World -> List Event -> World -> World
+handleEvents world events acc =
+    List.foldl (handleEvent world) acc events
+
+
+handleEvent : World -> Event -> World -> World
+handleEvent world event acc =
     case event of
-        DecrementMonsterHealth monsterId ->
-            { mem
+        NoEvent ->
+            acc
+
+        BulletHitMonster monsterId ->
+            { acc
                 | monsters =
-                    List.Extra.updateIf (idOfMonster >> eq monsterId)
-                        decrementMonsterHealth
-                        mem.monsters
+                    List.Extra.updateIf (idOfMonster >> is monsterId) decrementMonsterHealth acc.monsters
             }
 
         RemoveBullet bulletId ->
-            { mem | bullets = rejectWhen (idOfBullet >> eq bulletId) mem.bullets }
+            { acc | bullets = List.filter (idOfBullet >> isNot bulletId) acc.bullets }
 
         RemoveMonster monsterId ->
-            { mem | monsters = rejectWhen (idOfMonster >> eq monsterId) mem.monsters }
+            { acc | monsters = List.filter (idOfMonster >> isNot monsterId) acc.monsters }
 
-        UpdateBulletMov bulletId ptMov ->
-            { mem | bullets = List.Extra.updateIf (idOfBullet >> eq bulletId) (setBulletMov ptMov) mem.bullets }
+        MonsterReachedHouse ->
+            { acc | house = decrementHouseHealth acc.house }
 
-        SetBulletReachedMonster bulletId ->
-            { mem | bullets = List.Extra.updateIf (idOfBullet >> eq bulletId) setBulletReachedMonster mem.bullets }
+        SpawnMonster ->
+            { acc
+                | monsters = initMonster acc.nextIdx world.path :: acc.monsters
+                , nextIdx = acc.nextIdx + 1
+            }
 
-        NoAction ->
-            mem
+        SpawnBullet bulletInit ->
+            { acc
+                | bullets = initBullet acc.nextIdx bulletInit :: acc.bullets
+                , nextIdx = acc.nextIdx + 1
+            }
 
-        DecrementHouseHealth ->
-            { mem | houseHealth = max 0 (mem.houseHealth - 1) }
+        BombExploded { at, aoe, damage } ->
+            let
+                isLocationInAOE =
+                    L.isLocationInRangeOf at aoe
 
-        MoveMonsterOnPath monsterId ->
-            { mem
+                monsterIdsInBombAOE =
+                    world.monsters
+                        |> List.filterMap aakMonsterState
+                        |> List.filter (.location >> isLocationInAOE)
+                        |> List.map .id
+
+                isMonsterInBombAOE monster =
+                    List.member (idOfMonster monster) monsterIdsInBombAOE
+            in
+            { acc
                 | monsters =
-                    List.Extra.updateIf (idOfMonster >> eq monsterId)
-                        moveMonsterOnPath
-                        mem.monsters
+                    List.Extra.updateIf isMonsterInBombAOE (decrementMonsterHealthBy damage) acc.monsters
+            }
+
+        RemoveBomb bombId ->
+            { acc | bombs = List.filter (Bomb.idOfBomb >> isNot bombId) acc.bombs }
+
+        SpawnBomb { from, to } ->
+            { acc
+                | bombs =
+                    Bomb.initBomb acc.nextIdx
+                        { location = from
+                        , target = to
+                        , aoe = bombAOE
+                        , speed = bombSpeed
+                        }
+                        :: acc.bombs
+                , nextIdx = acc.nextIdx + 1
             }
 
 
-eq =
-    (==)
+stepTower : List AAKMonster -> Tower -> ( Tower, List Event )
+stepTower aakMonsters tower =
+    if tower.elapsed >= tower.delay then
+        case List.Extra.find (\aak -> isLocationInRangeOfTower aak.location tower) aakMonsters of
+            Just aak ->
+                ( { tower | elapsed = 0 }
+                , [ SpawnBullet
+                        { monsterId = aak.id
+                        , start = tower.location
+                        , target = aak.location
+                        }
+                  ]
+                )
+
+            Nothing ->
+                ( tower, [] )
+
+    else
+        ( { tower | elapsed = tower.elapsed + 1 }, [] )
 
 
-rejectWhen : (a -> Bool) -> List a -> List a
-rejectWhen pred =
-    List.filter (pred >> not)
+stepLair : Lair -> ( Lair, List Event )
+stepLair lair =
+    if lair.elapsed >= lair.delay then
+        let
+            randomBool =
+                Random.int 0 1 |> Random.map (is 0)
+
+            ( bool, seed ) =
+                Random.step randomBool lair.seed
+        in
+        ( { lair | elapsed = 0, seed = seed }
+        , if bool then
+            [ SpawnMonster ]
+
+          else
+            []
+        )
+
+    else
+        ( { lair | elapsed = lair.elapsed + 1 }, [] )
 
 
-computeActions : Mem -> List Action
-computeActions mem =
+stepHouse : House -> ( House, List Event )
+stepHouse house =
+    ( house, [] )
+
+
+stepMonster : Monster -> ( Monster, List Event )
+stepMonster monster =
     let
-        eventsFromBulletState bullet =
-            case bullet of
-                InFlight br ->
-                    let
-                        ( reached, nm ) =
-                            stepPtMov br.mov
-                    in
-                    [ UpdateBulletMov br.id nm
-                    , if reached then
-                        SetBulletReachedMonster br.id
+        func state =
+            case state of
+                AliveAndKicking { health, travel } ->
+                    case stepPathProgress travel of
+                        Just nt ->
+                            ( AliveAndKicking { health = health, travel = nt }, [] )
 
-                      else
-                        NoAction
-                    ]
+                        Nothing ->
+                            ( ReachedHouse { health = health }, [ MonsterReachedHouse ] )
 
-                ReachedMonster br ->
-                    [ DecrementMonsterHealth br.monsterId
-                    , RemoveBullet (idOfBullet bullet)
-                    ]
+                Dying { travel, remainingTicks, overKill } ->
+                    if remainingTicks <= 0 then
+                        ( ReadyForRemoval, [ RemoveMonster monster.id ] )
 
-        eventsFromMonsterState monster =
-            case monster of
-                FollowingPath r ->
-                    [ MoveMonsterOnPath r.id ]
+                    else
+                        ( Dying
+                            { travel = travel
+                            , remainingTicks = max 0 (remainingTicks - 1)
+                            , overKill = overKill
+                            }
+                        , []
+                        )
 
-                Dead _ ->
-                    [ RemoveMonster (idOfMonster monster) ]
+                ReachedHouse _ ->
+                    ( ReadyForRemoval, [ RemoveMonster monster.id ] )
 
-                ReachedPathEnd _ ->
-                    [ RemoveMonster (idOfMonster monster), DecrementHouseHealth ]
+                ReadyForRemoval ->
+                    ( ReadyForRemoval, [] )
     in
-    List.concatMap eventsFromBulletState mem.bullets
-        ++ List.concatMap eventsFromMonsterState mem.monsters
+    func monster.state
+        |> Tuple.mapFirst (\state -> { monster | state = state })
 
 
-stepMonsters : Mem -> List Monster
-stepMonsters mem =
-    let
-        stepMonster m =
-            case m of
-                FollowingPath mr ->
-                    case stepPtMovPath mr.movPath of
-                        ( True, nmp ) ->
-                            ReachedPathEnd { mr | movPath = nmp }
+stepBullet : Bullet -> ( Bullet, List Event )
+stepBullet bullet =
+    case L.stepLocationTowards bullet.target bullet.speed bullet.location of
+        Nothing ->
+            ( bullet, [ RemoveBullet bullet.id, BulletHitMonster bullet.monsterId ] )
 
-                        ( False, nmp ) ->
-                            FollowingPath { mr | movPath = nmp }
-
-                Dead mr ->
-                    Dead mr
-
-                ReachedPathEnd mr ->
-                    ReachedPathEnd mr
-    in
-    List.map stepMonster mem.monsters
+        Just newLocation ->
+            ( { bullet | location = newLocation }, [] )
 
 
 
--- VIEW MEM
+-- View
 
 
-view : Computer -> Mem -> List Shape
-view computer mem =
-    [ [ words black "Welcome to Adventure"
-      , words black ("House Health: " ++ fromFloat mem.houseHealth)
-            |> moveDown 50
+view : Computer -> Game -> List Shape
+view computer game =
+    case game of
+        Running world ->
+            [ words blue "Game Running"
+                |> scale 3
+                |> moveY computer.screen.top
+                |> moveDown 50
+            , viewWorldStats computer world |> moveDown 50
+            , viewWorld computer world
+            ]
+
+        GameOver world ->
+            [ [ viewWorldStats computer world |> moveDown 50
+              , viewWorld computer world
+              ]
+                |> group
+                |> fade 0.5
+            , words red "GAME OVER" |> scale 3
+            ]
+
+
+viewWorldStats : Computer -> World -> Shape
+viewWorldStats computer world =
+    [ [ words black ("House Health: " ++ fromInt (round (healthOfHouse world.house)))
+            |> scale 2
+      , words black ("Monster Count: " ++ fromInt (List.length world.monsters))
+            |> scale 2
+      , words black ("Tower Count: " ++ fromInt (List.length world.towers))
+            |> scale 2
+      , words black ("Bullet Count: " ++ fromInt (List.length world.bullets))
+            |> scale 2
       ]
+        |> List.indexedMap (toFloat >> (\idx -> moveDown (idx * 50)))
         |> group
         |> moveY computer.screen.top
         |> moveDown 50
-    , viewPathPt mem.pathStart
-    , group (List.map viewPathPt mem.path)
-    , List.map viewMonster mem.monsters
-        |> group
-    , viewTower mem.tower
-    , viewBullets mem.bullets
     ]
+        |> group
 
 
-viewPathPt pt =
-    rectangle black 10 10
-        |> move pt.x pt.y
-        |> fade 0.8
+viewWorld : Computer -> World -> Shape
+viewWorld _ world =
+    [ List.map viewTower world.towers |> group
+    , List.map BombTower.viewBombTower world.bombTowers |> group
+    , viewPath world.path
+    , List.map viewMonster world.monsters |> group
+    , List.map Bomb.viewBomb world.bombs |> group
+    , List.map viewBullet world.bullets |> group
+    ]
+        |> group
+
+
+viewPath : Path -> Shape
+viewPath path =
+    let
+        ep location =
+            circle lightCharcoal 8
+                |> L.moveShape location
+    in
+    pathToLocations path
+        |> List.map ep
+        |> group
+
+
+viewMonster : Monster -> Shape
+viewMonster monster =
+    let
+        monsterShape =
+            --[ circle red 20 |> fade 0.9 ] |> group
+            [ rectangle purple 20 30
+            , circle charcoal 10 |> moveUp 22.5
+            , -- legs
+              rectangle charcoal 7.5 20 |> moveLeft 5 |> moveDown 25
+            , rectangle charcoal 7.5 20 |> moveRight 5 |> moveDown 25
+            , rectangle purple 22.5 15 |> moveDown 10
+            ]
+                |> group
+
+        healthBarShape pct =
+            let
+                width =
+                    40
+
+                healthWidth =
+                    width * pct
+
+                barHeight =
+                    10
+            in
+            [ rectangle red width barHeight
+            , rectangle green healthWidth barHeight
+                |> moveLeft ((width - healthWidth) / 2)
+            ]
+                |> group
+
+        viewHealthBar health =
+            healthBarShape (health / monster.maxHealth)
+
+        placeShape : PathProgress -> Shape -> Shape
+        placeShape travel =
+            scale 0.7 >> L.moveShape (locationOfPathProgress travel)
+    in
+    case monster.state of
+        AliveAndKicking { travel, health } ->
+            [ monsterShape
+            , viewHealthBar health |> moveUp 40
+            , debugShape <|
+                \_ -> words white (fromInt (round health))
+            ]
+                |> group
+                |> placeShape travel
+
+        Dying { travel, remainingTicks, overKill } ->
+            let
+                remainingProgress =
+                    remainingTicks / monster.dyingTicks
+            in
+            [ monsterShape |> fade (remainingProgress / 2)
+            , debugShape <|
+                \_ -> words white (fromInt (round overKill))
+            ]
+                |> group
+                |> placeShape travel
+
+        ReachedHouse _ ->
+            group []
+
+        ReadyForRemoval ->
+            group []
+
+
+viewTower : Tower -> Shape
+viewTower tower =
+    [ circle lightBlue tower.range |> fade 0.3
+    , square blue tower.viewWidth
+    ]
+        |> group
+        |> L.moveShape tower.location
+
+
+viewBullet : Bullet -> Shape
+viewBullet bullet =
+    circle blue 5
+        |> L.moveShape bullet.location
+
+
+noShape : Shape
+noShape =
+    group []
+
+
+debugShape : (() -> Shape) -> Shape
+debugShape func =
+    if isDebug then
+        func ()
+
+    else
+        noShape
+
+
+
+-- EXTRA
+
+
+is =
+    (==)
+
+
+isNot =
+    (/=)
+
+
+
+-- MAIN
 
 
 main =
     game view update init
-        |> always (game Events.view Events.update Events.init)
