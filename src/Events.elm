@@ -493,11 +493,23 @@ type Game
     | GameOver World
 
 
+applyNTimes : Int -> (c -> c) -> c -> c
+applyNTimes n func val =
+    List.foldl (always func) val (List.range 0 n)
+
+
 init : Game
 init =
     let
         path : Path
         path =
+            initPathBuilder 100 (Location -250 0)
+                |> applyNTimes 4 goRight
+                |> addWayPoint
+                |> buildPath
+
+        path2 : Path
+        path2 =
             let
                 start =
                     Location -250 0
