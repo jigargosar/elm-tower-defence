@@ -850,7 +850,7 @@ stepTower computer isSelected aakMonsters =
         { mouse } =
             computer
 
-        func tower =
+        stepGun tower =
             if tower.elapsed >= tower.delay then
                 case
                     List.Extra.find
@@ -875,7 +875,7 @@ stepTower computer isSelected aakMonsters =
             else
                 ( { tower | elapsed = tower.elapsed + 1 }, [] )
 
-        func2 tower =
+        stepClick tower =
             let
                 didClick =
                     L.isLocationInSquareAt tower.location tower.viewWidth (L.at mouse.x mouse.y)
@@ -887,7 +887,7 @@ stepTower computer isSelected aakMonsters =
             else
                 ( tower, [] )
     in
-    func >> (\( tower, events ) -> func2 tower |> Tuple.mapSecond ((++) events))
+    stepGun >> (\( tower, events ) -> stepClick tower |> Tuple.mapSecond ((++) events))
 
 
 stepLair : Lair -> ( Lair, List Event )
