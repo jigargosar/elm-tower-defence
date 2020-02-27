@@ -3,7 +3,6 @@ module Main exposing (main)
 import Bomb exposing (Bomb)
 import BombId exposing (BombId)
 import BombTower exposing (BombTower)
-import BombTowerId exposing (BombTowerId)
 import List.Extra
 import Location as L exposing (Location)
 import Playground exposing (..)
@@ -497,7 +496,6 @@ type alias World =
     , path : Path
     , towers : List Tower
     , bullets : List Bullet
-    , bombTowers : List BombTower
     , bombs : List Bomb
     , monsters : List Monster
     , house : House
@@ -553,7 +551,6 @@ init =
         , towers = ig.towers
         , selectedTowerId = Nothing
         , bullets = []
-        , bombTowers = ig.bombTowers
         , bombs = []
         , monsters = []
         , house = initHouse
@@ -564,7 +561,6 @@ init =
 
 type alias InitialWorldData =
     { lair : Lair
-    , bombTowers : List BombTower
     , towers : List Tower
     }
 
@@ -580,29 +576,10 @@ initialGen =
             , tower2Generator (L.at 150 -100)
             ]
                 |> Random.Extra.combine
-
-        bombTowersGenerator : Generator (List BombTower)
-        bombTowersGenerator =
-            [ bombTowerGenerator (L.at 0 0)
-            , bombTowerGenerator (L.at 150 -100)
-            ]
-                |> always []
-                |> Random.Extra.combine
     in
-    Random.map3 InitialWorldData
+    Random.map2 InitialWorldData
         lairGenerator
-        bombTowersGenerator
         initialTowersGenerator
-
-
-bombTowerGenerator : Location -> Generator BombTower
-bombTowerGenerator location =
-    BombTower.generator
-        { reloadDelay = bombTowerReloadDelay
-        , range = bombTowerRange
-        , viewWidth = allTowersViewWidth
-        , location = location
-        }
 
 
 
@@ -620,7 +597,6 @@ type Event
     | BombExploded { at : Location, aoe : Number, damage : Number }
     | RemoveBomb BombId
     | SpawnBomb { from : Location, to : Location }
-    | ReplaceBombTower BombTowerId
     | SelectTower TowerId
 
 
@@ -654,7 +630,6 @@ updateWorld computer =
         >> stepWorldMonsters
         >> stepWorldBombs
         >> stepWorldTowers computer
-        >> stepWorldBombTowers computer
 
 
 stepWorldLair : World -> World
@@ -704,30 +679,6 @@ stepWorldTowers computer world =
     in
     { world | towers = selfUpdatedTowers }
         |> handleEvents (List.concat towerEventGroups)
-
-
-stepWorldBombTowers : Computer -> World -> World
-stepWorldBombTowers computer world =
-    let
-        akaMonstersSortedByRemainingDistance =
-            world.monsters
-                |> List.filterMap aakMonsterState
-                |> List.sortBy .remainingDistance
-
-        ( selfUpdatedBombTowers, bombTowerEventGroups ) =
-            List.map
-                (BombTower.stepBombTower
-                    { spawnBomb = SpawnBomb
-                    , replaceTower = ReplaceBombTower
-                    }
-                    computer.mouse
-                    (akaMonstersSortedByRemainingDistance |> List.map .location)
-                )
-                world.bombTowers
-                |> List.unzip
-    in
-    { world | bombTowers = selfUpdatedBombTowers }
-        |> handleEvents (List.concat bombTowerEventGroups)
 
 
 stepWorldBombs : World -> World
@@ -835,25 +786,6 @@ handleEvent event world =
                 )
                 world
                 |> uncurry insertNewBomb
-
-        ReplaceBombTower bombTowerId ->
-            List.Extra.find (BombTower.id >> is bombTowerId) world.bombTowers
-                |> Maybe.map
-                    (\bt ->
-                        let
-                            tg =
-                                towerGenerator (BombTower.location bt)
-                        in
-                        stepWorldSeed tg world
-                            |> (\( tower, w ) ->
-                                    { w
-                                        | bombTowers = List.filter (BombTower.id >> isNot bombTowerId) w.bombTowers
-                                        , towers = tower :: w.towers
-                                        , nextIdx = w.nextIdx + 1
-                                    }
-                               )
-                    )
-                |> Maybe.withDefault world
 
         SelectTower towerId ->
             { world | selectedTowerId = Just towerId }
@@ -1053,7 +985,6 @@ viewWorld _ world =
             viewTower (world.selectedTowerId == Just (idOfTower tower)) tower
     in
     [ List.map viewTowerHelp world.towers |> group
-    , List.map BombTower.viewBombTower world.bombTowers |> group
     , viewPath world.path
     , List.map viewMonster world.monsters |> group
     , List.map Bomb.viewBomb world.bombs |> group
