@@ -280,6 +280,11 @@ initBomb idx { from, to } =
     }
 
 
+idOfBomb : Bomb -> BombId
+idOfBomb bomb =
+    bomb.id
+
+
 stepBomb : { remove : BombId -> event, reachedTarget : Location -> event } -> Bomb -> ( Bomb, List event )
 stepBomb config bomb =
     case stepLocationTowards bomb.target bomb.speed bomb.location of
@@ -395,11 +400,6 @@ goRight p =
             x + p.offset
     in
     { p | current = Location nx y }
-
-
-goto : Location -> PathBuilder -> PathBuilder
-goto to p =
-    { p | current = to }
 
 
 addWayPoint : PathBuilder -> PathBuilder
@@ -862,10 +862,13 @@ handleEvent world event acc =
             acc
 
         RemoveBomb bombId ->
-            acc
+            { acc | bombs = List.filter (idOfBomb >> isNot bombId) acc.bombs }
 
         SpawnBomb bombInit ->
-            acc
+            { acc
+                | bombs = initBomb acc.nextIdx bombInit :: acc.bombs
+                , nextIdx = acc.nextIdx + 1
+            }
 
 
 stepTower : List AAKMonster -> Tower -> ( Tower, List Event )
