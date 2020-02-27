@@ -804,24 +804,37 @@ stepWorldSeed func world =
 
 
 stepTower : List AAKMonster -> Tower -> ( Tower, List Event )
-stepTower aakMonsters tower =
-    if tower.elapsed >= tower.delay then
-        case List.Extra.find (\aak -> isLocationInRangeOfTower aak.location tower) aakMonsters of
-            Just aak ->
-                ( { tower | elapsed = 0 }
-                , [ SpawnBullet
-                        { monsterId = aak.id
-                        , start = tower.location
-                        , target = aak.location
-                        }
-                  ]
-                )
+stepTower aakMonsters =
+    let
+        func tower =
+            if tower.elapsed >= tower.delay then
+                case
+                    List.Extra.find
+                        (\aak ->
+                            isLocationInRangeOfTower aak.location tower
+                        )
+                        aakMonsters
+                of
+                    Just aak ->
+                        ( { tower | elapsed = 0 }
+                        , [ SpawnBullet
+                                { monsterId = aak.id
+                                , start = tower.location
+                                , target = aak.location
+                                }
+                          ]
+                        )
 
-            Nothing ->
-                ( tower, [] )
+                    Nothing ->
+                        ( tower, [] )
 
-    else
-        ( { tower | elapsed = tower.elapsed + 1 }, [] )
+            else
+                ( { tower | elapsed = tower.elapsed + 1 }, [] )
+
+        func2 tower =
+            ( tower, [] )
+    in
+    func >> (\( tower, events ) -> func2 tower |> Tuple.mapSecond ((++) events))
 
 
 stepLair : Lair -> ( Lair, List Event )
