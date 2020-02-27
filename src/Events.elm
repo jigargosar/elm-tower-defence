@@ -208,7 +208,6 @@ viewBombTower tower =
 
 
 
--- BOMB
 -- TRAVEL PATH
 
 
