@@ -560,6 +560,10 @@ update _ game =
             GameOver world
 
 
+
+-- UPDATE WORLD 2
+
+
 updateWorld2 : World -> World
 updateWorld2 =
     (\world ->
@@ -627,6 +631,10 @@ setMonster monster world =
 handleEvents2 : List Event -> World -> World
 handleEvents2 events acc =
     List.foldl (handleEvent acc) acc events
+
+
+
+-- UPDATE WORLD
 
 
 updateWorld : World -> World
