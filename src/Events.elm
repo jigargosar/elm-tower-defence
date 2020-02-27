@@ -1025,11 +1025,6 @@ viewBullet bullet =
         |> L.moveShape bullet.location
 
 
-square : Color -> Number -> Shape
-square c w =
-    rectangle c w w
-
-
 noShape : Shape
 noShape =
     group []
