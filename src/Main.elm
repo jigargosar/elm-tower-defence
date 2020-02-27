@@ -396,12 +396,16 @@ type alias Lair =
     }
 
 
-initLair : Seed -> Lair
-initLair seed =
-    { seed = seed
-    , delay = 60
-    , elapsed = 0
-    }
+lairGenerator : Generator Lair
+lairGenerator =
+    Random.independentSeed
+        |> Random.map
+            (\seed ->
+                { seed = seed
+                , delay = 60
+                , elapsed = 0
+                }
+            )
 
 
 
@@ -495,43 +499,29 @@ init =
             , initTower (L.at 150 100) 150
             ]
 
-        ( worldSeed, lairSeed ) =
-            Random.step Random.independentSeed (Random.initialSeed 0)
+        ( ( lair, bombTowers ), worldSeed ) =
+            let
+                initialGen =
+                    Random.pair lairGenerator bombTowersGenerator
+            in
+            Random.step initialGen (Random.initialSeed 0)
     in
     Running
-        ({ lair = initLair lairSeed
-         , path = path
-         , towers = towers
-         , bullets = []
-         , bombTowers = []
-         , bombs = []
-         , monsters = []
-         , house = initHouse
-         , nextIdx = 0
-         , seed = worldSeed
-         }
-            |> insertInitialBombTowers
-        )
+        { lair = lair
+        , path = path
+        , towers = towers
+        , bullets = []
+        , bombTowers = bombTowers
+        , bombs = []
+        , monsters = []
+        , house = initHouse
+        , nextIdx = 0
+        , seed = worldSeed
+        }
 
 
-insertInitialBombTowers : World -> World
-insertInitialBombTowers world =
-    stepWorldSeed initialBombTowersGenerator world
-        |> uncurry insertNewBombTowers
-
-
-insertNewBombTowers : List BombTower -> World -> World
-insertNewBombTowers bombTowers world =
-    List.foldl insertNewBombTower world bombTowers
-
-
-insertNewBombTower : BombTower -> World -> World
-insertNewBombTower bombTower world =
-    { world | bombTowers = bombTower :: world.bombTowers }
-
-
-initialBombTowersGenerator : Generator (List BombTower)
-initialBombTowersGenerator =
+bombTowersGenerator : Generator (List BombTower)
+bombTowersGenerator =
     let
         bombTowerGenerator : Location -> Generator BombTower
         bombTowerGenerator location =
