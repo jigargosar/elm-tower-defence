@@ -252,7 +252,11 @@ type alias Bomb =
     }
 
 
-initBomb : Int -> { from : Location, to : Location } -> Bomb
+type alias BombInit =
+    { from : Location, to : Location }
+
+
+initBomb : Int -> BombInit -> Bomb
 initBomb idx { from, to } =
     { id = BombId idx
     , location = from
@@ -261,11 +265,11 @@ initBomb idx { from, to } =
     }
 
 
-stepBomb : { remove : BombId -> event, reachedTarget : event } -> Bomb -> ( Bomb, List event )
+stepBomb : { remove : BombId -> event, reachedTarget : Location -> event } -> Bomb -> ( Bomb, List event )
 stepBomb config bomb =
     case stepLocationTowards bomb.target bomb.speed bomb.location of
         Nothing ->
-            ( bomb, [ config.remove bomb.id, config.reachedTarget ] )
+            ( bomb, [ config.remove bomb.id, config.reachedTarget bomb.target ] )
 
         Just newLocation ->
             ( { bomb | location = newLocation }, [] )
@@ -607,6 +611,8 @@ type alias World =
     , path : Path
     , towers : List Tower
     , bullets : List Bullet
+    , bombTowers : List BombTower
+    , bombs : List Bomb
     , monsters : List Monster
     , house : House
     , nextIdx : Int
@@ -660,6 +666,8 @@ init =
         , path = path
         , towers = towers
         , bullets = []
+        , bombTowers = []
+        , bombs = []
         , monsters = []
         , house = initHouse
         , nextIdx = 0
@@ -678,6 +686,9 @@ type Event
     | RemoveBullet BulletId
     | RemoveMonster MonsterId
     | MonsterReachedHouse
+    | BombReachedTarget Location
+    | RemoveBomb BombId
+    | SpawnBomb BombInit
 
 
 update : Computer -> Game -> Game
@@ -720,6 +731,21 @@ updateWorld world =
             List.map stepBullet world.bullets
                 |> List.unzip
 
+        ( selfUpdatedBombTowers, bombTowerEventGroups ) =
+            List.map
+                (stepBombTower { spawnBomb = SpawnBomb }
+                    { targets =
+                        akaMonstersSortedByRemainingDistance
+                            |> List.map (\aak -> { location = aak.location, distanceToHouse = aak.remainingDistance })
+                    }
+                )
+                world.bombTowers
+                |> List.unzip
+
+        ( selfUpdatedBombs, bombEventGroups ) =
+            List.map (stepBomb { remove = RemoveBomb, reachedTarget = BombReachedTarget }) world.bombs
+                |> List.unzip
+
         ( selfUpdatedMonsters, monsterEventGroups ) =
             List.map stepMonster world.monsters
                 |> List.unzip
@@ -731,6 +757,8 @@ updateWorld world =
             , house = selfUpdatedHouse
             , towers = selfUpdatedTowers
             , bullets = selfUpdatedBullets
+            , bombTowers = selfUpdatedBombTowers
+            , bombs = selfUpdatedBombs
             , monsters = selfUpdatedMonsters
             , nextIdx = world.nextIdx
             }
@@ -785,6 +813,15 @@ handleEvent world event acc =
                 | bullets = initBullet acc.nextIdx bulletInit :: acc.bullets
                 , nextIdx = acc.nextIdx + 1
             }
+
+        BombReachedTarget location ->
+            acc
+
+        RemoveBomb bombId ->
+            acc
+
+        SpawnBomb bombInit ->
+            acc
 
 
 stepTower : List AAKMonster -> Tower -> ( Tower, List Event )
