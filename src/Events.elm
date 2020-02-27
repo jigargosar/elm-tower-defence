@@ -1120,17 +1120,19 @@ viewPath path =
 viewMonster : Monster -> Shape
 viewMonster monster =
     let
-        radius =
-            20
-
         scaleAdjust =
             0.7
 
-        bgFade =
-            0.9
-
         monsterShape =
-            [ circle red radius |> fade bgFade ] |> group
+            --[ circle red 20 |> fade 0.9 ] |> group
+            [ rectangle purple 20 30
+            , circle charcoal 10 |> moveUp 22.5
+            , -- legs
+              rectangle charcoal 7.5 20 |> moveLeft 5 |> moveDown 25
+            , rectangle charcoal 7.5 20 |> moveRight 5 |> moveDown 25
+            , rectangle purple 22.5 15 |> moveDown 10
+            ]
+                |> group
     in
     case monster.state of
         AliveAndKicking { travel, health } ->
