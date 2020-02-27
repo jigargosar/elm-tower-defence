@@ -984,7 +984,11 @@ viewWorldStats computer world =
 
 viewWorld : Computer -> World -> Shape
 viewWorld _ world =
-    [ List.map viewTower world.towers |> group
+    let
+        viewTowerHelp tower =
+            viewTower (world.selectedTowerId == Just (idOfTower tower)) tower
+    in
+    [ List.map viewTowerHelp world.towers |> group
     , List.map BombTower.viewBombTower world.bombTowers |> group
     , viewPath world.path
     , List.map viewMonster world.monsters |> group
@@ -1073,9 +1077,16 @@ viewMonster monster =
             group []
 
 
-viewTower : Tower -> Shape
-viewTower tower =
-    [ circle lightBlue tower.range |> fade 0.3
+viewTower : Bool -> Tower -> Shape
+viewTower isSelected tower =
+    [ circle lightBlue tower.range
+        |> fade
+            (if isSelected then
+                0.3
+
+             else
+                0
+            )
     , square blue tower.viewWidth
     ]
         |> group
