@@ -888,12 +888,16 @@ stepTower computer isSelected aakMonsters =
                 of
                     Just aak ->
                         ( { tower | elapsed = 0 }
-                        , [ SpawnBullet
-                                { monsterId = aak.id
-                                , start = tower.location
-                                , target = aak.location
-                                }
-                          , SpawnBomb { from = tower.location, to = aak.location }
+                        , [ case tower.towerType of
+                                ArrowShooter ->
+                                    SpawnBullet
+                                        { monsterId = aak.id
+                                        , start = tower.location
+                                        , target = aak.location
+                                        }
+
+                                AOEShooter ->
+                                    SpawnBomb { from = tower.location, to = aak.location }
                           ]
                         )
 
