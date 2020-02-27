@@ -1013,6 +1013,7 @@ viewWorld _ world =
     , List.map viewBombTower world.bombTowers |> group
     , viewPath world.path
     , List.map viewMonster world.monsters |> group
+    , List.map viewBomb world.bombs |> group
     , List.map viewBullet world.bullets |> group
     ]
         |> group
