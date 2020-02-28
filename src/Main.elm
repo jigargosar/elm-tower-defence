@@ -148,8 +148,19 @@ isLocationOnTowerView location tower =
 
 
 type Msg
-    = UpgradeRange
-    | UpgradePower
+    = UpgradeRangeClicked
+    | UpgradePowerClicked
+
+
+type UpgradeType
+    = RangeUpgrade
+    | PowerUpgrade
+
+
+type UpgradeState
+    = NoUpgrade
+    | UpgradeOne UpgradeType
+    | UpgradeBoth
 
 
 type alias Button =
@@ -170,8 +181,8 @@ initButtons location =
         h =
             50
     in
-    [ Button (location |> L.shiftX -w) w h "RANGE" UpgradeRange
-    , Button (location |> L.shiftX w) w h "POWER" UpgradePower
+    [ Button (location |> L.shiftX -w) w h "RANGE" UpgradeRangeClicked
+    , Button (location |> L.shiftX w) w h "POWER" UpgradePowerClicked
     ]
 
 
