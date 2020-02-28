@@ -18,6 +18,14 @@ isDebug =
     True
 
 
+buttonWidth =
+    100
+
+
+buttonHeight =
+    50
+
+
 firstUpgradeCost =
     75
 
@@ -188,8 +196,9 @@ type UpgradeState
 
 
 type alias UpgradeButton =
-    { location : Location
+    { box : Box
     , state : UpgradeButtonState
+    , upgradeType : UpgradeType
     }
 
 
@@ -216,11 +225,12 @@ upgradeCost upgradeState upgradeType =
             Just secondUpgradeCost
 
 
-initPowerUpgradeButton : Location -> UpgradeState -> Number -> UpgradeButton
-initPowerUpgradeButton location upgradeState gold =
-    { location = location
+initUpgradeButton : Box -> UpgradeState -> UpgradeType -> Number -> UpgradeButton
+initUpgradeButton box upgradeState upgradeType gold =
+    { box = box
+    , upgradeType = upgradeType
     , state =
-        case upgradeCost upgradeState PowerUpgrade of
+        case upgradeCost upgradeState upgradeType of
             Nothing ->
                 Active
 
@@ -231,6 +241,17 @@ initPowerUpgradeButton location upgradeState gold =
                 else
                     Disabled cost
     }
+
+
+initTowerUpgradeButtons : Location -> UpgradeState -> Number -> List UpgradeButton
+initTowerUpgradeButtons location upgradeState gold =
+    let
+        box =
+            initBox buttonWidth buttonHeight
+    in
+    [ initUpgradeButton (location |> L.shiftY -(h * 2)) upgradeState RangeUpgrade gold
+    , initUpgradeButton (location |> L.shiftY (h * 2)) upgradeState PowerUpgrade gold
+    ]
 
 
 isUpgradeApplied : UpgradeType -> UpgradeState -> Bool

@@ -5,6 +5,7 @@ module Location exposing
     , isLocationInRangeOf
     , isLocationInSquareAt
     , moveShape
+    , origin
     , shiftX
     , shiftY
     , stepLocationTowards
@@ -15,6 +16,11 @@ import Playground exposing (..)
 
 type Location
     = Location Number Number
+
+
+origin : Location
+origin =
+    at 0 0
 
 
 at : Number -> Number -> Location
