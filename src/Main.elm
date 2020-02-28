@@ -144,6 +144,11 @@ locationOfTower =
     .location
 
 
+upgradeOfTower : Tower -> UpgradeState
+upgradeOfTower =
+    .upgrade
+
+
 isLocationInRangeOfTower : Location -> Tower -> Bool
 isLocationInRangeOfTower location tower =
     L.distanceFromTo location tower.location <= tower.range
@@ -180,20 +185,38 @@ type alias Button =
     , height : Number
     , text : String
     , msg : Msg
+    , disabled : Bool
     }
 
 
-initButtons : Location -> List Button
-initButtons location =
+initButtons : Location -> UpgradeState -> List Button
+initButtons location upgradeState =
     let
         w =
             100
 
         h =
             50
+
+        isRangeUpgraded =
+            isUpgradeApplied RangeUpgrade
+
+        isPowerUpgraded =
+            isUpgradeApplied PowerUpgrade
+
+        isUpgradeApplied ut =
+            case upgradeState of
+                UpgradeNone ->
+                    False
+
+                UpgradeOne upgradeType ->
+                    ut == upgradeType
+
+                UpgradeBoth ->
+                    True
     in
-    [ Button (location |> L.shiftX -w) w h "RANGE" UpgradeRangeClicked
-    , Button (location |> L.shiftX w) w h "POWER" UpgradePowerClicked
+    [ Button (location |> L.shiftX -w) w h "RANGE" UpgradeRangeClicked isRangeUpgraded
+    , Button (location |> L.shiftX w) w h "POWER" UpgradePowerClicked isPowerUpgraded
     ]
 
 
@@ -1072,8 +1095,7 @@ viewWorld _ world =
     , List.map viewBullet world.bullets |> group
     , case List.Extra.find (idOfTower >> Just >> is world.selectedTowerId) world.towers of
         Just t ->
-            locationOfTower t
-                |> initButtons
+            initButtons (locationOfTower t) (upgradeOfTower t)
                 |> List.map viewButton
                 |> group
 
@@ -1085,8 +1107,23 @@ viewWorld _ world =
 
 viewButton : Button -> Shape
 viewButton button =
-    [ rectangle lightOrange button.width button.height
-    , words charcoal button.text
+    [ rectangle
+        (if button.disabled then
+            darkGray
+
+         else
+            lightOrange
+        )
+        button.width
+        button.height
+    , words
+        (if button.disabled then
+            lightCharcoal
+
+         else
+            charcoal
+        )
+        button.text
     ]
         |> group
         |> L.moveShape button.location
