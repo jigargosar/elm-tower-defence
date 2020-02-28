@@ -9,7 +9,9 @@ const sprite = Sprite({
   width: 20, // width and height of the sprite rectangle
   height: 40,
   dx: 2, // move the sprite 2px to the right every frame
+  // context: null
 })
+
 
 const loop = GameLoop({
   // create the main game loop
