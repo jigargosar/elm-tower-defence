@@ -837,57 +837,42 @@ stepWorldSeed func world =
 
 
 stepTower : Computer -> Bool -> List AAKMonster -> Tower -> ( Tower, List Event )
-stepTower computer isSelected aakMonsters =
+stepTower computer isSelected aakMonsters tower =
     let
         { mouse } =
             computer
-
-        stepGun tower =
-            if tower.elapsed >= tower.delay then
-                case
-                    List.Extra.find
-                        (\aak ->
-                            isLocationInRangeOfTower aak.location tower
-                        )
-                        aakMonsters
-                of
-                    Just aak ->
-                        ( { tower | elapsed = 0 }
-                        , [ case tower.towerType of
-                                ArrowShooter ->
-                                    SpawnBullet
-                                        { monsterId = aak.id
-                                        , start = tower.location
-                                        , target = aak.location
-                                        }
-
-                                AOEShooter ->
-                                    SpawnBomb
-                                        { from = tower.location
-                                        , to = aak.location
-                                        }
-                          ]
-                        )
-
-                    Nothing ->
-                        ( tower, [] )
-
-            else
-                ( { tower | elapsed = tower.elapsed + 1 }, [] )
-
-        stepClick tower =
-            let
-                didClick =
-                    L.isLocationInSquareAt tower.location tower.viewWidth (L.at mouse.x mouse.y)
-                        && mouse.click
-            in
-            if didClick && not isSelected then
-                ( tower, [ SelectTower tower.id ] )
-
-            else
-                ( tower, [] )
     in
-    stepGun >> (\( tower, events ) -> stepClick tower |> Tuple.mapSecond ((++) events))
+    if tower.elapsed >= tower.delay then
+        case
+            List.Extra.find
+                (\aak ->
+                    isLocationInRangeOfTower aak.location tower
+                )
+                aakMonsters
+        of
+            Just aak ->
+                ( { tower | elapsed = 0 }
+                , [ case tower.towerType of
+                        ArrowShooter ->
+                            SpawnBullet
+                                { monsterId = aak.id
+                                , start = tower.location
+                                , target = aak.location
+                                }
+
+                        AOEShooter ->
+                            SpawnBomb
+                                { from = tower.location
+                                , to = aak.location
+                                }
+                  ]
+                )
+
+            Nothing ->
+                ( tower, [] )
+
+    else
+        ( { tower | elapsed = tower.elapsed + 1 }, [] )
 
 
 stepLair : Lair -> ( Lair, List Event )
