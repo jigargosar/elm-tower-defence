@@ -1,4 +1,4 @@
-module Box exposing (Box, contains, init, initAt, moveShape, shape, shiftX, shiftY, shiftYByHeightF)
+module Box exposing (Box, contains, init, initAt, moveShape, shape, shiftX, shiftXByWidthF, shiftY, shiftYByHeightF)
 
 import Location as L exposing (Location)
 import Playground exposing (..)
@@ -34,6 +34,11 @@ shiftY =
 shiftYByHeightF : (Number -> Number) -> Box -> Box
 shiftYByHeightF func box =
     shiftY (func box.height) box
+
+
+shiftXByWidthF : (Number -> Number) -> Box -> Box
+shiftXByWidthF func box =
+    shiftX (func box.width) box
 
 
 mapLocation : (Location -> Location) -> Box -> Box

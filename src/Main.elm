@@ -318,10 +318,10 @@ initTowerUpgradeButtons location upgradeState gold =
             initUpgradeButton (box |> boxFunc) upgradeState upgradeType gold
 
         offset =
-            1.25
+            0.75
     in
-    [ initBtnHelp (Box.shiftYByHeightF (mul -offset)) RangeUpgrade
-    , initBtnHelp (Box.shiftYByHeightF (mul offset)) PowerUpgrade
+    [ initBtnHelp (Box.shiftXByWidthF (mul -offset)) RangeUpgrade
+    , initBtnHelp (Box.shiftXByWidthF (mul offset)) PowerUpgrade
     ]
 
 
