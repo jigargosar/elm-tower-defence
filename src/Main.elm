@@ -540,7 +540,7 @@ type alias Monster =
 
 type MonsterState
     = AliveAndKicking { health : Number, travel : PathProgress }
-    | Dead { travel : PathProgress, overKill : Number }
+    | JustDied { travel : PathProgress, overKill : Number }
     | DyingAnimation { travel : PathProgress, remainingTicks : Number, overKill : Number }
     | ReachedHouse { health : Number }
     | ReadyForRemoval
@@ -583,7 +583,7 @@ decrementMonsterHealthBy damage monster =
                             health - damage
                     in
                     (if newHealth <= 0 then
-                        Dead
+                        JustDied
                             { travel = travel
                             , overKill = abs newHealth
                             }
@@ -593,8 +593,8 @@ decrementMonsterHealthBy damage monster =
                     )
                         |> Just
 
-                Dead r ->
-                    Dead { r | overKill = r.overKill + 1 }
+                JustDied r ->
+                    JustDied { r | overKill = r.overKill + 1 }
                         |> Just
 
                 DyingAnimation r ->
@@ -628,7 +628,7 @@ aakMonsterState monster =
         AliveAndKicking { travel } ->
             Just (AAKMonster monster.id (locationOfPathProgress travel) (distanceToPathEnd travel))
 
-        Dead _ ->
+        JustDied _ ->
             Nothing
 
         DyingAnimation _ ->
@@ -1238,7 +1238,7 @@ stepMonster monster =
                         Nothing ->
                             ( ReachedHouse { health = health }, [ MonsterReachedHouse ] )
 
-                Dead r ->
+                JustDied r ->
                     ( DyingAnimation
                         { travel = r.travel
                         , remainingTicks = monster.dyingTicks
@@ -1420,7 +1420,7 @@ viewMonster monster =
                 |> group
                 |> placeShape travel
 
-        Dead r ->
+        JustDied r ->
             [ monsterShape
             , debugShape <|
                 \_ -> words white (fromInt (round r.overKill))
