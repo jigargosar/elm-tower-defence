@@ -2,6 +2,7 @@ module Main exposing (main)
 
 import Bomb exposing (Bomb)
 import BombId exposing (BombId)
+import Box exposing (Box)
 import List.Extra
 import Location as L exposing (Location)
 import Playground exposing (..)
@@ -247,10 +248,13 @@ initTowerUpgradeButtons : Location -> UpgradeState -> Number -> List UpgradeButt
 initTowerUpgradeButtons location upgradeState gold =
     let
         box =
-            initBox buttonWidth buttonHeight
+            Box.initAt location buttonWidth buttonHeight
+
+        initBtnHelp boxFunc upgradeType =
+            initUpgradeButton (box |> boxFunc) upgradeState upgradeType gold
     in
-    [ initUpgradeButton (location |> L.shiftY -(h * 2)) upgradeState RangeUpgrade gold
-    , initUpgradeButton (location |> L.shiftY (h * 2)) upgradeState PowerUpgrade gold
+    [ initBtnHelp (Box.shiftYByHeightF (mul -2)) RangeUpgrade
+    , initBtnHelp (Box.shiftYByHeightF (mul 2)) PowerUpgrade
     ]
 
 
@@ -1342,6 +1346,10 @@ is =
 
 isNot =
     (/=)
+
+
+mul =
+    (*)
 
 
 uncurry : (a -> b -> c) -> ( a, b ) -> c

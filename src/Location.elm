@@ -3,6 +3,7 @@ module Location exposing
     , at
     , distanceFromTo
     , isLocationInRangeOf
+    , isLocationInRectangleAt
     , isLocationInSquareAt
     , moveShape
     , origin
@@ -77,11 +78,11 @@ isLocationInRangeOf center range location =
 
 isLocationInSquareAt : Location -> Number -> Location -> Bool
 isLocationInSquareAt center squareSide location =
-    isLocationInRectangle center squareSide squareSide location
+    isLocationInRectangleAt center squareSide squareSide location
 
 
-isLocationInRectangle : Location -> Number -> Number -> Location -> Bool
-isLocationInRectangle (Location cx cy) w h (Location x y) =
+isLocationInRectangleAt : Location -> Number -> Number -> Location -> Bool
+isLocationInRectangleAt (Location cx cy) w h (Location x y) =
     let
         minX =
             cx - w / 2
