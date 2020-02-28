@@ -200,11 +200,6 @@ isLocationOnTowerView location tower =
 -- BUTTON
 
 
-type Msg
-    = UpgradeRangeClicked
-    | UpgradePowerClicked
-
-
 type UpgradeType
     = RangeUpgrade
     | PowerUpgrade
@@ -271,10 +266,10 @@ viewUpgradeButton btn =
             Active ->
                 darkOrange
 
-            Disabled number ->
+            Disabled _ ->
                 darkGray
 
-            Enabled number ->
+            Enabled _ ->
                 lightOrange
         )
         btn.box
@@ -294,10 +289,10 @@ viewUpgradeButton btn =
             Active ->
                 white
 
-            Disabled number ->
+            Disabled _ ->
                 black
 
-            Enabled number ->
+            Enabled _ ->
                 black
         )
         (case btn.upgradeType of
@@ -338,36 +333,6 @@ isUpgradeApplied upgradeType upgradeState =
 
         UpgradeBoth ->
             True
-
-
-type alias Button =
-    { location : Location
-    , width : Number
-    , height : Number
-    , text : String
-    , msg : Msg
-    , disabled : Bool
-    }
-
-
-initButtons : Location -> UpgradeState -> List Button
-initButtons location upgradeState =
-    let
-        w =
-            100
-
-        h =
-            50
-
-        isRangeUpgraded =
-            isUpgradeApplied RangeUpgrade upgradeState
-
-        isPowerUpgraded =
-            isUpgradeApplied PowerUpgrade upgradeState
-    in
-    [ Button (location |> Loc.shiftX -w) w h "RANGE" UpgradeRangeClicked isRangeUpgraded
-    , Button (location |> Loc.shiftX w) w h "POWER" UpgradePowerClicked isPowerUpgraded
-    ]
 
 
 
