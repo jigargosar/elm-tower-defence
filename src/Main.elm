@@ -801,7 +801,7 @@ initialGen =
 type Event
     = NoEvent
     | SpawnMonster
-    | SpawnBullet BulletInit
+    | SpawnArrow BulletInit
     | BulletHitMonster MonsterId
     | RemoveBullet BulletId
     | RemoveMonster MonsterId
@@ -1084,7 +1084,7 @@ handleEvent event world =
                 , nextIdx = world.nextIdx + 1
             }
 
-        SpawnBullet bulletInit ->
+        SpawnArrow bulletInit ->
             { world
                 | bullets = initBullet world.nextIdx bulletInit :: world.bullets
                 , nextIdx = world.nextIdx + 1
@@ -1165,7 +1165,7 @@ stepTower aakMonsters tower =
             ( aakList, ArrowTower ) ->
                 let
                     spawnArrowHelp aak =
-                        SpawnBullet
+                        SpawnArrow
                             { monsterId = aak.id
                             , start = tower.location
                             , target = aak.location
