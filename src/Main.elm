@@ -107,7 +107,6 @@ type alias Tower =
     { -- META
       id : TowerId
     , delay : Number -- RELOAD TIME
-    , range : Number -- SHOOTING RANGE
     , location : Location
     , viewWidth : Number
     , towerType : TowerType
@@ -141,7 +140,6 @@ arrowTowerGenerator location =
             (\tid ->
                 { id = tid
                 , delay = towerReloadDelay
-                , range = arrowTowerRange
                 , towerType = ArrowTower
                 , location = location
                 , viewWidth = allTowersViewWidth
@@ -158,7 +156,6 @@ bombTowerGenerator location =
             (\tid ->
                 { id = tid
                 , delay = bombTowerReloadDelay
-                , range = bombTowerRange
                 , towerType = BombTower
                 , location = location
                 , viewWidth = allTowersViewWidth
@@ -191,7 +188,7 @@ upgradeOfTower =
 
 isLocationInRangeOfTower : Location -> Tower -> Bool
 isLocationInRangeOfTower location tower =
-    Loc.distanceFromTo location tower.location <= tower.range
+    Loc.distanceFromTo location tower.location <= rangeOfTower tower
 
 
 isLocationOnTowerView : Location -> Tower -> Bool
@@ -1420,7 +1417,7 @@ viewTower isSelected tower =
                 BombTower ->
                     ( lightBrown, brown )
     in
-    [ [ circle lightC tower.range |> fade 0.3
+    [ [ circle lightC (rangeOfTower tower) |> fade 0.3
       ]
         |> group
         |> fade
