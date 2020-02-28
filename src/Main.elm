@@ -119,7 +119,7 @@ type alias Tower =
 
 rangeOfTower : Tower -> Number
 rangeOfTower tower =
-    case ( tower.towerType, isUpgradeApplied PowerUpgrade tower.upgrade ) of
+    case ( tower.towerType, isUpgradeApplied RangeUpgrade tower.upgrade ) of
         ( ArrowTower, False ) ->
             arrowTowerRange
 
