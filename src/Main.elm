@@ -139,6 +139,17 @@ isLocationOnTowerView location tower =
 
 
 
+-- BUTTON
+
+
+type alias Button =
+    { location : Location
+    , width : Number
+    , height : Number
+    }
+
+
+
 -- Bullet
 -- TODO: Should we rename it to Arrow?
 
