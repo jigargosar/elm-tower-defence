@@ -652,8 +652,15 @@ stepWordClick computer world =
             ( Nothing, Just tower ) ->
                 { world | selectedTowerId = Just (idOfTower tower) }
 
-            ( Just tid, Nothing ) ->
+            ( Just _, Nothing ) ->
                 { world | selectedTowerId = Nothing }
+
+            ( Just tid, Just tower ) ->
+                if tid == idOfTower tower then
+                    { world | selectedTowerId = Nothing }
+
+                else
+                    { world | selectedTowerId = Just (idOfTower tower) }
 
             _ ->
                 world
