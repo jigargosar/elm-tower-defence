@@ -269,7 +269,7 @@ viewUpgradeButton btn =
     [ Box.shape
         (case btn.state of
             Active ->
-                darkPurple
+                darkOrange
 
             Disabled number ->
                 darkGray
