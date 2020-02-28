@@ -152,6 +152,12 @@ bombTowerGenerator location =
             )
 
 
+upgradeTower : UpgradeType -> Tower -> Maybe ( Number, Tower )
+upgradeTower upgradeType tower =
+    applyUpgrade upgradeType (upgradeOfTower tower)
+        |> Maybe.map (Tuple.mapSecond (\upgrade -> { tower | upgrade = upgrade }))
+
+
 idOfTower : Tower -> TowerId
 idOfTower =
     .id
@@ -858,7 +864,39 @@ handleClickEvent e world =
             { world | selectedTowerId = Nothing }
 
         UpgradeBtnClicked tower upgradeButton ->
-            world
+            case upgradeTower upgradeButton.upgradeType tower of
+                Just ( cost, upgradedTower ) ->
+                    let
+                        gold =
+                            world.gold - cost
+                    in
+                    if gold >= 0 then
+                        world
+                            |> setTower upgradedTower
+                            |> setGold gold
+
+                    else
+                        world
+
+                Nothing ->
+                    world
+
+
+applyUpgrade : UpgradeType -> UpgradeState -> Maybe ( Number, UpgradeState )
+applyUpgrade upgradeType upgradeState =
+    case upgradeState of
+        UpgradeNone ->
+            Just ( firstUpgradeCost, UpgradeOne upgradeType )
+
+        UpgradeOne appliedUT ->
+            if upgradeType == appliedUT then
+                Nothing
+
+            else
+                Just ( secondUpgradeCost, UpgradeBoth )
+
+        UpgradeBoth ->
+            Nothing
 
 
 findSelectedTower : World -> Maybe Tower
@@ -921,6 +959,16 @@ stepWorldBullets =
 setBullet : Bullet -> World -> World
 setBullet bullet world =
     { world | bullets = List.Extra.setIf (idOfBullet >> is (idOfBullet bullet)) bullet world.bullets }
+
+
+setTower : Tower -> World -> World
+setTower tower world =
+    { world | towers = List.Extra.setIf (idOfTower >> is (idOfTower tower)) tower world.towers }
+
+
+setGold : Number -> World -> World
+setGold gold world =
+    { world | gold = gold }
 
 
 stepWorldTowers : Computer -> World -> World
