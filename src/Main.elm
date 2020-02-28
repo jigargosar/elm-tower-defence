@@ -844,7 +844,7 @@ stepWordClick computer world =
     if mouse.click then
         case computeClickEventAt (Loc.ofMouse mouse) world of
             Just e ->
-                handleClickEvent e world
+                handleWorldClickEvent e world
 
             Nothing ->
                 clearTowerSelection world
@@ -853,8 +853,8 @@ stepWordClick computer world =
         world
 
 
-handleClickEvent : ClickEvent -> World -> World
-handleClickEvent e world =
+handleWorldClickEvent : ClickEvent -> World -> World
+handleWorldClickEvent e world =
     case e of
         TowerClicked t ->
             selectTower t world
