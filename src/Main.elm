@@ -187,7 +187,7 @@ type UpgradeState
     | UpgradeBoth
 
 
-type alias PowerUpgradeButton =
+type alias UpgradeButton =
     { location : Location
     , state : UpgradeButtonState
     }
@@ -216,7 +216,7 @@ upgradeCost upgradeState upgradeType =
             Just secondUpgradeCost
 
 
-initPowerUpgradeButton : Location -> UpgradeState -> Number -> PowerUpgradeButton
+initPowerUpgradeButton : Location -> UpgradeState -> Number -> UpgradeButton
 initPowerUpgradeButton location upgradeState gold =
     { location = location
     , state =
