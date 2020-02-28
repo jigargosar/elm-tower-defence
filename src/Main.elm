@@ -147,11 +147,17 @@ isLocationOnTowerView location tower =
 -- BUTTON
 
 
+type Msg
+    = Upgrade
+    | Sell
+
+
 type alias Button =
     { location : Location
     , width : Number
     , height : Number
     , text : String
+    , msg : Msg
     }
 
 
@@ -164,8 +170,8 @@ initButtons location =
         h =
             50
     in
-    [ Button (location |> L.shiftX -w) w h "UPGRADE"
-    , Button (location |> L.shiftX w) w h "SELL"
+    [ Button (location |> L.shiftX -w) w h "UPGRADE" Upgrade
+    , Button (location |> L.shiftX w) w h "SELL" Sell
     ]
 
 
