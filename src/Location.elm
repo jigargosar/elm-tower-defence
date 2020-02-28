@@ -8,6 +8,7 @@ module Location exposing
     , moveShape
     , ofMouse
     , origin
+    , setX
     , shiftX
     , shiftY
     , stepLocationTowards
@@ -28,6 +29,11 @@ origin =
 at : Number -> Number -> Location
 at x y =
     Location x y
+
+
+setX : Number -> Location -> Location
+setX x (Location _ y) =
+    at x y
 
 
 stepLocationTowards : Location -> Number -> Location -> Maybe Location

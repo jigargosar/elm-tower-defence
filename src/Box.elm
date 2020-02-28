@@ -1,4 +1,4 @@
-module Box exposing (Box, contains, init, initAt, moveShape, shape, shiftX, shiftXByWidthF, shiftY, shiftYByHeightF)
+module Box exposing (Box, contains, horizontalLayout, init, initAt, moveShape, shape, shiftX, shiftXByWidthF, shiftY, shiftYByHeightF)
 
 import Location as L exposing (Location)
 import Playground exposing (..)
@@ -41,6 +41,11 @@ shiftXByWidthF func box =
     shiftX (func box.width) box
 
 
+width : Box -> Number
+width =
+    .width
+
+
 mapLocation : (Location -> Location) -> Box -> Box
 mapLocation func box =
     { box | location = func box.location }
@@ -59,3 +64,26 @@ shape c box =
 moveShape : Box -> Shape -> Shape
 moveShape box =
     L.moveShape box.location
+
+
+horizontalLayout : Number -> List Box -> List Box
+horizontalLayout gap list =
+    let
+        listWidth =
+            list |> List.map width |> List.sum
+
+        firstLeft =
+            listWidth / 2
+
+        func : Box -> ( Float, List Box ) -> ( Float, List Box )
+        func box ( left, nl ) =
+            let
+                nb =
+                    box
+                        |> mapLocation (L.setX (left + width box / 2))
+            in
+            ( left + width box + gap, nb :: nl )
+    in
+    List.foldl func ( firstLeft, [] ) list
+        |> Tuple.second
+        |> List.reverse
