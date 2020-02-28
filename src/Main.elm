@@ -540,7 +540,8 @@ type alias Monster =
 
 type MonsterState
     = AliveAndKicking { health : Number, travel : PathProgress }
-    | Dying { travel : PathProgress, remainingTicks : Number, overKill : Number }
+    | Dead { travel : PathProgress, overKill : Number }
+    | DyingAnimation { travel : PathProgress, remainingTicks : Number, overKill : Number }
     | ReachedHouse { health : Number }
     | ReadyForRemoval
 
@@ -582,9 +583,8 @@ decrementMonsterHealthBy damage monster =
                             health - damage
                     in
                     (if newHealth <= 0 then
-                        Dying
+                        Dead
                             { travel = travel
-                            , remainingTicks = monster.dyingTicks
                             , overKill = abs newHealth
                             }
 
@@ -593,8 +593,12 @@ decrementMonsterHealthBy damage monster =
                     )
                         |> Just
 
-                Dying r ->
-                    Dying { r | overKill = r.overKill + 1 }
+                Dead r ->
+                    Dead { r | overKill = r.overKill + 1 }
+                        |> Just
+
+                DyingAnimation r ->
+                    DyingAnimation { r | overKill = r.overKill + 1 }
                         |> Just
 
                 ReachedHouse _ ->
@@ -624,7 +628,10 @@ aakMonsterState monster =
         AliveAndKicking { travel } ->
             Just (AAKMonster monster.id (locationOfPathProgress travel) (distanceToPathEnd travel))
 
-        Dying { travel } ->
+        Dead _ ->
+            Nothing
+
+        DyingAnimation _ ->
             Nothing
 
         ReachedHouse _ ->
@@ -803,6 +810,7 @@ type Event
     | SpawnMonster
     | SpawnArrow BulletInit
     | BulletHitMonster MonsterId
+    | MonsterDied
     | RemoveBullet BulletId
     | RemoveMonster MonsterId
     | MonsterReachedHouse
@@ -1124,6 +1132,9 @@ handleEvent event world =
                 world
                 |> uncurry insertNewBomb
 
+        MonsterDied ->
+            { world | gold = world.gold + 1 }
+
 
 insertNewBomb : Bomb -> World -> World
 insertNewBomb bomb world =
@@ -1227,12 +1238,21 @@ stepMonster monster =
                         Nothing ->
                             ( ReachedHouse { health = health }, [ MonsterReachedHouse ] )
 
-                Dying { travel, remainingTicks, overKill } ->
+                Dead r ->
+                    ( DyingAnimation
+                        { travel = r.travel
+                        , remainingTicks = monster.dyingTicks
+                        , overKill = r.overKill
+                        }
+                    , [ MonsterDied ]
+                    )
+
+                DyingAnimation { travel, remainingTicks, overKill } ->
                     if remainingTicks <= 0 then
                         ( ReadyForRemoval, [ RemoveMonster monster.id ] )
 
                     else
-                        ( Dying
+                        ( DyingAnimation
                             { travel = travel
                             , remainingTicks = max 0 (remainingTicks - 1)
                             , overKill = overKill
@@ -1400,7 +1420,15 @@ viewMonster monster =
                 |> group
                 |> placeShape travel
 
-        Dying { travel, remainingTicks, overKill } ->
+        Dead r ->
+            [ monsterShape
+            , debugShape <|
+                \_ -> words white (fromInt (round r.overKill))
+            ]
+                |> group
+                |> placeShape r.travel
+
+        DyingAnimation { travel, remainingTicks, overKill } ->
             let
                 remainingProgress =
                     remainingTicks / monster.dyingTicks
