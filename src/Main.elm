@@ -244,6 +244,33 @@ initUpgradeButton box upgradeState upgradeType gold =
     }
 
 
+viewUpgradeButton : UpgradeButton -> Shape
+viewUpgradeButton btn =
+    [ Box.shape
+        (case btn.state of
+            Active ->
+                darkPurple
+
+            Disabled number ->
+                darkGray
+
+            Enabled number ->
+                lightOrange
+        )
+        btn.box
+    , words black
+        (case btn.upgradeType of
+            PowerUpgrade ->
+                "POWER"
+
+            RangeUpgrade ->
+                "RANGE"
+        )
+    ]
+        |> group
+        |> Box.moveShape btn.box
+
+
 initTowerUpgradeButtons : Location -> UpgradeState -> Number -> List UpgradeButton
 initTowerUpgradeButtons location upgradeState gold =
     let
@@ -666,6 +693,7 @@ type alias World =
     , bombs : List Bomb
     , monsters : List Monster
     , house : House
+    , gold : Number
     , selectedTowerId : Maybe TowerId
     , nextIdx : Int
     , seed : Seed
@@ -721,6 +749,7 @@ init =
         , bombs = []
         , monsters = []
         , house = initHouse
+        , gold = 100
         , nextIdx = 0
         , seed = worldSeed
         }
@@ -1007,7 +1036,7 @@ stepWorldSeed func world =
 
 
 stepTower : Computer -> Bool -> List AAKMonster -> Tower -> ( Tower, List Event )
-stepTower computer isSelected aakMonsters tower =
+stepTower computer _ aakMonsters tower =
     let
         { mouse } =
             computer
@@ -1176,38 +1205,14 @@ viewWorld _ world =
     , List.map viewBullet world.bullets |> group
     , case List.Extra.find (idOfTower >> Just >> is world.selectedTowerId) world.towers of
         Just t ->
-            initButtons (locationOfTower t) (upgradeOfTower t)
-                |> List.map viewButton
+            initTowerUpgradeButtons (locationOfTower t) (upgradeOfTower t) world.gold
+                |> List.map viewUpgradeButton
                 |> group
 
         Nothing ->
             noShape
     ]
         |> group
-
-
-viewButton : Button -> Shape
-viewButton button =
-    [ rectangle
-        (if button.disabled then
-            darkGray
-
-         else
-            lightOrange
-        )
-        button.width
-        button.height
-    , words
-        (if button.disabled then
-            lightCharcoal
-
-         else
-            charcoal
-        )
-        button.text
-    ]
-        |> group
-        |> L.moveShape button.location
 
 
 viewPath : Path -> Shape

@@ -1,4 +1,4 @@
-module Box exposing (Box, contains, init, initAt, shiftX, shiftY, shiftYByHeightF)
+module Box exposing (Box, contains, init, initAt, moveShape, shape, shiftX, shiftY, shiftYByHeightF)
 
 import Location as L exposing (Location)
 import Playground exposing (..)
@@ -44,3 +44,13 @@ mapLocation func box =
 contains : Location -> Box -> Bool
 contains location box =
     L.isLocationInRectangleAt box.location box.width box.height location
+
+
+shape : Color -> Box -> Shape
+shape c box =
+    rectangle c box.width box.height
+
+
+moveShape : Box -> Shape -> Shape
+moveShape box =
+    L.moveShape box.location
