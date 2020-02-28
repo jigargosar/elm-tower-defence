@@ -1143,33 +1143,45 @@ stepWorldSeed func world =
 stepTower : List AAKMonster -> Tower -> ( Tower, List Event )
 stepTower aakMonsters tower =
     if tower.elapsed >= tower.delay then
+        let
+            inRangeHelp aak =
+                isLocationInRangeOfTower aak.location tower
+        in
         case
-            List.Extra.find
-                (\aak ->
-                    isLocationInRangeOfTower aak.location tower
-                )
-                aakMonsters
+            ( List.filter inRangeHelp aakMonsters, tower.towerType )
         of
-            Just aak ->
-                ( { tower | elapsed = 0 }
-                , [ case tower.towerType of
-                        ArrowTower ->
-                            SpawnBullet
-                                { monsterId = aak.id
-                                , start = tower.location
-                                , target = aak.location
-                                }
+            ( [], _ ) ->
+                ( tower, [] )
 
-                        BombTower ->
-                            SpawnBomb
-                                { from = tower.location
-                                , to = aak.location
-                                }
+            ( aak :: _, BombTower ) ->
+                ( { tower | elapsed = 0 }
+                , [ SpawnBomb
+                        { from = tower.location
+                        , to = aak.location
+                        }
                   ]
                 )
 
-            Nothing ->
-                ( tower, [] )
+            ( aakList, ArrowTower ) ->
+                let
+                    sb aak =
+                        SpawnBullet
+                            { monsterId = aak.id
+                            , start = tower.location
+                            , target = aak.location
+                            }
+                in
+                ( { tower | elapsed = 0 }
+                , List.map sb
+                    (aakList
+                        |> (if isPowerUpgraded tower then
+                                List.take 2
+
+                            else
+                                List.take 1
+                           )
+                    )
+                )
 
     else
         ( { tower | elapsed = tower.elapsed + 1 }, [] )
