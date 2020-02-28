@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/elm-adventure.iml" filepath="$PROJECT_DIR$/elm-adventure.iml" />
+      <module fileurl="file://$PROJECT_DIR$/elm-tower-defence.iml" filepath="$PROJECT_DIR$/elm-tower-defence.iml" />
     </modules>
   </component>
 </project>
