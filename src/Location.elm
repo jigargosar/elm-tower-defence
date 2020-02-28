@@ -6,6 +6,7 @@ module Location exposing
     , isLocationInRectangleAt
     , isLocationInSquareAt
     , moveShape
+    , ofMouse
     , origin
     , shiftX
     , shiftY
@@ -98,6 +99,11 @@ isLocationInRectangleAt (Location cx cy) w h (Location x y) =
     in
     (x < minX || x > maxX || y < minY || y > maxY)
         |> not
+
+
+ofMouse : Mouse -> Location
+ofMouse { x, y } =
+    at x y
 
 
 moveShape : Location -> Shape -> Shape

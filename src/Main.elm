@@ -4,7 +4,8 @@ import Bomb exposing (Bomb)
 import BombId exposing (BombId)
 import Box exposing (Box)
 import List.Extra
-import Location as L exposing (Location)
+import Location as Loc exposing (Location)
+import Maybe.Extra
 import Playground exposing (..)
 import Random exposing (Generator, Seed)
 import Random.Extra
@@ -168,12 +169,12 @@ upgradeOfTower =
 
 isLocationInRangeOfTower : Location -> Tower -> Bool
 isLocationInRangeOfTower location tower =
-    L.distanceFromTo location tower.location <= tower.range
+    Loc.distanceFromTo location tower.location <= tower.range
 
 
 isLocationOnTowerView : Location -> Tower -> Bool
 isLocationOnTowerView location tower =
-    L.isLocationInSquareAt tower.location tower.viewWidth location
+    Loc.isLocationInSquareAt tower.location tower.viewWidth location
 
 
 
@@ -323,8 +324,8 @@ initButtons location upgradeState =
         isPowerUpgraded =
             isUpgradeApplied PowerUpgrade upgradeState
     in
-    [ Button (location |> L.shiftX -w) w h "RANGE" UpgradeRangeClicked isRangeUpgraded
-    , Button (location |> L.shiftX w) w h "POWER" UpgradePowerClicked isPowerUpgraded
+    [ Button (location |> Loc.shiftX -w) w h "RANGE" UpgradeRangeClicked isRangeUpgraded
+    , Button (location |> Loc.shiftX w) w h "POWER" UpgradePowerClicked isPowerUpgraded
     ]
 
 
@@ -383,7 +384,7 @@ initPath : Location -> List Location -> Path
 initPath start rest =
     let
         pathLen =
-            List.foldl (\to ( accDistance, from ) -> ( L.distanceFromTo from to + accDistance, to ))
+            List.foldl (\to ( accDistance, from ) -> ( Loc.distanceFromTo from to + accDistance, to ))
                 ( 0, start )
                 rest
                 |> Tuple.first
@@ -434,17 +435,17 @@ initPathBuilder offset start =
 
 goDown : PathBuilder -> PathBuilder
 goDown p =
-    { p | current = L.shiftY -p.offset p.current }
+    { p | current = Loc.shiftY -p.offset p.current }
 
 
 goUp : PathBuilder -> PathBuilder
 goUp p =
-    { p | current = L.shiftY p.offset p.current }
+    { p | current = Loc.shiftY p.offset p.current }
 
 
 goRight : PathBuilder -> PathBuilder
 goRight p =
-    { p | current = L.shiftX p.offset p.current }
+    { p | current = Loc.shiftX p.offset p.current }
 
 
 addWayPoint : PathBuilder -> PathBuilder
@@ -492,7 +493,7 @@ stepPathProgress (PathProgress p) =
             Nothing
 
         wp :: rest ->
-            case L.stepLocationTowards wp p.speed p.location of
+            case Loc.stepLocationTowards wp p.speed p.location of
                 Nothing ->
                     Just (PathProgress { p | location = wp, wayPoints = rest })
 
@@ -724,7 +725,7 @@ init =
     let
         path : Path
         path =
-            initPathBuilder 50 (L.at -250 0)
+            initPathBuilder 50 (Loc.at -250 0)
                 |> applyNTimes 2 goRight
                 |> addWayPoint
                 |> applyNTimes 3 goDown
@@ -766,10 +767,10 @@ initialGen =
     let
         initialTowersGenerator : Generator (List Tower)
         initialTowersGenerator =
-            [ arrowTowerGenerator (L.at -150 -100)
-            , arrowTowerGenerator (L.at 150 100)
-            , bombTowerGenerator (L.at 0 0)
-            , bombTowerGenerator (L.at 150 -100)
+            [ arrowTowerGenerator (Loc.at -150 -100)
+            , arrowTowerGenerator (Loc.at 150 100)
+            , bombTowerGenerator (Loc.at 0 0)
+            , bombTowerGenerator (Loc.at 150 -100)
             ]
                 |> Random.Extra.combine
     in
@@ -836,29 +837,63 @@ stepWordClick computer world =
             computer
     in
     if mouse.click then
-        let
-            clickedTower =
-                List.Extra.find (isLocationOnTowerView (L.at mouse.x mouse.y)) world.towers
-        in
-        case ( world.selectedTowerId, clickedTower ) of
-            ( Nothing, Just tower ) ->
-                { world | selectedTowerId = Just (idOfTower tower) }
+        case computeClickEventAt (Loc.ofMouse mouse) world of
+            Just e ->
+                handleClickEvent e world
 
-            ( Just _, Nothing ) ->
-                { world | selectedTowerId = Nothing }
-
-            ( Just tid, Just tower ) ->
-                if tid == idOfTower tower then
-                    { world | selectedTowerId = Nothing }
-
-                else
-                    { world | selectedTowerId = Just (idOfTower tower) }
-
-            _ ->
+            Nothing ->
                 world
 
     else
         world
+
+
+handleClickEvent : ClickEvent -> World -> World
+handleClickEvent e world =
+    case e of
+        TowerClicked t ->
+            { world | selectedTowerId = Just (idOfTower t) }
+
+        SelectedTowerClicked _ ->
+            { world | selectedTowerId = Nothing }
+
+        UpgradeBtnClicked tower upgradeButton ->
+            world
+
+
+findSelectedTower : World -> Maybe Tower
+findSelectedTower world =
+    world.selectedTowerId
+        |> Maybe.andThen (\tid -> List.Extra.find (idOfTower >> is tid) world.towers)
+
+
+computeClickEventAt : Location -> World -> Maybe ClickEvent
+computeClickEventAt location world =
+    let
+        lazy1 _ =
+            findSelectedTower world
+                |> Maybe.andThen
+                    (\t ->
+                        if isLocationOnTowerView location t then
+                            Just (SelectedTowerClicked t)
+
+                        else
+                            initTowerUpgradeButtons (locationOfTower t) (upgradeOfTower t) world.gold
+                                |> List.Extra.find (.box >> Box.contains location)
+                                |> Maybe.map (UpgradeBtnClicked t)
+                    )
+
+        lazy2 _ =
+            List.Extra.find (isLocationOnTowerView location) world.towers
+                |> Maybe.map TowerClicked
+    in
+    Maybe.Extra.orListLazy [ lazy1, lazy2 ]
+
+
+type ClickEvent
+    = SelectedTowerClicked Tower
+    | UpgradeBtnClicked Tower UpgradeButton
+    | TowerClicked Tower
 
 
 stepWorldLair : World -> World
@@ -985,7 +1020,7 @@ handleEvent event world =
         BombExploded { at, aoe, damage } ->
             let
                 isLocationInAOE =
-                    L.isLocationInRangeOf at aoe
+                    Loc.isLocationInRangeOf at aoe
 
                 monsterIdsInBombAOE =
                     world.monsters
@@ -1139,7 +1174,7 @@ stepMonster monster =
 
 stepBullet : Bullet -> ( Bullet, List Event )
 stepBullet bullet =
-    case L.stepLocationTowards bullet.target bullet.speed bullet.location of
+    case Loc.stepLocationTowards bullet.target bullet.speed bullet.location of
         Nothing ->
             ( bullet, [ RemoveBullet bullet.id, BulletHitMonster bullet.monsterId ] )
 
@@ -1220,7 +1255,7 @@ viewPath path =
     let
         ep location =
             circle lightCharcoal 8
-                |> L.moveShape location
+                |> Loc.moveShape location
     in
     pathToLocations path
         |> List.map ep
@@ -1263,7 +1298,7 @@ viewMonster monster =
 
         placeShape : PathProgress -> Shape -> Shape
         placeShape travel =
-            scale 0.7 >> L.moveShape (locationOfPathProgress travel)
+            scale 0.7 >> Loc.moveShape (locationOfPathProgress travel)
     in
     case monster.state of
         AliveAndKicking { travel, health } ->
@@ -1318,13 +1353,13 @@ viewTower isSelected tower =
     , square darkC tower.viewWidth
     ]
         |> group
-        |> L.moveShape tower.location
+        |> Loc.moveShape tower.location
 
 
 viewBullet : Bullet -> Shape
 viewBullet bullet =
     circle blue 5
-        |> L.moveShape bullet.location
+        |> Loc.moveShape bullet.location
 
 
 noShape : Shape
