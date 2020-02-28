@@ -72,18 +72,30 @@ horizontalLayout gap list =
         listWidth =
             list |> List.map width |> List.sum
 
+        gapsWidth =
+            list |> List.length |> (+) -1 |> max 0 |> toFloat |> (*) gap
+
+        listWidthWithGaps =
+            listWidth + gapsWidth
+
         firstLeft =
-            listWidth / 2
+            -listWidthWithGaps / 2
 
         func : Box -> ( Float, List Box ) -> ( Float, List Box )
         func box ( left, nl ) =
             let
                 nb =
                     box
-                        |> mapLocation (L.setX (left + width box / 2))
+                        |> mapLocation (L.setX (left + (width box / 2)))
             in
             ( left + width box + gap, nb :: nl )
+
+        ret =
+            List.foldl func ( firstLeft, [] ) list
+                |> Tuple.second
+                |> List.reverse
+
+        _ =
+            Debug.log "debug" ( ( firstLeft, listWidthWithGaps ), ( gapsWidth, gap ), ret )
     in
-    List.foldl func ( firstLeft, [] ) list
-        |> Tuple.second
-        |> List.reverse
+    ret

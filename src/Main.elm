@@ -319,10 +319,17 @@ initTowerUpgradeButtons location upgradeState gold =
 
         offset =
             0.75
+
+        f : List UpgradeButton
+        f =
+            [ box, box ]
+                |> Box.horizontalLayout 50
+                |> List.map2 (\ut b -> initBtnHelp (always b) ut) [ RangeUpgrade, PowerUpgrade ]
     in
-    [ initBtnHelp (Box.shiftXByWidthF (mul -offset)) RangeUpgrade
-    , initBtnHelp (Box.shiftXByWidthF (mul offset)) PowerUpgrade
-    ]
+    --[ initBtnHelp (Box.shiftXByWidthF (mul -offset)) RangeUpgrade
+    --, initBtnHelp (Box.shiftXByWidthF (mul offset)) PowerUpgrade
+    --]
+    f
 
 
 isUpgradeApplied : UpgradeType -> UpgradeState -> Bool
