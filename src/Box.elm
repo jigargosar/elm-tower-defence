@@ -94,8 +94,5 @@ horizontalLayout gap list =
             List.foldl func ( firstLeft, [] ) list
                 |> Tuple.second
                 |> List.reverse
-
-        _ =
-            Debug.log "debug" ( ( firstLeft, listWidthWithGaps ), ( gapsWidth, gap ), ret )
     in
     ret
