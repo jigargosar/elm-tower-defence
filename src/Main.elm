@@ -667,7 +667,7 @@ lairGenerator =
         |> Random.map
             (\seed ->
                 { seed = seed
-                , delay = 40
+                , delay = 1
                 , elapsed = 0
                 }
             )
@@ -1202,8 +1202,14 @@ stepLair : Lair -> ( Lair, List Event )
 stepLair lair =
     if lair.elapsed >= lair.delay then
         let
+            true =
+                10
+
+            false =
+                100 - true
+
             randomBool =
-                Random.weighted ( 20, False ) [ ( 80, True ) ]
+                Random.weighted ( false, False ) [ ( true, True ) ]
 
             ( bool, seed ) =
                 Random.step randomBool lair.seed
