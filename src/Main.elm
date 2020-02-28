@@ -133,6 +133,11 @@ isLocationInRangeOfTower location tower =
     L.distanceFromTo location tower.location <= tower.range
 
 
+isLocationOnTowerView : Location -> Tower -> Bool
+isLocationOnTowerView location tower =
+    L.isLocationInSquareAt tower.location tower.viewWidth location
+
+
 
 -- Bullet
 -- TODO: Should we rename it to Arrow?
