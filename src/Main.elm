@@ -117,6 +117,11 @@ type alias Tower =
     }
 
 
+isPowerUpgraded : Tower -> Bool
+isPowerUpgraded tower =
+    isUpgradeApplied PowerUpgrade (upgradeOfTower tower)
+
+
 rangeOfTower : Tower -> Number
 rangeOfTower tower =
     case ( tower.towerType, isUpgradeApplied RangeUpgrade tower.upgrade ) of
@@ -995,18 +1000,15 @@ setGold gold world =
 
 
 stepWorldTowers : Computer -> World -> World
-stepWorldTowers computer world =
+stepWorldTowers _ world =
     let
         akaMonstersSortedByRemainingDistance =
             world.monsters
                 |> List.filterMap aakMonsterState
                 |> List.sortBy .remainingDistance
 
-        stepTowerHelp tower =
-            stepTower computer
-                (Just (idOfTower tower) == world.selectedTowerId)
-                akaMonstersSortedByRemainingDistance
-                tower
+        stepTowerHelp =
+            stepTower akaMonstersSortedByRemainingDistance
 
         ( selfUpdatedTowers, towerEventGroups ) =
             List.map stepTowerHelp world.towers
@@ -1138,12 +1140,8 @@ stepWorldSeed func world =
 -- WORLD ENTITY STEP FUNCTIONS
 
 
-stepTower : Computer -> Bool -> List AAKMonster -> Tower -> ( Tower, List Event )
-stepTower computer _ aakMonsters tower =
-    let
-        { mouse } =
-            computer
-    in
+stepTower : List AAKMonster -> Tower -> ( Tower, List Event )
+stepTower aakMonsters tower =
     if tower.elapsed >= tower.delay then
         case
             List.Extra.find
