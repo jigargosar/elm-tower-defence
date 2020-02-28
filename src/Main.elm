@@ -100,7 +100,7 @@ towerIdGenerator =
 
 type TowerType
     = Archer
-    | Bomber
+    | BombLauncher
 
 
 type alias Tower =
@@ -127,10 +127,10 @@ rangeOfTower tower =
         ( Archer, True ) ->
             arrowTowerRange2
 
-        ( Bomber, False ) ->
+        ( BombLauncher, False ) ->
             bombTowerRange
 
-        ( Bomber, True ) ->
+        ( BombLauncher, True ) ->
             bombTowerRange2
 
 
@@ -159,7 +159,7 @@ bombTowerGenerator location =
                 { id = tid
                 , delay = bombTowerReloadDelay
                 , range = bombTowerRange
-                , towerType = Bomber
+                , towerType = BombLauncher
                 , location = location
                 , viewWidth = allTowersViewWidth
                 , upgrade = UpgradeNone
@@ -1174,7 +1174,7 @@ stepTower computer _ aakMonsters tower =
                                 , target = aak.location
                                 }
 
-                        Bomber ->
+                        BombLauncher ->
                             SpawnBomb
                                 { from = tower.location
                                 , to = aak.location
@@ -1417,7 +1417,7 @@ viewTower isSelected tower =
                 Archer ->
                     ( lightBlue, blue )
 
-                Bomber ->
+                BombLauncher ->
                     ( lightBrown, brown )
     in
     [ [ circle lightC tower.range |> fade 0.3
