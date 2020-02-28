@@ -667,7 +667,7 @@ lairGenerator =
         |> Random.map
             (\seed ->
                 { seed = seed
-                , delay = 60
+                , delay = 40
                 , elapsed = 0
                 }
             )
@@ -1203,7 +1203,7 @@ stepLair lair =
     if lair.elapsed >= lair.delay then
         let
             randomBool =
-                Random.int 0 1 |> Random.map (is 0)
+                Random.weighted ( 20, False ) [ ( 80, True ) ]
 
             ( bool, seed ) =
                 Random.step randomBool lair.seed
