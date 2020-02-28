@@ -800,7 +800,6 @@ type Event
     | BombExploded { at : Location, aoe : Number, damage : Number }
     | RemoveBomb BombId
     | SpawnBomb { from : Location, to : Location }
-    | SelectTower TowerId
 
 
 update : Computer -> Game -> Game
@@ -848,7 +847,7 @@ stepWordClick computer world =
                 handleClickEvent e world
 
             Nothing ->
-                { world | selectedTowerId = Nothing }
+                clearTowerSelection world
 
     else
         world
@@ -858,10 +857,10 @@ handleClickEvent : ClickEvent -> World -> World
 handleClickEvent e world =
     case e of
         TowerClicked t ->
-            { world | selectedTowerId = Just (idOfTower t) }
+            selectTower t world
 
         SelectedTowerClicked _ ->
-            { world | selectedTowerId = Nothing }
+            clearTowerSelection world
 
         UpgradeBtnClicked tower upgradeButton ->
             case upgradeTower upgradeButton.upgradeType tower of
@@ -964,6 +963,26 @@ setBullet bullet world =
 setTower : Tower -> World -> World
 setTower tower world =
     { world | towers = List.Extra.setIf (idOfTower >> is (idOfTower tower)) tower world.towers }
+
+
+setSelectedTowerId : Maybe TowerId -> World -> World
+setSelectedTowerId maybeTowerId world =
+    { world | selectedTowerId = maybeTowerId }
+
+
+selectTowerId : TowerId -> World -> World
+selectTowerId towerId =
+    setSelectedTowerId (Just towerId)
+
+
+selectTower : Tower -> World -> World
+selectTower tower =
+    selectTowerId (idOfTower tower)
+
+
+clearTowerSelection : World -> World
+clearTowerSelection =
+    setSelectedTowerId Nothing
 
 
 setGold : Number -> World -> World
@@ -1098,9 +1117,6 @@ handleEvent event world =
                 )
                 world
                 |> uncurry insertNewBomb
-
-        SelectTower towerId ->
-            { world | selectedTowerId = Just towerId }
 
 
 insertNewBomb : Bomb -> World -> World
