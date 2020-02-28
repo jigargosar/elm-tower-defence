@@ -243,7 +243,7 @@ upgradeCost upgradeState upgradeType =
                 Just secondUpgradeCost
 
         UpgradeBoth ->
-            Just secondUpgradeCost
+            Nothing
 
 
 initUpgradeButton : Box -> UpgradeState -> UpgradeType -> Number -> UpgradeButton
