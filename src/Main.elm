@@ -146,6 +146,7 @@ type alias Button =
     { location : Location
     , width : Number
     , height : Number
+    , text : String
     }
 
 
