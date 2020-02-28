@@ -26,6 +26,10 @@ bombTowerRange =
     150
 
 
+bombTowerRange2 =
+    200
+
+
 bombSpeed =
     3
 
@@ -38,7 +42,11 @@ towerReloadDelay =
     40
 
 
-towerRange =
+arrowTowerRange =
+    150
+
+
+towerRange2 =
     200
 
 
@@ -99,7 +107,7 @@ arrowTowerGenerator location =
             (\tid ->
                 { id = tid
                 , delay = towerReloadDelay
-                , range = towerRange
+                , range = arrowTowerRange
                 , towerType = ArrowShooter
                 , location = location
                 , viewWidth = allTowersViewWidth
