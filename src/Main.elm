@@ -128,6 +128,11 @@ idOfTower =
     .id
 
 
+locationOfTower : Tower -> Location
+locationOfTower =
+    .location
+
+
 isLocationInRangeOfTower : Location -> Tower -> Bool
 isLocationInRangeOfTower location tower =
     L.distanceFromTo location tower.location <= tower.range
@@ -1028,8 +1033,26 @@ viewWorld _ world =
     , List.map viewMonster world.monsters |> group
     , List.map Bomb.viewBomb world.bombs |> group
     , List.map viewBullet world.bullets |> group
+    , case List.Extra.find (idOfTower >> Just >> is world.selectedTowerId) world.towers of
+        Just t ->
+            locationOfTower t
+                |> initButtons
+                |> List.map viewButton
+                |> group
+
+        Nothing ->
+            noShape
     ]
         |> group
+
+
+viewButton : Button -> Shape
+viewButton button =
+    [ rectangle lightOrange button.width button.height
+    , words charcoal button.text
+    ]
+        |> group
+        |> L.moveShape button.location
 
 
 viewPath : Path -> Shape
