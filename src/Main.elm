@@ -157,7 +157,16 @@ type alias Button =
 
 initButtons : Location -> List Button
 initButtons location =
-    [ Button location 100 50 "TOWER UI BUTTON" ]
+    let
+        w =
+            100
+
+        h =
+            50
+    in
+    [ Button (location |> L.shiftX -w) w h "UPGRADE"
+    , Button (location |> L.shiftX w) w h "SELL"
+    ]
 
 
 
