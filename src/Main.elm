@@ -278,7 +278,28 @@ viewUpgradeButton btn =
                 lightOrange
         )
         btn.box
-    , words black
+    , (case btn.state of
+        Active ->
+            words white "upgraded"
+
+        Disabled number ->
+            words black (fromInt (round number))
+
+        Enabled number ->
+            words black (fromInt (round number))
+      )
+        |> moveDown 10
+    , words
+        (case btn.state of
+            Active ->
+                white
+
+            Disabled number ->
+                black
+
+            Enabled number ->
+                black
+        )
         (case btn.upgradeType of
             PowerUpgrade ->
                 "POWER"
@@ -286,6 +307,7 @@ viewUpgradeButton btn =
             RangeUpgrade ->
                 "RANGE"
         )
+        |> moveUp 10
     ]
         |> group
         |> Box.moveShape btn.box
