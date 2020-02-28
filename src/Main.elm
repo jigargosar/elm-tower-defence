@@ -87,6 +87,7 @@ type alias Tower =
     , towerType : TowerType
 
     -- STATE
+    , upgrade : UpgradeState
     , elapsed : Number -- RELOAD PROGRESS
     }
 
@@ -102,6 +103,7 @@ arrowTowerGenerator location =
                 , towerType = ArrowShooter
                 , location = location
                 , viewWidth = allTowersViewWidth
+                , upgrade = UpgradeNone
                 , elapsed = 0
                 }
             )
@@ -118,6 +120,7 @@ bombTowerGenerator location =
                 , towerType = AOEShooter
                 , location = location
                 , viewWidth = allTowersViewWidth
+                , upgrade = UpgradeNone
                 , elapsed = 0
                 }
             )
@@ -158,7 +161,7 @@ type UpgradeType
 
 
 type UpgradeState
-    = NoUpgrade
+    = UpgradeNone
     | UpgradeOne UpgradeType
     | UpgradeBoth
 
