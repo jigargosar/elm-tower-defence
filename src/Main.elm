@@ -315,7 +315,8 @@ initTowerUpgradeButtons location upgradeState gold =
             [ RangeUpgrade, PowerUpgrade ]
 
         boxList =
-            List.repeat (List.length upgradesList) (Box.initAt location buttonWidth buttonHeight)
+            List.repeat (List.length upgradesList)
+                (Box.initAt location buttonWidth buttonHeight)
                 |> Box.horizontalLayout 50
 
         initBtnHelp box upgradeType =
