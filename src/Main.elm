@@ -91,8 +91,8 @@ type alias Tower =
     }
 
 
-towerGenerator : Location -> Generator Tower
-towerGenerator location =
+arrowTowerGenerator : Location -> Generator Tower
+arrowTowerGenerator location =
     towerIdGenerator
         |> Random.map
             (\tid ->
@@ -107,8 +107,8 @@ towerGenerator location =
             )
 
 
-tower2Generator : Location -> Generator Tower
-tower2Generator location =
+bombTowerGenerator : Location -> Generator Tower
+bombTowerGenerator location =
     towerIdGenerator
         |> Random.map
             (\tid ->
@@ -569,10 +569,10 @@ initialGen =
     let
         initialTowersGenerator : Generator (List Tower)
         initialTowersGenerator =
-            [ towerGenerator (L.at -150 -100)
-            , towerGenerator (L.at 150 100)
-            , tower2Generator (L.at 0 0)
-            , tower2Generator (L.at 150 -100)
+            [ arrowTowerGenerator (L.at -150 -100)
+            , arrowTowerGenerator (L.at 150 100)
+            , bombTowerGenerator (L.at 0 0)
+            , bombTowerGenerator (L.at 150 -100)
             ]
                 |> Random.Extra.combine
     in
