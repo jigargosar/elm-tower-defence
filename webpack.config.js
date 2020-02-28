@@ -9,6 +9,7 @@ npm i -D webpack webpack-cli webpack-dev-server html-webpack-plugin style-loader
 module.exports = (_, config) => {
   const isProd = config.mode === 'production'
   return {
+    entry: "./src/index2.js",
     output: {
       publicPath: '/',
     },

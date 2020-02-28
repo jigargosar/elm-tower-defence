@@ -34,3 +34,7 @@ function initElmApp() {
   })
   return app
 }
+
+
+const {init} = require("kontra")
+console.log(init())
