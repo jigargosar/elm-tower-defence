@@ -148,8 +148,8 @@ isLocationOnTowerView location tower =
 
 
 type Msg
-    = Upgrade
-    | Sell
+    = UpgradeRange
+    | UpgradePower
 
 
 type alias Button =
@@ -170,8 +170,8 @@ initButtons location =
         h =
             50
     in
-    [ Button (location |> L.shiftX -w) w h "UPGRADE" Upgrade
-    , Button (location |> L.shiftX w) w h "SELL" Sell
+    [ Button (location |> L.shiftX -w) w h "RANGE" UpgradeRange
+    , Button (location |> L.shiftX w) w h "POWER" UpgradePower
     ]
 
 
@@ -590,7 +590,7 @@ init =
         { lair = ig.lair
         , path = path
         , towers = ig.towers
-        , selectedTowerId = Nothing
+        , selectedTowerId = ig.towers |> List.head |> Maybe.map idOfTower
         , bullets = []
         , bombs = []
         , monsters = []
