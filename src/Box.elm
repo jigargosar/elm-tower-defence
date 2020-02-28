@@ -86,7 +86,7 @@ horizontalLayout gap list =
             let
                 nb =
                     box
-                        |> mapLocation (L.setX (left + (width box / 2)))
+                        |> mapLocation (L.shiftX (left + (width box / 2)))
             in
             ( left + width box + gap, nb :: nl )
 
