@@ -99,8 +99,8 @@ towerIdGenerator =
 
 
 type TowerType
-    = ArrowShooter
-    | AOEShooter
+    = Archer
+    | Bomber
 
 
 type alias Tower =
@@ -121,16 +121,16 @@ type alias Tower =
 rangeOfTower : Tower -> Number
 rangeOfTower tower =
     case ( tower.towerType, isUpgradeApplied PowerUpgrade tower.upgrade ) of
-        ( ArrowShooter, False ) ->
+        ( Archer, False ) ->
             arrowTowerRange
 
-        ( ArrowShooter, True ) ->
+        ( Archer, True ) ->
             arrowTowerRange2
 
-        ( AOEShooter, False ) ->
+        ( Bomber, False ) ->
             bombTowerRange
 
-        ( AOEShooter, True ) ->
+        ( Bomber, True ) ->
             bombTowerRange2
 
 
@@ -142,7 +142,7 @@ arrowTowerGenerator location =
                 { id = tid
                 , delay = towerReloadDelay
                 , range = arrowTowerRange
-                , towerType = ArrowShooter
+                , towerType = Archer
                 , location = location
                 , viewWidth = allTowersViewWidth
                 , upgrade = UpgradeNone
@@ -159,7 +159,7 @@ bombTowerGenerator location =
                 { id = tid
                 , delay = bombTowerReloadDelay
                 , range = bombTowerRange
-                , towerType = AOEShooter
+                , towerType = Bomber
                 , location = location
                 , viewWidth = allTowersViewWidth
                 , upgrade = UpgradeNone
@@ -1167,14 +1167,14 @@ stepTower computer _ aakMonsters tower =
             Just aak ->
                 ( { tower | elapsed = 0 }
                 , [ case tower.towerType of
-                        ArrowShooter ->
+                        Archer ->
                             SpawnBullet
                                 { monsterId = aak.id
                                 , start = tower.location
                                 , target = aak.location
                                 }
 
-                        AOEShooter ->
+                        Bomber ->
                             SpawnBomb
                                 { from = tower.location
                                 , to = aak.location
@@ -1414,10 +1414,10 @@ viewTower isSelected tower =
     let
         ( lightC, darkC ) =
             case tower.towerType of
-                ArrowShooter ->
+                Archer ->
                     ( lightBlue, blue )
 
-                AOEShooter ->
+                Bomber ->
                     ( lightBrown, brown )
     in
     [ [ circle lightC tower.range |> fade 0.3
