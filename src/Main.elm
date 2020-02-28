@@ -311,25 +311,17 @@ viewUpgradeButton btn =
 initTowerUpgradeButtons : Location -> UpgradeState -> Number -> List UpgradeButton
 initTowerUpgradeButtons location upgradeState gold =
     let
-        box =
-            Box.initAt location buttonWidth buttonHeight
+        upgradesList =
+            [ RangeUpgrade, PowerUpgrade ]
 
-        initBtnHelp boxFunc upgradeType =
-            initUpgradeButton (box |> boxFunc) upgradeState upgradeType gold
-
-        offset =
-            0.75
-
-        f : List UpgradeButton
-        f =
-            [ box, box ]
+        boxList =
+            List.repeat (List.length upgradesList) (Box.initAt location buttonWidth buttonHeight)
                 |> Box.horizontalLayout 50
-                |> List.map2 (\ut b -> initBtnHelp (always b) ut) [ RangeUpgrade, PowerUpgrade ]
+
+        initBtnHelp box upgradeType =
+            initUpgradeButton box upgradeState upgradeType gold
     in
-    --[ initBtnHelp (Box.shiftXByWidthF (mul -offset)) RangeUpgrade
-    --, initBtnHelp (Box.shiftXByWidthF (mul offset)) PowerUpgrade
-    --]
-    f
+    List.map2 initBtnHelp boxList upgradesList
 
 
 isUpgradeApplied : UpgradeType -> UpgradeState -> Bool
