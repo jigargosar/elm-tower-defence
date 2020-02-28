@@ -36,5 +36,3 @@ function initElmApp() {
 }
 
 
-const {init} = require("kontra")
-console.log(init())
