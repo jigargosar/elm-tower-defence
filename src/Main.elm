@@ -1164,7 +1164,7 @@ stepTower aakMonsters tower =
 
             ( aakList, ArrowTower ) ->
                 let
-                    sb aak =
+                    spawnArrowHelp aak =
                         SpawnBullet
                             { monsterId = aak.id
                             , start = tower.location
@@ -1172,7 +1172,7 @@ stepTower aakMonsters tower =
                             }
                 in
                 ( { tower | elapsed = 0 }
-                , List.map sb
+                , List.map spawnArrowHelp
                     (aakList
                         |> (if isPowerUpgraded tower then
                                 List.take 2
