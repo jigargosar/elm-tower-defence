@@ -623,7 +623,7 @@ update computer game =
 
 
 
--- UPDATE WORLD 2
+-- UPDATE WORLD
 
 
 updateWorld : Computer -> World -> World
@@ -634,6 +634,32 @@ updateWorld computer =
         >> stepWorldMonsters
         >> stepWorldBombs
         >> stepWorldTowers computer
+        >> stepWordClick computer
+
+
+stepWordClick : Computer -> World -> World
+stepWordClick computer world =
+    let
+        { mouse } =
+            computer
+    in
+    if mouse.click then
+        let
+            clickedTower =
+                List.Extra.find (isLocationOnTowerView (L.at mouse.x mouse.y)) world.towers
+        in
+        case ( world.selectedTowerId, clickedTower ) of
+            ( Nothing, Just tower ) ->
+                { world | selectedTowerId = Just (idOfTower tower) }
+
+            ( Just tid, Nothing ) ->
+                { world | selectedTowerId = Nothing }
+
+            _ ->
+                world
+
+    else
+        world
 
 
 stepWorldLair : World -> World
