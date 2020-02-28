@@ -18,6 +18,14 @@ isDebug =
     True
 
 
+firstUpgradeCost =
+    75
+
+
+secondUpgradeCost =
+    150
+
+
 bombTowerReloadDelay =
     50
 
@@ -195,17 +203,17 @@ upgradeCost : UpgradeState -> UpgradeType -> Maybe Number
 upgradeCost upgradeState upgradeType =
     case upgradeState of
         UpgradeNone ->
-            Just 75
+            Just firstUpgradeCost
 
         UpgradeOne appliedUT ->
             if upgradeType == appliedUT then
                 Nothing
 
             else
-                Just 150
+                Just secondUpgradeCost
 
         UpgradeBoth ->
-            Just 150
+            Just secondUpgradeCost
 
 
 initPowerUpgradeButton : Location -> UpgradeState -> Number -> PowerUpgradeButton
