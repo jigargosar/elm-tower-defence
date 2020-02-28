@@ -148,7 +148,7 @@ arrowTowerGenerator location =
                 , towerType = ArrowTower
                 , location = location
                 , viewWidth = allTowersViewWidth
-                , upgrade = UpgradeNone
+                , upgrade = NoUpgrades
                 , elapsed = 0
                 }
             )
@@ -164,7 +164,7 @@ bombTowerGenerator location =
                 , towerType = BombTower
                 , location = location
                 , viewWidth = allTowersViewWidth
-                , upgrade = UpgradeNone
+                , upgrade = NoUpgrades
                 , elapsed = 0
                 }
             )
@@ -211,9 +211,9 @@ type UpgradeType
 
 
 type UpgradeState
-    = UpgradeNone
-    | UpgradeOne UpgradeType
-    | UpgradeBoth
+    = NoUpgrades
+    | OneUpgraded UpgradeType
+    | BothUpgraded
 
 
 type alias UpgradeButton =
@@ -232,17 +232,17 @@ type UpgradeButtonState
 upgradeCost : UpgradeState -> UpgradeType -> Maybe Number
 upgradeCost upgradeState upgradeType =
     case upgradeState of
-        UpgradeNone ->
+        NoUpgrades ->
             Just firstUpgradeCost
 
-        UpgradeOne appliedUT ->
+        OneUpgraded appliedUT ->
             if upgradeType == appliedUT then
                 Nothing
 
             else
                 Just secondUpgradeCost
 
-        UpgradeBoth ->
+        BothUpgraded ->
             Nothing
 
 
@@ -334,13 +334,13 @@ initTowerUpgradeButtons location upgradeState gold =
 isUpgradeApplied : UpgradeType -> UpgradeState -> Bool
 isUpgradeApplied upgradeType upgradeState =
     case upgradeState of
-        UpgradeNone ->
+        NoUpgrades ->
             False
 
-        UpgradeOne appliedUpgradeType ->
+        OneUpgraded appliedUpgradeType ->
             upgradeType == appliedUpgradeType
 
-        UpgradeBoth ->
+        BothUpgraded ->
             True
 
 
@@ -901,17 +901,17 @@ handleWorldClickEvent e world =
 applyUpgrade : UpgradeType -> UpgradeState -> Maybe ( Number, UpgradeState )
 applyUpgrade upgradeType upgradeState =
     case upgradeState of
-        UpgradeNone ->
-            Just ( firstUpgradeCost, UpgradeOne upgradeType )
+        NoUpgrades ->
+            Just ( firstUpgradeCost, OneUpgraded upgradeType )
 
-        UpgradeOne appliedUT ->
+        OneUpgraded appliedUT ->
             if upgradeType == appliedUT then
                 Nothing
 
             else
-                Just ( secondUpgradeCost, UpgradeBoth )
+                Just ( secondUpgradeCost, BothUpgraded )
 
-        UpgradeBoth ->
+        BothUpgraded ->
             Nothing
 
 
