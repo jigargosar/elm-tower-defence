@@ -842,7 +842,7 @@ stepWordClick computer world =
                 handleClickEvent e world
 
             Nothing ->
-                world
+                { world | selectedTowerId = Nothing }
 
     else
         world
