@@ -772,7 +772,7 @@ init =
         , bombs = []
         , monsters = []
         , house = initHouse
-        , gold = 100
+        , gold = 200
         , nextIdx = 0
         , seed = worldSeed
         }
