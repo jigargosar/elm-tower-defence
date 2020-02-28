@@ -179,6 +179,65 @@ type UpgradeState
     | UpgradeBoth
 
 
+type alias PowerUpgradeButton =
+    { location : Location
+    , state : UpgradeButtonState
+    }
+
+
+type UpgradeButtonState
+    = Active
+    | Disabled Number
+    | Enabled Number
+
+
+upgradeCost : UpgradeState -> UpgradeType -> Maybe Number
+upgradeCost upgradeState upgradeType =
+    case upgradeState of
+        UpgradeNone ->
+            Just 75
+
+        UpgradeOne appliedUT ->
+            if upgradeType == appliedUT then
+                Nothing
+
+            else
+                Just 150
+
+        UpgradeBoth ->
+            Just 150
+
+
+initPowerUpgradeButton : Location -> UpgradeState -> Number -> PowerUpgradeButton
+initPowerUpgradeButton location upgradeState gold =
+    { location = location
+    , state =
+        case upgradeCost upgradeState PowerUpgrade of
+            Nothing ->
+                Active
+
+            Just cost ->
+                if cost <= gold then
+                    Enabled cost
+
+                else
+                    Disabled cost
+    }
+
+
+isUpgradeApplied : UpgradeType -> UpgradeState -> Bool
+isUpgradeApplied upgradeType upgradeState =
+    case upgradeState of
+        UpgradeNone ->
+            False
+
+        UpgradeOne appliedUpgradeType ->
+            upgradeType == appliedUpgradeType
+
+        UpgradeBoth ->
+            True
+
+
 type alias Button =
     { location : Location
     , width : Number
@@ -199,21 +258,10 @@ initButtons location upgradeState =
             50
 
         isRangeUpgraded =
-            isUpgradeApplied RangeUpgrade
+            isUpgradeApplied RangeUpgrade upgradeState
 
         isPowerUpgraded =
-            isUpgradeApplied PowerUpgrade
-
-        isUpgradeApplied ut =
-            case upgradeState of
-                UpgradeNone ->
-                    False
-
-                UpgradeOne upgradeType ->
-                    ut == upgradeType
-
-                UpgradeBoth ->
-                    True
+            isUpgradeApplied PowerUpgrade upgradeState
     in
     [ Button (location |> L.shiftX -w) w h "RANGE" UpgradeRangeClicked isRangeUpgraded
     , Button (location |> L.shiftX w) w h "POWER" UpgradePowerClicked isPowerUpgraded
