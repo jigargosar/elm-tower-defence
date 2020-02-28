@@ -1305,8 +1305,11 @@ viewWorldStats computer world =
 
 
 viewWorld : Computer -> World -> Shape
-viewWorld _ world =
+viewWorld computer world =
     let
+        { screen } =
+            computer
+
         viewTowerHelp tower =
             viewTower (world.selectedTowerId == Just (idOfTower tower)) tower
     in
@@ -1323,6 +1326,15 @@ viewWorld _ world =
 
         Nothing ->
             noShape
+    , [ words black ("Gold: " ++ (round world.gold |> fromInt))
+      ]
+        |> List.indexedMap (\i -> moveDown (toFloat i * 20))
+        |> group
+        |> scale 1.5
+        |> moveY screen.top
+        |> moveX screen.left
+        |> moveRight 100
+        |> moveDown 50
     ]
         |> group
 
