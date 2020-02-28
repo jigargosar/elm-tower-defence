@@ -64,7 +64,7 @@ arrowTowerRange =
     150
 
 
-towerRange2 =
+arrowTowerRange2 =
     200
 
 
@@ -116,6 +116,22 @@ type alias Tower =
     , upgrade : UpgradeState
     , elapsed : Number -- RELOAD PROGRESS
     }
+
+
+rangeOfTower : Tower -> Number
+rangeOfTower tower =
+    case ( tower.towerType, isUpgradeApplied PowerUpgrade tower.upgrade ) of
+        ( ArrowShooter, False ) ->
+            arrowTowerRange
+
+        ( ArrowShooter, True ) ->
+            arrowTowerRange2
+
+        ( AOEShooter, False ) ->
+            bombTowerRange
+
+        ( AOEShooter, True ) ->
+            bombTowerRange2
 
 
 arrowTowerGenerator : Location -> Generator Tower
