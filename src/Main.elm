@@ -150,6 +150,11 @@ type alias Button =
     }
 
 
+initButtons : Location -> List Button
+initButtons location =
+    [ Button location 100 50 "TOWER UI BUTTON" ]
+
+
 
 -- Bullet
 -- TODO: Should we rename it to Arrow?
